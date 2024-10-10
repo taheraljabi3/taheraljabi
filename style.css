@@ -13,6 +13,8 @@ body {
     color: #333;
     line-height: 1.6;
     padding: 20px;
+    direction: rtl; /* يضبط اتجاه النص بالكامل إلى اليمين */
+    text-align: right; 
 }
 
 header {
@@ -75,11 +77,13 @@ nav ul li a {
     font-family: 'Roboto', sans-serif;
     font-size: 1.5rem;
     margin: 15px;
+    text-align: right;
 }
 
 .article-card p {
     font-size: 1rem;
     margin: 0 15px 20px 15px;
+    text-align: right;
 }
 
 .read-more {
