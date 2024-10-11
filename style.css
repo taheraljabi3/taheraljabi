@@ -1,0 +1,228 @@
+/* استيراد الخطوط */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Roboto:wght@400;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Cairo', sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    line-height: 1.6;
+    padding: 20px;
+    direction: rtl; /* يضبط اتجاه النص بالكامل إلى اليمين */
+    text-align: right; 
+}
+
+header {
+    text-align: center;
+    padding: 20px 0;
+    background-color: #0056b3;
+    color: #fff;
+}
+
+header h1 {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: 2.5rem;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline;
+    margin: 0 10px;
+}
+
+nav ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+#articles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px 0;
+}
+
+.article-card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.article-card:hover {
+    transform: translateY(-10px);
+}
+
+.article-image {
+    background-color: #ddd;
+    height: 200px;
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    
+}
+
+.article-card h3 {
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.5rem;
+    margin: 15px;
+    text-align: right;
+}
+
+.article-card p {
+    font-size: 1rem;
+    margin: 0 15px 20px 15px;
+    text-align: right;
+}
+
+.read-more {
+    display: inline-block;
+    background-color: #0056b3;
+    color: #fff;
+    padding: 10px 20px;
+    margin: 0 15px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.read-more:hover {
+    background-color: #004a99;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #0056b3;
+    color: #fff;
+    margin-top: 20px;
+}
+
+.article-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.article-card:hover {
+    transform: scale(1.05); /* تكبير البطاقة قليلاً */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* إضافة تأثير الظل */
+}
+
+#search-section {
+    text-align: left; /* يضع محتوى القسم في اليسار */
+    margin-bottom: 20px;
+    display: flex; /* استخدام flexbox لتحديد مكان البحث */
+    justify-content: flex-start; /* يجعله يبدأ من اليسار */
+    align-items: center; /* يضع المحتوى في منتصف الارتفاع */
+}
+
+#search-form {
+    display: inline-block;
+    position: relative;
+}
+
+#search-input {
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 300px;
+}
+
+#search-form button {
+    padding: 10px 20px;
+    background-color: #f0e68c;
+    color: #2e2e2e;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-left: 10px;
+    transition: background-color 0.3s ease;
+}
+
+#search-form button:hover {
+    background-color: #e5d365;
+}
+/* حركة الظهور للأعلى */
+.article-card {
+    opacity: 0; /* إخفاء المقال في البداية */
+    transform: translateY(50px); /* تحريك المقال إلى الأسفل */
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out; /* تأثير الحركة */
+}
+
+.article-card.visible {
+    opacity: 1; /* ظهور المقال */
+    transform: translateY(0); /* إرجاع المقال إلى مكانه الطبيعي */
+}
+
+
+#featured-articles {
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+    padding: 20px 0;
+    background-color: #333333; /* خلفية داكنة للمستطيل */
+    position: relative;
+}
+/* تنسيق الكاروسيل */
+.carousel-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.carousel {
+    display: flex;
+    overflow: hidden;
+    width: 80%; /* عرض الكاروسيل */
+}
+
+.carousel-item {
+    flex: 0 0 33.33%; /* عرض كل عنصر ليكون ثلث عرض الكاروسيل */
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: #f9f9f9; /* لون خلفية المقال */
+    margin: 0 10px; /* المسافات بين الكروت */
+    border-radius: 10px; /* جعل الزوايا مستديرة */
+    transition: transform 0.3s ease-in-out;
+    text-align: center;
+}
+
+.carousel-control {
+    background-color: rgba(0, 0, 0, 0.5); /* لون الخلفية شبه شفاف */
+    border: none;
+    color: #fff;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+}
+
+.carousel-control.left {
+    left: 10px;
+}
+
+.carousel-control.right {
+    right: 10px;
+}
+
+.carousel-control:hover {
+    background-color: rgba(0, 0, 0, 0.8); /* لون الخلفية عند التحويم */
+}
