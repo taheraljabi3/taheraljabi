@@ -11,10 +11,10 @@ body {
     font-family: 'Cairo', sans-serif;
     background-color: #f4f4f9;
     color: #333;
-    line-height: 1.6;
+    line-height: 2; /* زيادة المسافة بين الأسطر لكل النصوص */
     padding: 20px;
-    direction: rtl; /* يضبط اتجاه النص بالكامل إلى اليمين */
-    text-align: right; 
+    direction: rtl;
+    text-align: right;
 }
 
 header {
@@ -73,6 +73,15 @@ nav ul li a {
     background-position: center;
     
 }
+.article-image img {
+    height: 200px;
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    display: block;
+
+    
+}
 
 .article-card h3 {
     font-family: 'Roboto', sans-serif;
@@ -85,6 +94,7 @@ nav ul li a {
     font-size: 1rem;
     margin: 0 15px 20px 15px;
     text-align: right;
+    line-height: 2; /* زيادة المسافة بين الأسطر */
 }
 
 .read-more {
@@ -167,16 +177,8 @@ footer {
     transform: translateY(0); /* إرجاع المقال إلى مكانه الطبيعي */
 }
 
-
-#featured-articles {
-    width: 100%;
-    height: auto;
-    overflow: hidden;
-    padding: 20px 0;
-    background-color: #333333; /* خلفية داكنة للمستطيل */
-    position: relative;
-}
 /* تنسيق الكاروسيل */
+
 .carousel-wrapper {
     position: relative;
     display: flex;
@@ -186,21 +188,22 @@ footer {
 
 .carousel {
     display: flex;
-    overflow: hidden;
-    width: 80%; /* عرض الكاروسيل */
+    transition: transform 0.5s ease-in-out;
+    width: 300%; /* عرض الكاروسيل يشمل 3 عناصر */
 }
 
 .carousel-item {
-    flex: 0 0 33.33%; /* عرض كل عنصر ليكون ثلث عرض الكاروسيل */
+    flex: 100%;
+    height: 500px;
     padding: 20px;
     box-sizing: border-box;
-    background-color: #f9f9f9; /* لون خلفية المقال */
-    margin: 0 10px; /* المسافات بين الكروت */
-    border-radius: 10px; /* جعل الزوايا مستديرة */
+    background-color: #ffffff; /* خلفية رمادية داكنة داخل العناصر */
+    margin: 0 15px; /* مسافة بين الكروت */
+    border-radius: 10px; /* زوايا مستديرة */
     transition: transform 0.3s ease-in-out;
     text-align: center;
+    color: #333333; /* لون النص أبيض */
 }
-
 .carousel-control {
     background-color: rgba(0, 0, 0, 0.5); /* لون الخلفية شبه شفاف */
     border: none;
@@ -223,6 +226,30 @@ footer {
     right: 10px;
 }
 
-.carousel-control:hover {
-    background-color: rgba(0, 0, 0, 0.8); /* لون الخلفية عند التحويم */
+
+#carousel-background{
+    background-color: #333333;
+    flex: auto;
 }
+
+
+#featured-articles {
+    flex:200px;
+    width: 100%;
+    height: 700px;
+    overflow: hidden;
+    padding: 20px 0;
+    background-color: #333333; /* خلفية داكنة للمستطيل */
+    position: relative;
+    background-color: transparent !important; /* إزالة الخلفية الداكنة */
+}
+#featured-articles * {
+    opacity: 50 !important;
+    visibility: visible !important;
+}
+
+
+
+
+
+
