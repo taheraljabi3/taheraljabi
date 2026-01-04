@@ -348,28 +348,27 @@
 
     /**
      * ✅ المطلوب من n8n:
-     * يرجّع JSON فيه واحد من هذه الحقول (بالأولوية):
-     * - reply
-     * - output
-     * - text
-     * - answer
+     * يرجّع JSON بهذا الشكل بالضبط (Array):
+     * [
+     *   { "reply": "...", "mode": "continue" }
+     * ]
      *
-     * مثال:
-     * { "reply": "اهلا!", "mode":"continue" }
      * أو للتحويل:
-     * { "reply":"تم تحويلك", "mode":"handoff", "contact": {...} }
+     * [
+     *   { "reply": "تم تحويلكم للمهندس المناوب", "mode": "handoff", "contact": {...} }
+     * ]
      */
 
     // =========================
     // 1) إعدادات (عدّلها فقط)
     // =========================
     const CONFIG = {
-      // ملاحظة: webhook-test يعمل فقط في وضع TEST داخل n8n
+      // مهم: webhook-test يعمل فقط في وضع TEST داخل n8n
+      // للإنتاج استخدم /webhook/ بدل /webhook-test/
       N8N_WEBHOOK_URL: "https://taherahmedsaeed.app.n8n.cloud/webhook-test/264e35a3-2adb-48b8-9a58-3040e9ec8107",
       MESSAGEBIRD_WIDGET_ID: "703013fa-c1c4-4280-a6a0-d4ef3deb4438",
-
       REQUEST_TIMEOUT_MS: 25000,
-      DEBUG: true, // خليها true وقت التجربة، وبعدين false
+      DEBUG: true, // خله true وقت التجربة، وبعدين false
     };
 
     // =========================
@@ -434,6 +433,16 @@
     function nowTime() {
       const d = new Date();
       return d.toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" });
+    }
+
+    function persistHistory(item) {
+      try {
+        const raw = localStorage.getItem(STORAGE.HISTORY_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        const safe = Array.isArray(arr) ? arr : [];
+        safe.push(item);
+        localStorage.setItem(STORAGE.HISTORY_KEY, JSON.stringify(safe.slice(-30)));
+      } catch {}
     }
 
     function addMessage({ from, text }) {
@@ -501,167 +510,98 @@
       overlayEl.classList.toggle("is-open", !!show);
     }
 
-    // =========================
-    // 6) History (اختياري لكنه مفيد)
-    // =========================
-    function loadHistory() {
+    function renderHistory() {
+      if (messagesEl.childElementCount > 0) return;
       try {
         const raw = localStorage.getItem(STORAGE.HISTORY_KEY);
         const arr = raw ? JSON.parse(raw) : [];
-        if (!Array.isArray(arr)) return [];
-        return arr.slice(-30); // آخر 30 رسالة
-      } catch {
-        return [];
-      }
-    }
+        if (!Array.isArray(arr) || !arr.length) return;
 
-    function persistHistory(item) {
-      try {
-        const arr = loadHistory();
-        arr.push(item);
-        localStorage.setItem(STORAGE.HISTORY_KEY, JSON.stringify(arr.slice(-30)));
+        arr.slice(-30).forEach((m) => {
+          const wrap = document.createElement("div");
+          wrap.className = "ai-msg ai-msg--" + (m.from || "bot");
+
+          const bubble = document.createElement("div");
+          bubble.className = "ai-bubble";
+          bubble.textContent = String(m.text ?? "");
+
+          const meta = document.createElement("div");
+          meta.className = "ai-meta";
+          meta.textContent = new Date(m.t || Date.now()).toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" });
+
+          const container = document.createElement("div");
+          container.appendChild(bubble);
+          container.appendChild(meta);
+
+          wrap.appendChild(container);
+          messagesEl.appendChild(wrap);
+        });
+
+        scrollToBottom();
       } catch {}
     }
 
-    function renderHistory() {
-      const history = loadHistory();
-      if (!history.length) return;
-
-      // لا نكرر تاريخ مرسوم سابقًا
-      if (messagesEl.childElementCount > 0) return;
-
-      history.forEach((m) => {
-        // نفس شكل الرسائل لكن بدون حفظ مرّة ثانية
-        const wrap = document.createElement("div");
-        wrap.className = "ai-msg ai-msg--" + (m.from || "bot");
-
-        const bubble = document.createElement("div");
-        bubble.className = "ai-bubble";
-        bubble.textContent = String(m.text ?? "");
-
-        const meta = document.createElement("div");
-        meta.className = "ai-meta";
-        meta.textContent = new Date(m.t || Date.now()).toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" });
-
-        const container = document.createElement("div");
-        container.appendChild(bubble);
-        container.appendChild(meta);
-
-        wrap.appendChild(container);
-        messagesEl.appendChild(wrap);
-      });
-
-      scrollToBottom();
-    }
-
     // =========================
-    // 7) Parsing reply from n8n
+    // 6) n8n parsing (Array expected)
     // =========================
-    function extractReply(data) {
-      // 1) الشكل الأفضل: { reply: "..." }
-      if (data && typeof data === "object" && !Array.isArray(data)) {
-        const r = data.reply ?? data.output ?? data.text ?? data.answer;
-        if (typeof r === "string" && r.trim()) return r;
-      }
+    function normalizeN8nResponse(data) {
+      // نتوقع Array: [ { reply, mode, ... } ]
+      if (Array.isArray(data) && data[0] && typeof data[0] === "object") return data[0];
 
-      // 2) أحيانًا n8n يرجّع Array
-      if (Array.isArray(data) && data[0] && typeof data[0] === "object") {
-        const r = data[0].reply ?? data[0].output ?? data[0].text ?? data[0].answer;
-        if (typeof r === "string" && r.trim()) return r;
-      }
+      // fallback لو رجع object مباشرة
+      if (data && typeof data === "object" && !Array.isArray(data)) return data;
 
       return null;
     }
 
-    function isHandoffResponse(data) {
-      // يشتغل مع: { mode:"handoff" } أو { handoff:true }
-      return !!(data && (data.mode === "handoff" || data.handoff === true));
+    function extractReply(obj) {
+      if (!obj || typeof obj !== "object") return null;
+      const r = obj.reply ?? obj.output ?? obj.text ?? obj.answer;
+      return (typeof r === "string" && r.trim()) ? r : null;
+    }
+
+    function isHandoffResponse(obj) {
+      return !!(obj && (obj.mode === "handoff" || obj.handoff === true));
     }
 
     // =========================
-    // 8) n8n Request (مع timeout + دعم JSON/text)
+    // 7) n8n Request (timeout + JSON/text)
     // =========================
-async function sendToN8n(userText) {
-  const body = {
-    sessionId,
-    page: location.href,
-    message: userText,
-    locale: "ar",
-    ts: Date.now(),
-  };
+    async function sendToN8n(userText) {
+      const body = { sessionId, page: location.href, message: userText, locale: "ar" };
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), CONFIG.REQUEST_TIMEOUT_MS);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), CONFIG.REQUEST_TIMEOUT_MS);
 
-  try {
-    const res = await fetch(CONFIG.N8N_WEBHOOK_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      signal: controller.signal,
-    });
+      try {
+        const res = await fetch(CONFIG.N8N_WEBHOOK_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+          signal: controller.signal,
+        });
 
-    const rawText = await res.text(); // ✅ خذها كنص دائمًا
+        if (!res.ok) throw new Error("n8n error: " + res.status);
 
-    if (!res.ok) {
-      throw new Error(`n8n error: ${res.status} - ${rawText || "no body"}`);
-    }
+        const contentType = res.headers.get("content-type") || "";
+        if (contentType.includes("application/json")) return await res.json();
 
-    // 1) حاول JSON مباشر
-    try {
-      return JSON.parse(rawText);
-    } catch (_) {}
+        const txt = await res.text();
 
-    // 2) حاول استخراج أول JSON object من النص (لو فيه كلام زيادة)
-    const extracted = extractFirstJsonObject(rawText);
-    if (extracted) return extracted;
-
-    // 3) إذا ما ضبط، اعتبر النص كله reply
-    return { reply: rawText };
-
-  } finally {
-    clearTimeout(timeoutId);
-  }
-}
-
-// ✅ يستخرج أول JSON object صحيح من أي نص
-function extractFirstJsonObject(text) {
-  if (!text) return null;
-  const start = text.indexOf("{");
-  if (start === -1) return null;
-
-  let depth = 0;
-  let inString = false;
-  let escape = false;
-
-  for (let i = start; i < text.length; i++) {
-    const ch = text[i];
-
-    if (inString) {
-      if (escape) escape = false;
-      else if (ch === "\\") escape = true;
-      else if (ch === '"') inString = false;
-      continue;
-    } else {
-      if (ch === '"') { inString = true; continue; }
-      if (ch === "{") depth++;
-      if (ch === "}") depth--;
-
-      if (depth === 0) {
-        const candidate = text.slice(start, i + 1);
+        // fallback: حاول parse JSON من النص
         try {
-          return JSON.parse(candidate);
+          return JSON.parse(txt);
         } catch {
-          return null;
+          // لو رجع نص فقط، نحوله لـ Array بنفس الشكل المتوقع
+          return [{ reply: txt, mode: "continue" }];
         }
+      } finally {
+        clearTimeout(timeoutId);
       }
     }
-  }
-  return null;
-}
 
     // =========================
-    // 9) MessageBird (Lazy load)
+    // 8) MessageBird (Lazy load)
     // =========================
     function loadMessageBirdWidgetIfNeeded() {
       if (document.getElementById("live-chat-widget-script")) return;
@@ -689,7 +629,6 @@ function extractFirstJsonObject(text) {
         if (api && typeof api.toggleChat === "function") {
           clearInterval(timer);
 
-          // identify اختياري وقد لا يكون متاح دائمًا في نفس اللحظة
           try {
             if (api.identify && typeof api.identify === "function") {
               const c = contact || {};
@@ -714,7 +653,7 @@ function extractFirstJsonObject(text) {
       }, 250);
     }
 
-    function lockGateAndHandoff(payload) {
+    function lockGateAndHandoff(payloadObj) {
       gateLocked = true;
       localStorage.setItem(STORAGE.GATE_KEY, "1");
       showOverlay(true);
@@ -723,12 +662,12 @@ function extractFirstJsonObject(text) {
       hintEl.textContent = "تم إيقاف الشات الآلي. افتح الدعم البشري.";
       statusEl.textContent = "تم التحويل";
 
-      const contact = payload && payload.contact ? payload.contact : null;
+      const contact = payloadObj && payloadObj.contact ? payloadObj.contact : null;
       openMessageBirdChat(contact);
     }
 
     // =========================
-    // 10) Greeting + Restore UI
+    // 9) Greeting + Restore UI
     // =========================
     function greetOnce() {
       if (greeted) return;
@@ -749,7 +688,7 @@ function extractFirstJsonObject(text) {
     }
 
     // =========================
-    // 11) Events
+    // 10) Events
     // =========================
     fab.addEventListener("click", () => {
       const isOpen = panel.getAttribute("aria-hidden") === "false";
@@ -764,15 +703,7 @@ function extractFirstJsonObject(text) {
 
     closeBtn.addEventListener("click", closePanel);
     minBtn.addEventListener("click", closePanel);
-
     openHumanBtn.addEventListener("click", () => openMessageBirdChat(null));
-
-    // إرسال بالـ Enter
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        // form submit يتكفل
-      }
-    });
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -792,27 +723,38 @@ function extractFirstJsonObject(text) {
       addTyping();
 
       try {
-        const data = await sendToN8n(text);
+        const raw = await sendToN8n(text);
         removeTyping();
 
-        logDebug("N8N RAW:", data);
+        logDebug("N8N RAW:", raw);
 
-        const reply = extractReply(data);
+        // ✅ أهم سطر: نتعامل مع Array ونأخذ أول عنصر
+        const obj = normalizeN8nResponse(raw);
 
-        if (isHandoffResponse(data)) {
+        if (!obj) {
+          addMessage({
+            from: "bot",
+            text: "وصل رد من n8n لكن بشكل غير متوقع. تأكد أن Respond to Webhook يرجّع Array مثل: [ { reply, mode } ]"
+          });
+          if (CONFIG.DEBUG) addBadge("DEBUG: " + String(JSON.stringify(raw)).slice(0, 160));
+          return;
+        }
+
+        const reply = extractReply(obj);
+
+        if (isHandoffResponse(obj)) {
           if (reply) addMessage({ from: "bot", text: reply });
           addBadge("جاري تحويلك للدعم…");
-          lockGateAndHandoff(data);
+          lockGateAndHandoff(obj);
           return;
         }
 
         if (!reply) {
-          // إذا ما لقينا reply، نعرض تشخيص بسيط
           addMessage({
             from: "bot",
-            text: "وصل رد من n8n لكن بدون نص واضح. تأكد أن Respond to Webhook يرجّع JSON فيه reply."
+            text: "وصل رد من n8n لكن بدون نص واضح. تأكد أن العنصر الأول يحتوي reply نصي."
           });
-          if (CONFIG.DEBUG) addBadge("DEBUG: " + JSON.stringify(data).slice(0, 140));
+          if (CONFIG.DEBUG) addBadge("DEBUG: " + String(JSON.stringify(obj)).slice(0, 160));
           return;
         }
 
@@ -836,7 +778,7 @@ function extractFirstJsonObject(text) {
     });
 
     // =========================
-    // 12) Boot
+    // 11) Boot
     // =========================
     restoreGateUIIfLocked();
     setBusy(false);
@@ -849,4 +791,3 @@ function extractFirstJsonObject(text) {
   </footer>
 </body>
 </html>
-
