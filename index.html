@@ -9,6 +9,204 @@
         <link rel="stylesheet" href="style.css">
         <meta name="google-site-verification" content="9Ct3HVF2_BQj4h6--0d3mcexLU9dnwjC_9YJMhCdaT0" />
     </head>
+    <style>
+  /* AI Chat Widget (RTL) */
+  .ai-chat {
+    position: fixed;
+    bottom: 18px;
+    left: 18px; /* لو تبيها يمين: بدّلها right:18px; واحذف left */
+    z-index: 9999;
+    direction: rtl;
+    font-family: system-ui, -apple-system, Segoe UI, Tahoma, Arial, sans-serif;
+  }
+
+  .ai-chat__fab {
+    width: 56px;
+    height: 56px;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    box-shadow: 0 12px 30px rgba(0,0,0,.18);
+    background: #111;
+    color: #fff;
+    font-size: 22px;
+    display: grid;
+    place-items: center;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .ai-chat__fab:hover { transform: translateY(-2px); box-shadow: 0 16px 36px rgba(0,0,0,.22); }
+  .ai-chat__fab:active { transform: translateY(0); }
+
+  .ai-chat__panel {
+    width: 360px;
+    max-width: calc(100vw - 36px);
+    height: 520px;
+    max-height: calc(100vh - 120px);
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 18px 60px rgba(0,0,0,.25);
+    overflow: hidden;
+    position: absolute;
+    bottom: 70px;
+    left: 0;
+    display: none;
+  }
+
+  .ai-chat__header {
+    padding: 14px 14px 12px;
+    background: linear-gradient(135deg, #111, #333);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ai-chat__title { display: flex; align-items: center; gap: 10px; }
+  .ai-chat__dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: #35d07f;
+    box-shadow: 0 0 0 4px rgba(53,208,127,.18);
+  }
+  .ai-chat__name { font-weight: 700; font-size: 14px; line-height: 1.2; }
+  .ai-chat__status { font-size: 12px; opacity: .85; }
+
+  .ai-chat__actions { display: flex; gap: 6px; }
+  .ai-chat__iconbtn {
+    width: 34px; height: 30px;
+    border: 1px solid rgba(255,255,255,.25);
+    background: rgba(255,255,255,.08);
+    color: #fff;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .ai-chat__iconbtn:hover { background: rgba(255,255,255,.14); }
+
+  .ai-chat__messages {
+    padding: 14px;
+    height: calc(100% - 58px - 92px);
+    overflow: auto;
+    background: #f6f7f9;
+  }
+
+  .ai-msg { display: flex; margin: 10px 0; gap: 8px; }
+  .ai-msg--user { justify-content: flex-start; }
+  .ai-msg--bot { justify-content: flex-end; }
+
+  .ai-bubble {
+    max-width: 80%;
+    padding: 10px 12px;
+    border-radius: 14px;
+    line-height: 1.6;
+    font-size: 13.5px;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .ai-msg--user .ai-bubble {
+    background: #111;
+    color: #fff;
+    border-bottom-left-radius: 6px;
+  }
+
+  .ai-msg--bot .ai-bubble {
+    background: #fff;
+    color: #111;
+    border: 1px solid rgba(0,0,0,.08);
+    border-bottom-right-radius: 6px;
+  }
+
+  .ai-meta { font-size: 11px; opacity: .65; margin-top: 4px; }
+
+  .ai-chat__footer {
+    padding: 10px 12px 12px;
+    background: #fff;
+    border-top: 1px solid rgba(0,0,0,.08);
+  }
+
+  .ai-chat__hint {
+    font-size: 12px;
+    color: rgba(0,0,0,.6);
+    margin-bottom: 8px;
+  }
+
+  .ai-chat__form { display: flex; gap: 8px; align-items: center; }
+  .ai-chat__input {
+    flex: 1;
+    border: 1px solid rgba(0,0,0,.14);
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 13.5px;
+    outline: none;
+  }
+  .ai-chat__input:focus { border-color: rgba(0,0,0,.35); }
+
+  .ai-chat__send {
+    border: none;
+    border-radius: 12px;
+    padding: 10px 14px;
+    background: #111;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .ai-chat__send:disabled { opacity: .6; cursor: not-allowed; }
+
+  .ai-chat__badge {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(0,0,0,.06);
+    color: rgba(0,0,0,.8);
+    font-size: 12px;
+    margin: 6px 0 2px;
+  }
+
+  .ai-typing { display: inline-flex; gap: 4px; align-items: center; }
+  .ai-typing span {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(0,0,0,.35);
+    animation: aiDot 1.1s infinite ease-in-out;
+  }
+  .ai-typing span:nth-child(2){ animation-delay: .15s; }
+  .ai-typing span:nth-child(3){ animation-delay: .3s; }
+  @keyframes aiDot {
+    0%, 100% { transform: translateY(0); opacity: .5; }
+    50% { transform: translateY(-4px); opacity: 1; }
+  }
+
+  /* Overlay يمنع الإرسال بعد التحويل */
+  .ai-chat__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,.78);
+    backdrop-filter: blur(2px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+  }
+  .ai-chat__overlay .box {
+    background: #fff;
+    border: 1px solid rgba(0,0,0,.08);
+    border-radius: 16px;
+    padding: 14px;
+    max-width: 280px;
+    box-shadow: 0 12px 30px rgba(0,0,0,.12);
+  }
+  .ai-chat__overlay .box b { display:block; margin-bottom: 6px; }
+  .ai-chat__overlay .box button {
+    margin-top: 10px;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 14px;
+    background: #111;
+    color: #fff;
+    cursor: pointer;
+    width: 100%;
+  }
+</style>
+
 <body>
     <header>
         <h1>مقالات تقنية</h1>
@@ -153,12 +351,313 @@
             </div>
         </section>
     </main>
+    <div id="aiChatWidget" class="ai-chat">
+  <button id="aiChatFab" class="ai-chat__fab" aria-label="فتح المحادثة">💬</button>
+
+  <div id="aiChatPanel" class="ai-chat__panel" aria-hidden="true" role="dialog" aria-label="محادثة الدعم">
+    <div class="ai-chat__header">
+      <div class="ai-chat__title">
+        <div class="ai-chat__dot"></div>
+        <div>
+          <div class="ai-chat__name">مساعد الدعم</div>
+          <div class="ai-chat__status" id="aiChatStatus">متصل</div>
+        </div>
+      </div>
+      <div class="ai-chat__actions">
+        <button id="aiChatMin" class="ai-chat__iconbtn" title="تصغير">—</button>
+        <button id="aiChatClose" class="ai-chat__iconbtn" title="إغلاق">✕</button>
+      </div>
+    </div>
+
+    <div id="aiChatMessages" class="ai-chat__messages" aria-live="polite"></div>
+
+    <div class="ai-chat__footer">
+      <div class="ai-chat__hint" id="aiChatHint">
+        اكتب سؤالك… وإذا احتجنا موظف بنحوّلك مباشرة.
+      </div>
+      <form id="aiChatForm" class="ai-chat__form">
+        <input id="aiChatInput" class="ai-chat__input" type="text" placeholder="اكتب رسالتك هنا…" autocomplete="off" />
+        <button id="aiChatSend" class="ai-chat__send" type="submit">إرسال</button>
+      </form>
+    </div>
+
+    <div id="aiChatOverlay" class="ai-chat__overlay">
+      <div class="box">
+        <b>تم تحويلك للدعم البشري</b>
+        <div>تم إيقاف الشات الآلي وفتح نافذة الدعم.</div>
+        <button id="aiOpenHumanChat">فتح الدعم الآن</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  // =========================
+  // 1) إعدادات: عدّلها فقط
+  // =========================
+  const N8N_WEBHOOK_URL = "https://YOUR-N8N-DOMAIN/webhook/ai-chat"; // <-- عدل
+  const MESSAGEBIRD_WIDGET_ID = "703013fa-c1c4-4280-a6a0-d4ef3deb4438"; // <-- عندك
+
+  // شرط التحويل: كيف نقرر؟ (افتراضي: data.mode === 'handoff')
+  function isHandoffResponse(data) {
+    return data && (data.mode === "handoff" || data.handoff === true);
+  }
+
+  // =========================
+  // 2) Session
+  // =========================
+  const SESSION_KEY = "ai_chat_session_id_v1";
+  const sessionId = localStorage.getItem(SESSION_KEY) || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()));
+  localStorage.setItem(SESSION_KEY, sessionId);
+
+  // =========================
+  // 3) عناصر UI
+  // =========================
+  const fab = document.getElementById("aiChatFab");
+  const panel = document.getElementById("aiChatPanel");
+  const closeBtn = document.getElementById("aiChatClose");
+  const minBtn = document.getElementById("aiChatMin");
+  const form = document.getElementById("aiChatForm");
+  const input = document.getElementById("aiChatInput");
+  const sendBtn = document.getElementById("aiChatSend");
+  const messagesEl = document.getElementById("aiChatMessages");
+  const statusEl = document.getElementById("aiChatStatus");
+  const hintEl = document.getElementById("aiChatHint");
+  const overlayEl = document.getElementById("aiChatOverlay");
+  const openHumanBtn = document.getElementById("aiOpenHumanChat");
+
+  // حالة البوابة
+  let gateLocked = false; // إذا true = ممنوع الإرسال (بعد التحويل)
+
+  // =========================
+  // 4) Helpers
+  // =========================
+  function openPanel() {
+    panel.style.display = "block";
+    panel.setAttribute("aria-hidden", "false");
+    setTimeout(() => input.focus(), 50);
+  }
+  function closePanel() {
+    panel.style.display = "none";
+    panel.setAttribute("aria-hidden", "true");
+  }
+  function scrollToBottom() {
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+  function nowTime() {
+    const d = new Date();
+    return d.toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" });
+  }
+  function addMessage({ from, text }) {
+    const wrap = document.createElement("div");
+    wrap.className = "ai-msg ai-msg--" + from;
+
+    const bubble = document.createElement("div");
+    bubble.className = "ai-bubble";
+    bubble.textContent = text;
+
+    const meta = document.createElement("div");
+    meta.className = "ai-meta";
+    meta.textContent = nowTime();
+
+    const container = document.createElement("div");
+    container.appendChild(bubble);
+    container.appendChild(meta);
+
+    wrap.appendChild(container);
+    messagesEl.appendChild(wrap);
+    scrollToBottom();
+  }
+  function addBadge(text) {
+    const b = document.createElement("div");
+    b.className = "ai-chat__badge";
+    b.textContent = text;
+    messagesEl.appendChild(b);
+    scrollToBottom();
+  }
+  function addTyping() {
+    const wrap = document.createElement("div");
+    wrap.className = "ai-msg ai-msg--bot";
+    wrap.id = "aiTyping";
+
+    const bubble = document.createElement("div");
+    bubble.className = "ai-bubble";
+
+    const typing = document.createElement("div");
+    typing.className = "ai-typing";
+    typing.innerHTML = "<span></span><span></span><span></span>";
+
+    bubble.appendChild(typing);
+    wrap.appendChild(bubble);
+    messagesEl.appendChild(wrap);
+    scrollToBottom();
+  }
+  function removeTyping() {
+    const t = document.getElementById("aiTyping");
+    if (t) t.remove();
+  }
+  function setBusy(isBusy) {
+    sendBtn.disabled = isBusy;
+    input.disabled = isBusy;
+    statusEl.textContent = isBusy ? "جارٍ الرد…" : "متصل";
+  }
+
+  // =========================
+  // 5) الاتصال بـ n8n
+  // =========================
+  async function sendToN8n(userText) {
+    const body = {
+      sessionId,
+      page: location.href,
+      message: userText,
+      locale: "ar"
+    };
+
+    const res = await fetch(N8N_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+
+    if (!res.ok) throw new Error("n8n error: " + res.status);
+    return res.json();
+  }
+
+  // =========================
+  // 6) MessageBird: تحميل/فتح عند التحويل فقط
+  // =========================
+  function loadMessageBirdWidgetIfNeeded() {
+    if (document.getElementById("live-chat-widget-script")) return;
+
+    window.MessageBirdChatWidgetSettings = {
+      widgetId: MESSAGEBIRD_WIDGET_ID,
+      initializeOnLoad: true
+    };
+
+    const s = document.createElement("script");
+    s.type = "text/javascript";
+    s.async = true;
+    s.id = "live-chat-widget-script";
+    s.src = "https://livechat.messagebird.com/bootstrap.js?widgetId=" + encodeURIComponent(MESSAGEBIRD_WIDGET_ID);
+    document.head.appendChild(s);
+  }
+
+  function openMessageBirdChat(contact) {
+    loadMessageBirdWidgetIfNeeded();
+
+    const start = Date.now();
+    const timer = setInterval(() => {
+      const api = window.MessageBirdChatWidget;
+
+      if (api && api.toggleChat && api.identify) {
+        clearInterval(timer);
+
+        // تعريف العميل (اختياري)
+        const c = contact || {};
+        api.identify({
+          externalId: c.id || sessionId,
+          name: c.name,
+          email: c.email,
+          phone: c.phone
+        });
+
+        api.toggleChat();
+      }
+
+      if (Date.now() - start > 9000) {
+        clearInterval(timer);
+        addMessage({ from: "bot", text: "تأخر فتح الدعم. جرّب زر (فتح الدعم الآن) أو أعد تحميل الصفحة." });
+      }
+    }, 200);
+  }
+
+  function lockGateAndHandoff(payload) {
+    gateLocked = true;
+    overlayEl.style.display = "flex";
+    statusEl.textContent = "تم التحويل";
+    hintEl.textContent = "تم إيقاف الشات الآلي. افتح الدعم البشري.";
+
+    // افتح MessageBird مباشرة (ضمن نفس تجربة الصفحة)
+    const contact = payload && payload.contact ? payload.contact : null;
+    openMessageBirdChat(contact);
+  }
+
+  // =========================
+  // 7) أحداث UI
+  // =========================
+  fab.addEventListener("click", () => {
+    if (panel.style.display === "block") closePanel();
+    else openPanel();
+  });
+  closeBtn.addEventListener("click", closePanel);
+  minBtn.addEventListener("click", closePanel);
+
+  // ترحيب أول مرة
+  let greeted = false;
+  function greetOnce() {
+    if (greeted) return;
+    greeted = true;
+    addMessage({ from: "bot", text: "هلا! أنا مساعد الدعم 🤝\nاكتب سؤالك، وإذا احتجنا موظف بحوّلك فورًا." });
+  }
+  fab.addEventListener("click", greetOnce);
+
+  openHumanBtn.addEventListener("click", () => {
+    // في حال التحويل صار لكن العميل أغلق ويدجت MessageBird
+    openMessageBirdChat(null);
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const text = (input.value || "").trim();
+    if (!text) return;
+
+    // منع الإرسال بعد التحويل
+    if (gateLocked) {
+      addBadge("تم التحويل للدعم البشري — استخدم نافذة الدعم.");
+      return;
+    }
+
+    addMessage({ from: "user", text });
+    input.value = "";
+
+    setBusy(true);
+    addTyping();
+
+    try {
+      const data = await sendToN8n(text);
+      removeTyping();
+
+      // توقع استجابة n8n:
+      // { reply: "..." , mode:"continue" }
+      // { reply:"..." , mode:"handoff", contact:{...} }
+      if (isHandoffResponse(data)) {
+        if (data.reply) addMessage({ from: "bot", text: data.reply });
+        addBadge("جاري تحويلك للدعم…");
+        lockGateAndHandoff(data);
+      } else {
+        addMessage({ from: "bot", text: data.reply || "تم." });
+      }
+    } catch (err) {
+      removeTyping();
+      addMessage({ from: "bot", text: "صار خطأ في الاتصال بالويبهوك. تأكد من الرابط وحاول مرة ثانية." });
+      console.error(err);
+    } finally {
+      setBusy(false);
+    }
+  });
+
+})();
+</script>
+<!-- ========================= End Inline Widget ========================= -->
+
         <script src="chat.js"></script>
         <script src="script.js"></script>
-    <script>  var MessageBirdChatWidgetSettings = {     widgetId: '703013fa-c1c4-4280-a6a0-d4ef3deb4438',     initializeOnLoad: true,   };  !function(){"use strict";if(Boolean(document.getElementById("live-chat-widget-script")))console.error("MessageBirdChatWidget: Snippet loaded twice on page");else{var e,t;window.MessageBirdChatWidget={},window.MessageBirdChatWidget.queue=[];for(var i=["init","setConfig","toggleChat","identify","hide","on","shutdown"],n=function(){var e=i[d];window.MessageBirdChatWidget[e]=function(){for(var t=arguments.length,i=new Array(t),n=0;n<t;n++)i[n]=arguments[n];window.MessageBirdChatWidget.queue.push([[e,i]])}},d=0;d<i.length;d++)n();var a=(null===(e=window)||void 0===e||null===(t=e.MessageBirdChatWidgetSettings)||void 0===t?void 0:t.widgetId)||"",o=function(){var e,t=document.createElement("script");t.type="text/javascript",t.src="https://livechat.messagebird.com/bootstrap.js?widgetId=".concat(a),t.async=!0,t.id="live-chat-widget-script";var i=document.getElementsByTagName("script")[0];null==i||null===(e=i.parentNode)||void 0===e||e.insertBefore(t,i)};"complete"===document.readyState?o():window.attachEvent?window.attachEvent("onload",o):window.addEventListener("load",o,!1)}}();</script>
+
     <footer>
         <p>© 2024 جميع الحقوق محفوظة - الجابي تيك</p>
     </footer>
 </body>
 </html>
+
 
