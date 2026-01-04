@@ -14,7 +14,6 @@
        AI Chat Widget - Inline CSS
        ========================= -->
   <style>
-    /* --- AI Chat Widget (RTL) --- */
     :root {
       --ai-bg: #ffffff;
       --ai-text: #111;
@@ -213,7 +212,6 @@
       50% { transform: translateY(-4px); opacity: 1; }
     }
 
-    /* Overlay يمنع الإرسال بعد التحويل */
     .ai-chat__overlay {
       position: absolute;
       inset: 0;
@@ -247,7 +245,6 @@
       font-weight: 700;
     }
 
-    /* صغير: احترم تقليل الحركة */
     @media (prefers-reduced-motion: reduce) {
       * { animation: none !important; transition: none !important; }
     }
@@ -275,22 +272,18 @@
   </header>
 
   <main>
-    <!-- مستطيل عرض المقالات بشكل إعلان -->
     <div id="carousel-background">
       <section id="featured-articles">
-        <button class="carousel-control left">&lt;</button> <!-- السهم الأيسر -->
+        <button class="carousel-control left">&lt;</button>
         <div class="carousel-wrapper">
-          <div class="carousel">
-            <!-- سيتم ملء المقالات من JavaScript -->
-          </div>
+          <div class="carousel"></div>
         </div>
       </section>
     </div>
-    <button class="carousel-control right">&gt;</button> <!-- السهم الأيمن -->
+    <button class="carousel-control right">&gt;</button>
 
     <section id="articles">
       <!-- (محتوى المقالات كما هو عندك) -->
-      <!-- ... -->
     </section>
   </main>
 
@@ -335,45 +328,34 @@
     </div>
   </div>
 
-  <!-- ملفاتك الحالية (اختياري) -->
-  <script src="chat.js"></script>
+  <!-- ✅ مهم جدًا: لمنع تكرار أكواد الشات وأخطاء JSON
+       احذف chat.js نهائيًا أو علّقه، لأنه غالبًا فيه كود قديم يسبب نفس الخطأ
+  -->
+  <!-- <script src="chat.js"></script> -->
   <script src="script.js"></script>
 
   <!-- =========================
-       AI Chat Widget - Inline JS
+       AI Chat Widget - Inline JS (FINAL)
        ========================= -->
   <script>
   (() => {
     "use strict";
 
     /**
-     * ✅ المطلوب من n8n:
-     * يرجّع JSON بهذا الشكل بالضبط (Array):
+     * ✅ n8n يرجّع Array بهذا الشكل:
      * [
      *   { "reply": "...", "mode": "continue" }
      * ]
-     *
-     * أو للتحويل:
-     * [
-     *   { "reply": "تم تحويلكم للمهندس المناوب", "mode": "handoff", "contact": {...} }
-     * ]
      */
 
-    // =========================
-    // 1) إعدادات (عدّلها فقط)
-    // =========================
     const CONFIG = {
-      // مهم: webhook-test يعمل فقط في وضع TEST داخل n8n
       // للإنتاج استخدم /webhook/ بدل /webhook-test/
       N8N_WEBHOOK_URL: "https://taherahmedsaeed.app.n8n.cloud/webhook-test/264e35a3-2adb-48b8-9a58-3040e9ec8107",
       MESSAGEBIRD_WIDGET_ID: "703013fa-c1c4-4280-a6a0-d4ef3deb4438",
       REQUEST_TIMEOUT_MS: 25000,
-      DEBUG: true, // خله true وقت التجربة، وبعدين false
+      DEBUG: true,
     };
 
-    // =========================
-    // 2) Session + Storage
-    // =========================
     const STORAGE = {
       SESSION_KEY: "ai_chat_session_id_v1",
       HISTORY_KEY: "ai_chat_history_v1",
@@ -386,9 +368,6 @@
 
     localStorage.setItem(STORAGE.SESSION_KEY, sessionId);
 
-    // =========================
-    // 3) عناصر UI
-    // =========================
     const $ = (id) => document.getElementById(id);
 
     const fab = $("aiChatFab");
@@ -404,15 +383,9 @@
     const overlayEl = $("aiChatOverlay");
     const openHumanBtn = $("aiOpenHumanChat");
 
-    // =========================
-    // 4) State
-    // =========================
     let gateLocked = localStorage.getItem(STORAGE.GATE_KEY) === "1";
     let greeted = false;
 
-    // =========================
-    // 5) Helpers UI
-    // =========================
     function logDebug(...args) {
       if (CONFIG.DEBUG) console.log("[AI-CHAT]", ...args);
     }
@@ -421,7 +394,6 @@
       panel.setAttribute("aria-hidden", "false");
       setTimeout(() => input.focus(), 50);
     }
-
     function closePanel() {
       panel.setAttribute("aria-hidden", "true");
     }
@@ -442,6 +414,37 @@
         const safe = Array.isArray(arr) ? arr : [];
         safe.push(item);
         localStorage.setItem(STORAGE.HISTORY_KEY, JSON.stringify(safe.slice(-30)));
+      } catch {}
+    }
+
+    function renderHistory() {
+      if (messagesEl.childElementCount > 0) return;
+      try {
+        const raw = localStorage.getItem(STORAGE.HISTORY_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(arr) || !arr.length) return;
+
+        arr.slice(-30).forEach((m) => {
+          const wrap = document.createElement("div");
+          wrap.className = "ai-msg ai-msg--" + (m.from || "bot");
+
+          const bubble = document.createElement("div");
+          bubble.className = "ai-bubble";
+          bubble.textContent = String(m.text ?? "");
+
+          const meta = document.createElement("div");
+          meta.className = "ai-meta";
+          meta.textContent = new Date(m.t || Date.now()).toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" });
+
+          const container = document.createElement("div");
+          container.appendChild(bubble);
+          container.appendChild(meta);
+
+          wrap.appendChild(container);
+          messagesEl.appendChild(wrap);
+        });
+
+        scrollToBottom();
       } catch {}
     }
 
@@ -510,54 +513,96 @@
       overlayEl.classList.toggle("is-open", !!show);
     }
 
-    function renderHistory() {
-      if (messagesEl.childElementCount > 0) return;
-      try {
-        const raw = localStorage.getItem(STORAGE.HISTORY_KEY);
-        const arr = raw ? JSON.parse(raw) : [];
-        if (!Array.isArray(arr) || !arr.length) return;
+    function restoreGateUIIfLocked() {
+      if (gateLocked) {
+        showOverlay(true);
+        setBusy(false);
+        hintEl.textContent = "تم إيقاف الشات الآلي. افتح الدعم البشري.";
+        statusEl.textContent = "تم التحويل";
+      } else {
+        showOverlay(false);
+        setBusy(false);
+      }
+    }
 
-        arr.slice(-30).forEach((m) => {
-          const wrap = document.createElement("div");
-          wrap.className = "ai-msg ai-msg--" + (m.from || "bot");
-
-          const bubble = document.createElement("div");
-          bubble.className = "ai-bubble";
-          bubble.textContent = String(m.text ?? "");
-
-          const meta = document.createElement("div");
-          meta.className = "ai-meta";
-          meta.textContent = new Date(m.t || Date.now()).toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" });
-
-          const container = document.createElement("div");
-          container.appendChild(bubble);
-          container.appendChild(meta);
-
-          wrap.appendChild(container);
-          messagesEl.appendChild(wrap);
-        });
-
-        scrollToBottom();
-      } catch {}
+    function greetOnce() {
+      if (greeted) return;
+      greeted = true;
+      addMessage({ from: "bot", text: "هلا! أنا مساعد الدعم 🤝\nاكتب سؤالك، وإذا احتجنا موظف بحوّلك فورًا." });
     }
 
     // =========================
-    // 6) n8n parsing (Array expected)
+    // JSON extraction (Array) — fixes: Unexpected non-whitespace...
     // =========================
-    function normalizeN8nResponse(data) {
-      // نتوقع Array: [ { reply, mode, ... } ]
-      if (Array.isArray(data) && data[0] && typeof data[0] === "object") return data[0];
+    function extractFirstJsonArray(text) {
+      if (!text) return null;
 
-      // fallback لو رجع object مباشرة
-      if (data && typeof data === "object" && !Array.isArray(data)) return data;
+      const start = text.indexOf("[");
+      if (start === -1) return null;
 
+      let depth = 0;
+      let inString = false;
+      let escape = false;
+
+      for (let i = start; i < text.length; i++) {
+        const ch = text[i];
+
+        if (inString) {
+          if (escape) escape = false;
+          else if (ch === "\\") escape = true;
+          else if (ch === '"') inString = false;
+          continue;
+        }
+
+        if (ch === '"') { inString = true; continue; }
+        if (ch === "[") depth++;
+        if (ch === "]") depth--;
+
+        if (depth === 0) {
+          const candidate = text.slice(start, i + 1);
+          try {
+            const parsed = JSON.parse(candidate);
+            return Array.isArray(parsed) ? parsed : null;
+          } catch {
+            return null;
+          }
+        }
+      }
+      return null;
+    }
+
+    // =========================
+    // n8n helpers
+    // =========================
+    function normalizeN8nResponse(raw) {
+      if (Array.isArray(raw)) return raw[0] || null;
+      if (raw && typeof raw === "object") return raw;
+
+      if (typeof raw === "string" && raw.trim()) {
+        // حاول تستخرج JSON Array من النص
+        const arr = extractFirstJsonArray(raw);
+        if (arr && arr[0]) return arr[0];
+
+        // حاول JSON.parse كامل
+        try {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) return parsed[0] || null;
+          if (parsed && typeof parsed === "object") return parsed;
+        } catch {}
+
+        // نص عادي
+        return { reply: raw, mode: "continue" };
+      }
       return null;
     }
 
     function extractReply(obj) {
       if (!obj || typeof obj !== "object") return null;
-      const r = obj.reply ?? obj.output ?? obj.text ?? obj.answer;
-      return (typeof r === "string" && r.trim()) ? r : null;
+      const r =
+        (typeof obj.reply === "string" && obj.reply.trim() ? obj.reply : null) ||
+        (typeof obj.output === "string" && obj.output.trim() ? obj.output : null) ||
+        null;
+      return r;
     }
 
     function isHandoffResponse(obj) {
@@ -565,10 +610,15 @@
     }
 
     // =========================
-    // 7) n8n Request (timeout + JSON/text)
+    // n8n request — ALWAYS read text then extract JSON Array
     // =========================
     async function sendToN8n(userText) {
-      const body = { sessionId, page: location.href, message: userText, locale: "ar" };
+      const body = {
+        sessionId,
+        page: location.href,
+        message: userText,
+        locale: "ar"
+      };
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), CONFIG.REQUEST_TIMEOUT_MS);
@@ -576,32 +626,35 @@
       try {
         const res = await fetch(CONFIG.N8N_WEBHOOK_URL, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json, text/plain, */*"
+          },
           body: JSON.stringify(body),
-          signal: controller.signal,
+          signal: controller.signal
         });
 
         if (!res.ok) throw new Error("n8n error: " + res.status);
 
-        const contentType = res.headers.get("content-type") || "";
-        if (contentType.includes("application/json")) return await res.json();
-
+        // ✅ اقرأ كنص دائمًا
         const txt = await res.text();
+        logDebug("N8N TEXT:", txt.slice(0, 220));
 
-        // fallback: حاول parse JSON من النص
-        try {
-          return JSON.parse(txt);
-        } catch {
-          // لو رجع نص فقط، نحوله لـ Array بنفس الشكل المتوقع
+        // ✅ استخرج Array
+        const arr = extractFirstJsonArray(txt);
+
+        if (!arr) {
+          // fallback: نص -> reply
           return [{ reply: txt, mode: "continue" }];
         }
+        return arr;
       } finally {
         clearTimeout(timeoutId);
       }
     }
 
     // =========================
-    // 8) MessageBird (Lazy load)
+    // MessageBird (Lazy load)
     // =========================
     function loadMessageBirdWidgetIfNeeded() {
       if (document.getElementById("live-chat-widget-script")) return;
@@ -667,28 +720,7 @@
     }
 
     // =========================
-    // 9) Greeting + Restore UI
-    // =========================
-    function greetOnce() {
-      if (greeted) return;
-      greeted = true;
-      addMessage({ from: "bot", text: "هلا! أنا مساعد الدعم 🤝\nاكتب سؤالك، وإذا احتجنا موظف بحوّلك فورًا." });
-    }
-
-    function restoreGateUIIfLocked() {
-      if (gateLocked) {
-        showOverlay(true);
-        setBusy(false);
-        hintEl.textContent = "تم إيقاف الشات الآلي. افتح الدعم البشري.";
-        statusEl.textContent = "تم التحويل";
-      } else {
-        showOverlay(false);
-        setBusy(false);
-      }
-    }
-
-    // =========================
-    // 10) Events
+    // Events
     // =========================
     fab.addEventListener("click", () => {
       const isOpen = panel.getAttribute("aria-hidden") === "false";
@@ -701,130 +733,82 @@
       }
     });
 
-closeBtn.addEventListener("click", closePanel);
-minBtn.addEventListener("click", closePanel);
-openHumanBtn.addEventListener("click", () => openMessageBirdChat(null));
+    closeBtn.addEventListener("click", closePanel);
+    minBtn.addEventListener("click", closePanel);
+    openHumanBtn.addEventListener("click", () => openMessageBirdChat(null));
 
-// =========================
-// Helpers (n8n response parsing)
-// =========================
-function normalizeN8nResponse(raw) {
-  // المطلوب: [ { reply, mode } ]
-  if (Array.isArray(raw)) return raw[0] || null;
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-  // أحيانًا قد يرجع Object مباشرة
-  if (raw && typeof raw === "object") return raw;
+      const text = (input.value || "").trim();
+      if (!text) return;
 
-  // لو رجع نص
-  if (typeof raw === "string" && raw.trim()) {
-    try {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return parsed[0] || null;
-      if (parsed && typeof parsed === "object") return parsed;
-      return null;
-    } catch {
-      // نص عادي → نرجعه كـ reply
-      return { reply: raw, mode: "continue" };
-    }
-  }
+      if (gateLocked) {
+        addBadge("تم التحويل للدعم البشري — استخدم نافذة الدعم.");
+        return;
+      }
 
-  return null;
-}
+      addMessage({ from: "user", text });
+      input.value = "";
 
-function extractReply(obj) {
-  if (!obj || typeof obj !== "object") return null;
-  // نسمح بـ reply أو output (عشان n8n أحيانًا يطلع output)
-  const r =
-    (typeof obj.reply === "string" && obj.reply.trim() ? obj.reply : null) ||
-    (typeof obj.output === "string" && obj.output.trim() ? obj.output : null) ||
-    null;
-  return r;
-}
+      setBusy(true);
+      addTyping();
 
-function isHandoffResponse(obj) {
-  return !!(obj && (obj.mode === "handoff" || obj.handoff === true));
-}
+      try {
+        const raw = await sendToN8n(text);
+        removeTyping();
 
-// =========================
-// Submit
-// =========================
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+        logDebug("N8N RAW:", raw);
 
-  const text = (input.value || "").trim();
-  if (!text) return;
+        const obj = normalizeN8nResponse(raw);
 
-  if (gateLocked) {
-    addBadge("تم التحويل للدعم البشري — استخدم نافذة الدعم.");
-    return;
-  }
+        if (!obj) {
+          addMessage({
+            from: "bot",
+            text: "وصل رد من n8n لكن بشكل غير متوقع. تأكد أن Respond to Webhook يرجّع: [ { reply, mode } ]"
+          });
+          if (CONFIG.DEBUG) addBadge("DEBUG: " + JSON.stringify(raw).slice(0, 220));
+          return;
+        }
 
-  addMessage({ from: "user", text });
-  input.value = "";
+        const reply = extractReply(obj);
 
-  setBusy(true);
-  addTyping();
+        if (isHandoffResponse(obj)) {
+          if (reply) addMessage({ from: "bot", text: reply });
+          addBadge("جاري تحويلك للدعم…");
+          lockGateAndHandoff(obj);
+          return;
+        }
 
-  try {
-    const raw = await sendToN8n(text);
+        if (!reply) {
+          addMessage({
+            from: "bot",
+            text: "وصل رد من n8n لكن بدون reply/output نصي. تأكد أن العنصر الأول يحتوي reply."
+          });
+          if (CONFIG.DEBUG) addBadge("DEBUG OBJ: " + JSON.stringify(obj).slice(0, 220));
+          return;
+        }
 
-    removeTyping();
-    logDebug("N8N RAW:", raw);
+        addMessage({ from: "bot", text: reply });
 
-    // ✅ أهم خطوة: نتعامل مع Array ونأخذ أول عنصر
-    const obj = normalizeN8nResponse(raw);
+      } catch (err) {
+        removeTyping();
 
-    if (!obj) {
-      addMessage({
-        from: "bot",
-        text: "وصل رد من n8n لكن بشكل غير متوقع. تأكد أن Respond to Webhook يرجّع: [ { reply, mode } ]"
-      });
-      if (CONFIG.DEBUG) addBadge("DEBUG: " + JSON.stringify(raw).slice(0, 220));
-      return;
-    }
+        const msg =
+          (err && err.name === "AbortError")
+            ? "انتهت مهلة الاتصال (Timeout). تأكد أن n8n يرد بسرعة أو زِد المهلة."
+            : "صار خطأ في الاتصال بالويبهوك. تأكد من الرابط/الـ CORS وحاول مرة ثانية.";
 
-    const reply = extractReply(obj);
+        addMessage({ from: "bot", text: msg });
 
-    // ✅ تحويل للدعم البشري
-    if (isHandoffResponse(obj)) {
-      if (reply) addMessage({ from: "bot", text: reply });
-      addBadge("جاري تحويلك للدعم…");
-      lockGateAndHandoff(obj);
-      return;
-    }
+        logDebug("ERROR:", err);
+        if (CONFIG.DEBUG) addBadge("DEBUG ERR: " + String(err && err.message ? err.message : err));
+      } finally {
+        setBusy(false);
+      }
+    });
 
-    // ✅ رد طبيعي
-    if (!reply) {
-      addMessage({
-        from: "bot",
-        text: "وصل رد من n8n لكن بدون reply/output نصي. تأكد أن العنصر الأول يحتوي reply."
-      });
-      if (CONFIG.DEBUG) addBadge("DEBUG OBJ: " + JSON.stringify(obj).slice(0, 220));
-      return;
-    }
-
-    addMessage({ from: "bot", text: reply });
-
-  } catch (err) {
-    removeTyping();
-
-    const msg =
-      (err && err.name === "AbortError")
-        ? "انتهت مهلة الاتصال (Timeout). تأكد أن n8n يرد بسرعة أو زِد المهلة."
-        : "صار خطأ في الاتصال بالويبهوك. تأكد من الرابط/الـ CORS وحاول مرة ثانية.";
-
-    addMessage({ from: "bot", text: msg });
-
-    logDebug("ERROR:", err);
-    if (CONFIG.DEBUG) addBadge("DEBUG ERR: " + String(err && err.message ? err.message : err));
-  } finally {
-    setBusy(false);
-  }
-});
-
-    // =========================
-    // 11) Boot
-    // =========================
+    // Boot
     restoreGateUIIfLocked();
     setBusy(false);
 
@@ -836,4 +820,3 @@ form.addEventListener("submit", async (e) => {
   </footer>
 </body>
 </html>
-
