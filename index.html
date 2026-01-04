@@ -581,54 +581,84 @@
     // =========================
     // 8) n8n Request (مع timeout + دعم JSON/text)
     // =========================
-    async function sendToN8n(userText) {
-      const body = {
-        sessionId,
-        page: location.href,
-        message: userText,
-        locale: "ar",
-        ts: Date.now(),
-      };
+async function sendToN8n(userText) {
+  const body = {
+    sessionId,
+    page: location.href,
+    message: userText,
+    locale: "ar",
+    ts: Date.now(),
+  };
 
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), CONFIG.REQUEST_TIMEOUT_MS);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), CONFIG.REQUEST_TIMEOUT_MS);
 
-      try {
-        const res = await fetch(CONFIG.N8N_WEBHOOK_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-          signal: controller.signal,
-        });
+  try {
+    const res = await fetch(CONFIG.N8N_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
 
-        const contentType = (res.headers.get("content-type") || "").toLowerCase();
+    const rawText = await res.text(); // ✅ خذها كنص دائمًا
 
-        if (!res.ok) {
-          const raw = await safeReadText(res);
-          throw new Error(`n8n error: ${res.status} - ${raw || "no body"}`);
-        }
+    if (!res.ok) {
+      throw new Error(`n8n error: ${res.status} - ${rawText || "no body"}`);
+    }
 
-        // ✅ إذا رجع JSON
-        if (contentType.includes("application/json")) {
-          return await res.json();
-        }
+    // 1) حاول JSON مباشر
+    try {
+      return JSON.parse(rawText);
+    } catch (_) {}
 
-        // ✅ إذا رجع نص (أحيانًا)
-        const txt = await res.text();
-        // حاول تحويله JSON لو كان JSON كنص
+    // 2) حاول استخراج أول JSON object من النص (لو فيه كلام زيادة)
+    const extracted = extractFirstJsonObject(rawText);
+    if (extracted) return extracted;
+
+    // 3) إذا ما ضبط، اعتبر النص كله reply
+    return { reply: rawText };
+
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+// ✅ يستخرج أول JSON object صحيح من أي نص
+function extractFirstJsonObject(text) {
+  if (!text) return null;
+  const start = text.indexOf("{");
+  if (start === -1) return null;
+
+  let depth = 0;
+  let inString = false;
+  let escape = false;
+
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i];
+
+    if (inString) {
+      if (escape) escape = false;
+      else if (ch === "\\") escape = true;
+      else if (ch === '"') inString = false;
+      continue;
+    } else {
+      if (ch === '"') { inString = true; continue; }
+      if (ch === "{") depth++;
+      if (ch === "}") depth--;
+
+      if (depth === 0) {
+        const candidate = text.slice(start, i + 1);
         try {
-          return JSON.parse(txt);
+          return JSON.parse(candidate);
         } catch {
-          return { reply: txt };
+          return null;
         }
-      } finally {
-        clearTimeout(timeoutId);
       }
     }
-
-    async function safeReadText(res) {
-      try { return await res.text(); } catch { return ""; }
-    }
+  }
+  return null;
+}
 
     // =========================
     // 9) MessageBird (Lazy load)
@@ -819,3 +849,4 @@
   </footer>
 </body>
 </html>
+
