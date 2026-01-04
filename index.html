@@ -650,7 +650,10 @@ async function sendToN8n(userText) {
         addBadge("جاري تحويلك للدعم…");
         lockGateAndHandoff(data);
       } else {
-        addMessage({ from: "bot", text: data.reply || "تم." });
+if (!data || typeof data.reply !== "string") {
+  throw new Error("Invalid n8n response: missing reply");
+}
+addMessage({ from: "bot", text: data.reply });
       }
     } catch (err) {
       removeTyping();
@@ -671,6 +674,7 @@ async function sendToN8n(userText) {
     </footer>
 </body>
 </html>
+
 
 
 
