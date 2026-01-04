@@ -509,23 +509,34 @@
   // =========================
   // 5) الاتصال بـ n8n
   // =========================
-  async function sendToN8n(userText) {
-    const body = {
-      sessionId,
-      page: location.href,
-      message: userText,
-      locale: "ar"
-    };
+async function sendToN8n(userText) {
+  const body = {
+    sessionId,
+    page: location.href,
+    message: userText,
+    locale: "ar"
+  };
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 ثانية
+
+  try {
     const res = await fetch(N8N_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
+      signal: controller.signal
     });
 
     if (!res.ok) throw new Error("n8n error: " + res.status);
-    return res.json();
+
+    // لو n8n يرجع JSON — تمام
+    return await res.json();
+  } finally {
+    clearTimeout(timeoutId);
   }
+}
+
 
   // =========================
   // 6) MessageBird: تحميل/فتح عند التحويل فقط
@@ -660,6 +671,7 @@
     </footer>
 </body>
 </html>
+
 
 
 
