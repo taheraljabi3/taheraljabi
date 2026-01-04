@@ -110,15 +110,28 @@
     .ai-chat__iconbtn:hover { background: rgba(255,255,255,.14); transform: translateY(-1px); }
     .ai-chat__iconbtn:active { transform: translateY(0); }
 
+    /* ✅ جسم الشات صار طبقتين داخل نفس اللوحة */
+    .ai-chat__body {
+      position: relative;
+      height: calc(100% - 58px);
+      background: var(--ai-surface);
+    }
+
+    .chat-layer {
+      position: absolute;
+      inset: 0;
+      display: none;
+    }
+    .chat-layer.is-active { display: block; }
+
     .ai-chat__messages {
       padding: 14px;
-      height: calc(100% - 58px - 92px);
+      height: calc(100% - 92px);
       overflow: auto;
       background: var(--ai-surface);
     }
 
     .ai-msg { display: flex; margin: 10px 0; gap: 8px; }
-    /* RTL شائع: المستخدم يمين والبوت يسار. لو تبغاه عكسها بدّلها */
     .ai-msg--user { justify-content: flex-end; }
     .ai-msg--bot  { justify-content: flex-start; }
 
@@ -154,6 +167,8 @@
       padding: 10px 12px 12px;
       background: #fff;
       border-top: 1px solid rgba(0,0,0,.08);
+      height: 92px;
+      box-sizing: border-box;
     }
 
     .ai-chat__hint {
@@ -217,38 +232,29 @@
       50% { transform: translateY(-4px); opacity: 1; }
     }
 
-    .ai-chat__overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(255,255,255,.78);
-      backdrop-filter: blur(2px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 20px;
+    /* ✅ طبقة MessageBird داخل نفس اللوحة (واجهة انتقال) */
+    .mb-layer-wrap {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
     }
-    .ai-chat__overlay.is-open { display: flex; }
-    .ai-chat__overlay .box {
+    .mb-center {
+      flex: 1;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      text-align: center;
+    }
+    .mb-card {
       background: #fff;
       border: 1px solid rgba(0,0,0,.08);
       border-radius: 16px;
-      padding: 14px;
-      max-width: 300px;
       box-shadow: var(--ai-shadow-soft);
+      padding: 14px;
+      max-width: 280px;
     }
-    .ai-chat__overlay .box b { display:block; margin-bottom: 6px; }
-    .ai-chat__overlay .box button {
-      margin-top: 10px;
-      border: none;
-      border-radius: 12px;
-      padding: 10px 14px;
-      background: var(--ai-brand);
-      color: #fff;
-      cursor: pointer;
-      width: 100%;
-      font-weight: 700;
-    }
+    .mb-card b { display:block; margin-bottom: 6px; }
+    .mb-card p { margin: 0; color: rgba(0,0,0,.7); font-size: 12.5px; line-height: 1.6; }
 
     @media (prefers-reduced-motion: reduce) {
       * { animation: none !important; transition: none !important; }
@@ -285,7 +291,6 @@
           <div class="carousel"></div>
         </div>
 
-        <!-- ✅ تم نقل زر اليمين داخل نفس القسم -->
         <button class="carousel-control right" type="button" aria-label="التالي">&gt;</button>
       </section>
     </div>
@@ -295,6 +300,7 @@
     </section>
   </main>
 
+  <!-- ✅ ويدجت الشات بطبقتين -->
   <div id="aiChatWidget" class="ai-chat">
     <button id="aiChatFab" class="ai-chat__fab" aria-label="فتح المحادثة" type="button">💬</button>
 
@@ -313,28 +319,44 @@
         </div>
       </div>
 
-      <div id="aiChatMessages" class="ai-chat__messages" aria-live="polite"></div>
+      <div class="ai-chat__body">
+        <!-- ===== Layer 1: AI ===== -->
+        <div id="aiLayer" class="chat-layer is-active">
+          <div id="aiChatMessages" class="ai-chat__messages" aria-live="polite"></div>
 
-      <div class="ai-chat__footer">
-        <div class="ai-chat__hint" id="aiChatHint">اكتب سؤالك… وإذا احتجنا موظف بنحوّلك مباشرة.</div>
-        <form id="aiChatForm" class="ai-chat__form" autocomplete="off">
-          <input
-            id="aiChatInput"
-            class="ai-chat__input"
-            type="text"
-            placeholder="اكتب رسالتك هنا…"
-            aria-label="اكتب رسالتك"
-            required
-          />
-          <button id="aiChatSend" class="ai-chat__send" type="submit">إرسال</button>
-        </form>
-      </div>
+          <div class="ai-chat__footer">
+            <div class="ai-chat__hint" id="aiChatHint">اكتب سؤالك… وإذا احتجنا موظف بنحوّلك مباشرة.</div>
+            <form id="aiChatForm" class="ai-chat__form" autocomplete="off">
+              <input
+                id="aiChatInput"
+                class="ai-chat__input"
+                type="text"
+                placeholder="اكتب رسالتك هنا…"
+                aria-label="اكتب رسالتك"
+                required
+              />
+              <button id="aiChatSend" class="ai-chat__send" type="submit">إرسال</button>
+            </form>
+          </div>
+        </div>
 
-      <div id="aiChatOverlay" class="ai-chat__overlay">
-        <div class="box">
-          <b>تم تحويلك للدعم البشري</b>
-          <div>تم إيقاف الشات الآلي وفتح نافذة الدعم.</div>
-          <button id="aiOpenHumanChat" type="button">فتح الدعم الآن</button>
+        <!-- ===== Layer 2: MessageBird ===== -->
+        <div id="mbLayer" class="chat-layer">
+          <div class="mb-layer-wrap">
+            <div class="ai-chat__messages" aria-live="polite">
+              <div class="mb-center">
+                <div class="mb-card">
+                  <b>تم تحويلك للدعم البشري</b>
+                  <p>جارٍ فتح محادثة الدعم الآن… إذا لم تُفتح خلال ثوانٍ، استخدم زر “فتح الدعم”.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="ai-chat__footer">
+              <div class="ai-chat__hint">تقدر تكمل هنا مع الموظف عبر MessageBird.</div>
+              <button id="mbOpenBtn" class="ai-chat__send" type="button">فتح الدعم</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -344,7 +366,6 @@
   <script>
     window.addEventListener("error", (e) => {
       const msg = String(e?.message || "");
-      // لو خطأ الكاروسيل عندك يطلع كـ Error ويوقف أمور ثانية، نخليه تحذير فقط
       if (msg.includes("لا توجد عناصر في الكاروسيل") || msg.toLowerCase().includes("carousel")) {
         console.warn("[SAFE-GUARD] Carousel error ignored:", msg);
         e.preventDefault?.();
@@ -353,7 +374,6 @@
     });
   </script>
 
-  <!-- ملفك الخارجي -->
   <script src="script.js"></script>
 
   <script>
@@ -370,7 +390,7 @@
     const STORAGE = {
       SESSION_KEY: "ai_chat_session_id_v1",
       HISTORY_KEY: "ai_chat_history_v1",
-      GATE_KEY: "ai_chat_gate_locked_v1",
+      MODE_KEY: "ai_chat_mode_v1", // "ai" | "mb"
     };
 
     const sessionId =
@@ -384,22 +404,25 @@
     const panel = $("aiChatPanel");
     const closeBtn = $("aiChatClose");
     const minBtn = $("aiChatMin");
+
+    const aiLayer = $("aiLayer");
+    const mbLayer = $("mbLayer");
+    const mbOpenBtn = $("mbOpenBtn");
+
     const form = $("aiChatForm");
     const input = $("aiChatInput");
     const sendBtn = $("aiChatSend");
     const messagesEl = $("aiChatMessages");
+
     const statusEl = $("aiChatStatus");
     const hintEl = $("aiChatHint");
-    const overlayEl = $("aiChatOverlay");
-    const openHumanBtn = $("aiOpenHumanChat");
 
-    // ✅ لو أي عنصر ناقص، ما نكسر الصفحة
-    if (!fab || !panel || !form || !input || !sendBtn || !messagesEl || !statusEl || !hintEl || !overlayEl || !closeBtn || !minBtn || !openHumanBtn) {
+    if (!fab || !panel || !form || !input || !sendBtn || !messagesEl || !statusEl || !hintEl || !closeBtn || !minBtn || !aiLayer || !mbLayer || !mbOpenBtn) {
       console.error("[AI-CHAT] Missing DOM elements. Widget will not run.");
       return;
     }
 
-    let gateLocked = localStorage.getItem(STORAGE.GATE_KEY) === "1";
+    let chatMode = localStorage.getItem(STORAGE.MODE_KEY) || "ai"; // "ai" | "mb"
     let greeted = false;
 
     function logDebug(...args) {
@@ -412,6 +435,23 @@
     }
     function closePanel() {
       panel.setAttribute("aria-hidden", "true");
+    }
+
+    function switchToAiLayer() {
+      aiLayer.classList.add("is-active");
+      mbLayer.classList.remove("is-active");
+      statusEl.textContent = "متصل";
+      hintEl.textContent = "اكتب سؤالك… وإذا احتجنا موظف بنحوّلك مباشرة.";
+      input.disabled = false;
+      sendBtn.disabled = false;
+    }
+
+    function switchToMbLayer() {
+      aiLayer.classList.remove("is-active");
+      mbLayer.classList.add("is-active");
+      statusEl.textContent = "تم التحويل";
+      input.disabled = true;
+      sendBtn.disabled = true;
     }
 
     function scrollToBottom() {
@@ -524,25 +564,11 @@
     }
 
     function setBusy(isBusy) {
-      sendBtn.disabled = isBusy || gateLocked;
-      input.disabled = isBusy || gateLocked;
-      statusEl.textContent = gateLocked ? "تم التحويل" : (isBusy ? "جارٍ الرد…" : "متصل");
-    }
-
-    function showOverlay(show) {
-      overlayEl.classList.toggle("is-open", !!show);
-    }
-
-    function restoreGateUIIfLocked() {
-      if (gateLocked) {
-        showOverlay(true);
-        setBusy(false);
-        hintEl.textContent = "تم إيقاف الشات الآلي. افتح الدعم البشري.";
-        statusEl.textContent = "تم التحويل";
-      } else {
-        showOverlay(false);
-        setBusy(false);
-      }
+      // Busy only in AI mode
+      if (chatMode !== "ai") return;
+      sendBtn.disabled = isBusy;
+      input.disabled = isBusy;
+      statusEl.textContent = isBusy ? "جارٍ الرد…" : "متصل";
     }
 
     function greetOnce() {
@@ -556,13 +582,11 @@
       if (anyData && typeof anyData === "object") return anyData;
 
       if (typeof anyData === "string") {
-        // Try parse JSON
         try {
           const j = JSON.parse(anyData);
           if (Array.isArray(j)) return j[0] || null;
           if (j && typeof j === "object") return j;
         } catch {}
-        // Fallback plain text
         return { reply: anyData, mode: "continue" };
       }
 
@@ -601,7 +625,6 @@
 
         if (!res.ok) throw new Error("n8n error: " + res.status);
 
-        // ✅ الآن n8n يرجّع JSON نظيف
         const txt = await res.text();
         logDebug("N8N TEXT (head):", txt.slice(0, 260));
 
@@ -609,13 +632,12 @@
         if (obj) return [obj];
 
         return [{ reply: txt, mode: "continue" }];
-
       } finally {
         clearTimeout(timeoutId);
       }
     }
 
-    // MessageBird (Lazy load)
+    // ===== MessageBird (Lazy load) =====
     function loadMessageBirdWidgetIfNeeded() {
       if (document.getElementById("live-chat-widget-script")) return;
 
@@ -661,25 +683,28 @@
 
         if (Date.now() - start > 12000) {
           clearInterval(timer);
-          addMessage({ from: "bot", text: "تأخر فتح الدعم. جرّب زر (فتح الدعم الآن) أو أعد تحميل الصفحة." });
+          // لا نرسل داخل AI messages لأننا انتقلنا للـ MB layer
+          console.warn("[AI-CHAT] MessageBird open timeout.");
         }
       }, 250);
     }
 
-    function lockGateAndHandoff(payloadObj) {
-      gateLocked = true;
-      localStorage.setItem(STORAGE.GATE_KEY, "1");
-      showOverlay(true);
-      setBusy(false);
+    function handoffToMessageBird(payloadObj) {
+      chatMode = "mb";
+      localStorage.setItem(STORAGE.MODE_KEY, "mb");
 
-      hintEl.textContent = "تم إيقاف الشات الآلي. افتح الدعم البشري.";
-      statusEl.textContent = "تم التحويل";
+      // Switch UI layer
+      switchToMbLayer();
 
+      // Open MessageBird automatically
       const contact = payloadObj && payloadObj.contact ? payloadObj.contact : null;
       openMessageBirdChat(contact);
+
+      // Backup button
+      mbOpenBtn.onclick = () => openMessageBirdChat(contact);
     }
 
-    // Events
+    // ===== Events =====
     fab.addEventListener("click", () => {
       const isOpen = panel.getAttribute("aria-hidden") === "false";
       if (isOpen) closePanel();
@@ -687,24 +712,23 @@
         openPanel();
         renderHistory();
         greetOnce();
-        restoreGateUIIfLocked();
+
+        // Restore mode UI
+        if (chatMode === "mb") switchToMbLayer();
+        else switchToAiLayer();
       }
     });
 
     closeBtn.addEventListener("click", closePanel);
     minBtn.addEventListener("click", closePanel);
-    openHumanBtn.addEventListener("click", () => openMessageBirdChat(null));
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
+      if (chatMode !== "ai") return;
+
       const text = normalizeText(input.value);
       if (!text) return;
-
-      if (gateLocked) {
-        addBadge("تم التحويل للدعم البشري — استخدم نافذة الدعم.");
-        return;
-      }
 
       addMessage({ from: "user", text });
       input.value = "";
@@ -719,30 +743,22 @@
         logDebug("N8N RAW ARR:", rawArr);
 
         const obj = Array.isArray(rawArr) ? (rawArr[0] || null) : normalizeN8nResponse(rawArr);
-
         if (!obj) {
-          addMessage({
-            from: "bot",
-            text: "وصل رد من n8n لكن بشكل غير متوقع. تأكد أن Respond to Webhook يرجّع reply/mode."
-          });
-          if (CONFIG.DEBUG) addBadge("DEBUG: " + String(JSON.stringify(rawArr)).slice(0, 220));
+          addMessage({ from: "bot", text: "وصل رد من n8n بشكل غير متوقع. تأكد أن Respond to Webhook يرجّع reply/mode." });
           return;
         }
 
         const reply = extractReply(obj);
 
         if (isHandoffResponse(obj)) {
-          if (reply) addMessage({ from: "bot", text: reply });
-          addBadge("جاري تحويلك للدعم…");
-          lockGateAndHandoff(obj);
+          addMessage({ from: "bot", text: reply || "تم تحويلكم للمهندس المناوب" });
+          addBadge("جاري فتح الدعم البشري…");
+          handoffToMessageBird(obj);
           return;
         }
 
         if (!reply) {
-          addMessage({
-            from: "bot",
-            text: "وصل رد من n8n لكن بدون نص واضح. تأكد أن Respond to Webhook يرجّع reply."
-          });
+          addMessage({ from: "bot", text: "وصل رد من n8n لكن بدون نص واضح. تأكد أن Respond to Webhook يرجّع reply." });
           if (CONFIG.DEBUG) addBadge("DEBUG OBJ: " + JSON.stringify(obj).slice(0, 240));
           return;
         }
@@ -758,16 +774,19 @@
             : "صار خطأ في الاتصال بالويبهوك. تأكد من الرابط/الـ CORS وحاول مرة ثانية.";
 
         addMessage({ from: "bot", text: msg });
-
         logDebug("ERROR:", err);
-        if (CONFIG.DEBUG) addBadge("DEBUG ERR: " + String(err && err.message ? err.message : err));
       } finally {
         setBusy(false);
       }
     });
 
-    // Boot
-    restoreGateUIIfLocked();
+    // Boot (restore mode UI without opening panel)
+    if (chatMode === "mb") {
+      // ما نفتح MB تلقائيًا إلا لما يفتح المستخدم اللوحة (عشان user gesture)
+      // لكن نظهر الحالة محفوظة
+      // إذا تبغاه يفتح MB مباشرة عند تحميل الصفحة بعد التحويل، قلّي وأفعله
+    }
+
     setBusy(false);
 
   })();
