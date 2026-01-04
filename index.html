@@ -607,11 +607,20 @@
     if (persist) persistAiHistory({ from, text: String(text ?? ""), t });
   }
 
-  function greetOnce(){
-    if (greeted) return;
+function greetOnce(){
+  if (greeted) return;
+
+  // إذا عندك تاريخ سابق لا ترسل تحية جديدة
+  const raw = localStorage.getItem(STORAGE.AI_HISTORY_KEY);
+  const arr = raw ? JSON.parse(raw) : [];
+  if (Array.isArray(arr) && arr.length) {
     greeted = true;
-    addAiMessage("bot", "هلا! أنا مساعد الدعم 🤝\nاكتب سؤالك، وإذا احتجنا موظف بحوّلك فورًا.");
+    return;
   }
+
+  greeted = true;
+  addAiMessage("bot", "هلا! أنا مساعد الدعم 🤝\nاكتب سؤالك، وإذا احتجنا موظف بحوّلك فورًا.");
+}
 
   function normalizeText(t){
     return String(t ?? "").replace(/\s+/g, " ").trim();
@@ -749,51 +758,81 @@
 
   mbOpenFallback.addEventListener("click", () => openMessageBirdChat(null));
 
-  function ensureMessageBirdMountedInsideModal(){
-    loadMessageBirdIfNeeded();
-    mbState.textContent = "جارٍ التحميل…";
-    mbFallback.style.display = "grid";
+function forceIframeFullSize(iframe) {
+  if (!iframe) return;
 
-    // نحاول نلقط iframe الخاص بالويدجت ونزرعه داخل mbContainer
-    // IMPORTANT: selectors قد تختلف حسب نسخة MB — لذلك نخليها مرنة
-    const start = Date.now();
-    const tryMount = setInterval(() => {
-      // أي iframe يحمل livechat.messagebird.com غالبًا هو المقصود
+  // أقوى طريقة: setProperty with important
+  iframe.style.setProperty("position", "absolute", "important");
+  iframe.style.setProperty("inset", "0", "important");
+  iframe.style.setProperty("top", "0", "important");
+  iframe.style.setProperty("left", "0", "important");
+  iframe.style.setProperty("right", "0", "important");
+  iframe.style.setProperty("bottom", "0", "important");
+  iframe.style.setProperty("width", "100%", "important");
+  iframe.style.setProperty("height", "100%", "important");
+  iframe.style.setProperty("border", "0", "important");
+  iframe.style.setProperty("overflow", "hidden", "important");
+}
+
+function ensureMessageBirdMountedInsideModal(){
+  loadMessageBirdIfNeeded();
+
+  mbState.textContent = "جارٍ التحميل…";
+  mbFallback.style.display = "grid";
+
+  const start = Date.now();
+  const tryMount = setInterval(() => {
+
+    // ✅ عندك iframe ID واضح — الأفضل نمسكه مباشرة
+    let mbFrame = document.getElementById("live-chat-widget-iframe");
+
+    // fallback: لو تغيّر الـ id مستقبلاً
+    if (!mbFrame) {
       const frames = Array.from(document.querySelectorAll("iframe"));
-      const mbFrame = frames.find(f => {
+      mbFrame = frames.find(f => {
         const src = (f.getAttribute("src") || "");
-        return src.includes("messagebird") || src.includes("livechat");
+        return src.includes("livechat.messagebird.com") || src.includes("messagebird");
       });
+    }
 
-      if (mbFrame) {
-        clearInterval(tryMount);
+    if (mbFrame) {
+      clearInterval(tryMount);
 
-        // ننقله داخل container
-        try {
+      try {
+        // انقله داخل الكونتينر لو ما كان داخله
+        if (!mbContainer.contains(mbFrame)) {
           mbContainer.appendChild(mbFrame);
-          mbFallback.style.display = "none";
-          mbState.textContent = "متصل";
-          // نخلي iframe يتمدد بالكامل داخل container
-          mbFrame.style.width = "100%";
-          mbFrame.style.height = "100%";
-          mbFrame.style.border = "0";
-          log("Mounted MB iframe into modal ✅");
-        } catch (e) {
-          mbState.textContent = "غير مدعوم";
-          mbFallback.style.display = "grid";
-          log("Mount failed:", e);
         }
-        return;
-      }
 
-      if (Date.now() - start > 8000) {
-        clearInterval(tryMount);
-        mbState.textContent = "غير ظاهر";
+        // ✅ فرض المقاس داخل المودال
+        forceIframeFullSize(mbFrame);
+
+        // بعض الأحيان MB يرجّع يكتب width/height بعد لحظة — نراقب فترة قصيرة
+        const guardStart = Date.now();
+        const guard = setInterval(() => {
+          forceIframeFullSize(mbFrame);
+          if (Date.now() - guardStart > 4000) clearInterval(guard);
+        }, 250);
+
+        mbFallback.style.display = "none";
+        mbState.textContent = "متصل";
+        console.log("[SUPPORT] MB iframe mounted + resized ✅");
+      } catch (e) {
+        mbState.textContent = "غير مدعوم";
         mbFallback.style.display = "grid";
-        log("MB iframe not found (fallback).");
+        console.warn("[SUPPORT] Mount failed:", e);
       }
-    }, 250);
-  }
+      return;
+    }
+
+    if (Date.now() - start > 8000) {
+      clearInterval(tryMount);
+      mbState.textContent = "غير ظاهر";
+      mbFallback.style.display = "grid";
+      console.warn("[SUPPORT] MB iframe not found (fallback).");
+    }
+  }, 200);
+}
 
   // إذا وضعك محفوظ "mb" وفتحت المودال، نجهّز MB
   if (mode === "mb") {
@@ -806,4 +845,5 @@
 
 </body>
 </html>
+
 
