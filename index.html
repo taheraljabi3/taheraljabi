@@ -65,7 +65,6 @@
       z-index: 99999;
       display:none;
     }
-
     .support-modal.is-open { display:block; }
 
     .support-card{
@@ -98,20 +97,6 @@
       justify-content:space-between;
       gap:10px;
     }
-/* يضمن أن مساحة MB نفسها تتمدد داخل المودال */
-#mbContainer {
-  position: relative;
-  overflow: hidden;
-}
-
-#mbContainer iframe {
-  position: absolute !important;
-  inset: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  border: 0 !important;
-  overflow: hidden !important;
-}
 
     .support-title{
       display:flex;
@@ -321,11 +306,12 @@
       gap:10px;
     }
 
-    .mb-container{
+    #mbContainer{
       flex:1;
       position:relative;
       overflow:hidden;
       background: rgba(0,0,0,.18);
+      min-height: 0;
     }
 
     .mb-fallback{
@@ -335,6 +321,8 @@
       place-items:center;
       padding: 16px;
       text-align:center;
+      background: rgba(0,0,0,.15);
+      z-index: 2;
     }
     .mb-card{
       background: rgba(255,255,255,.06);
@@ -359,13 +347,26 @@
       color: #0b0c10;
     }
 
-    /* If we successfully attach iframe into mb-container */
-    .mb-container iframe{
+    /* Strong embed override (MB often sets inline width/height) */
+    #mbContainer iframe,
+    #mbContainer #live-chat-widget-iframe{
       position:absolute !important;
       inset:0 !important;
       width:100% !important;
       height:100% !important;
       border:0 !important;
+      margin:0 !important;
+      padding:0 !important;
+      overflow:hidden !important;
+      z-index: 1;
+    }
+
+    /* Optional: hide MB floating launcher/button if it appears */
+    #live-chat-widget, .live-chat-widget, .messagebird-launcher, .messagebird-widget-launcher {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
     }
 
     @media (prefers-reduced-motion: reduce){
@@ -492,11 +493,17 @@
   const aiForm = $("aiForm");
   const aiInput = $("aiInput");
   const aiSend = $("aiSend");
-  const aiHint = $("aiHint");
 
   const mbContainer = $("mbContainer");
   const mbFallback = $("mbFallback");
   const mbOpenFallback = $("mbOpenFallback");
+
+  // Guards
+  const required = [modal,fab,btnClose,btnMin,tabAi,tabMb,layerAi,layerMb,aiBadge,mbBadge,mbState,statusDot,aiMessages,aiForm,aiInput,aiSend,mbContainer,mbFallback,mbOpenFallback];
+  if (required.some(x => !x)) {
+    console.error("[SUPPORT] Missing DOM elements; aborting widget init.");
+    return;
+  }
 
   let mode = localStorage.getItem(STORAGE.MODE_KEY) || "ai";
   let greeted = false;
@@ -504,15 +511,30 @@
   function openModal(){
     modal.classList.add("is-open");
     modal.setAttribute("aria-hidden", "false");
-    setTimeout(() => aiInput?.focus(), 50);
     renderAiHistory();
     greetOnce();
     syncUI();
+    setTimeout(() => {
+      if (mode === "ai") aiInput.focus();
+    }, 60);
   }
+
   function closeModal(){
     modal.classList.remove("is-open");
     modal.setAttribute("aria-hidden", "true");
   }
+
+  // Close on ESC
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal.classList.contains("is-open")) closeModal();
+  });
+
+  // Click outside to close
+  document.addEventListener("mousedown", (e) => {
+    if (!modal.classList.contains("is-open")) return;
+    const card = modal.querySelector(".support-card");
+    if (card && !card.contains(e.target) && e.target !== fab) closeModal();
+  });
 
   fab.addEventListener("click", () => {
     if (modal.classList.contains("is-open")) closeModal();
@@ -545,7 +567,6 @@
     statusDot.style.background = isAi ? "var(--success)" : "var(--brand)";
 
     if (!isAi) {
-      // عند فتح تبويب الموظف نحاول تركيب MB داخل المودال
       ensureMessageBirdMountedInsideModal();
     }
   }
@@ -565,18 +586,6 @@
       const safe = Array.isArray(arr) ? arr : [];
       safe.push(item);
       localStorage.setItem(STORAGE.AI_HISTORY_KEY, JSON.stringify(safe.slice(-40)));
-    }catch{}
-  }
-
-  function renderAiHistory(){
-    if (aiMessages.childElementCount > 0) return;
-    try{
-      const raw = localStorage.getItem(STORAGE.AI_HISTORY_KEY);
-      const arr = raw ? JSON.parse(raw) : [];
-      if (!Array.isArray(arr) || !arr.length) return;
-
-      arr.slice(-40).forEach(m => addAiMessage(m.from, m.text, m.t, false));
-      scrollAiBottom();
     }catch{}
   }
 
@@ -607,29 +616,41 @@
     if (persist) persistAiHistory({ from, text: String(text ?? ""), t });
   }
 
-function greetOnce(){
-  if (greeted) return;
-
-  // إذا عندك تاريخ سابق لا ترسل تحية جديدة
-  const raw = localStorage.getItem(STORAGE.AI_HISTORY_KEY);
-  const arr = raw ? JSON.parse(raw) : [];
-  if (Array.isArray(arr) && arr.length) {
-    greeted = true;
-    return;
+  function renderAiHistory(){
+    if (aiMessages.childElementCount > 0) return;
+    try{
+      const raw = localStorage.getItem(STORAGE.AI_HISTORY_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(arr) || !arr.length) return;
+      arr.slice(-40).forEach(m => addAiMessage(m.from, m.text, m.t, false));
+      scrollAiBottom();
+    }catch{}
   }
 
-  greeted = true;
-  addAiMessage("bot", "هلا! أنا مساعد الدعم 🤝\nاكتب سؤالك، وإذا احتجنا موظف بحوّلك فورًا.");
-}
+  function greetOnce(){
+    if (greeted) return;
+
+    // إذا عندك تاريخ سابق لا ترسل تحية جديدة
+    try {
+      const raw = localStorage.getItem(STORAGE.AI_HISTORY_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(arr) && arr.length) {
+        greeted = true;
+        return;
+      }
+    } catch {}
+
+    greeted = true;
+    addAiMessage("bot", "هلا! أنا مساعد الدعم 🤝\nاكتب سؤالك، وإذا احتجنا موظف بحوّلك فورًا.");
+  }
 
   function normalizeText(t){
     return String(t ?? "").replace(/\s+/g, " ").trim();
   }
 
   function setAiBusy(b){
-    if (mode !== "ai") return;
-    aiSend.disabled = b;
-    aiInput.disabled = b;
+    aiSend.disabled = b || mode !== "ai";
+    aiInput.disabled = b || mode !== "ai";
   }
 
   function isHandoff(obj){
@@ -659,17 +680,26 @@ function greetOnce(){
       if (!res.ok) throw new Error("n8n error: " + res.status);
 
       const txt = await res.text();
-      log("N8N:", txt.slice(0, 200));
+      log("N8N (head):", txt.slice(0, 220));
 
+      // supports: JSON object, JSON array, or plain text
       try {
-        return JSON.parse(txt);
-      } catch {
-        return { reply: txt, mode: "continue" };
-      }
+        const parsed = JSON.parse(txt);
+        if (Array.isArray(parsed)) return parsed[0] || { reply: "تم الاستلام", mode: "continue" };
+        if (parsed && typeof parsed === "object") return parsed;
+      } catch {}
+      return { reply: txt, mode: "continue" };
     } finally {
       clearTimeout(timeoutId);
     }
   }
+
+  // Enter to send (and shift+enter for newline if you later switch to textarea)
+  aiInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      // allow form submit
+    }
+  });
 
   aiForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -680,7 +710,6 @@ function greetOnce(){
 
     addAiMessage("user", text);
     aiInput.value = "";
-
     setAiBusy(true);
 
     try{
@@ -688,10 +717,11 @@ function greetOnce(){
       const reply = extractReply(obj);
 
       if (isHandoff(obj)) {
-        addAiMessage("bot", reply || "تم تحويلكم للمهندس المناوب");
+        addAiMessage("bot", reply || "تم تحويلكم للمهندس المناوب.");
         // التحويل داخل نفس المودال
         switchTo("mb");
-        // ونفتح MB داخل نفس المودال
+
+        // افتح MB (سيفتح/يركب داخل نفس المودال)
         openMessageBirdChat(obj.contact || null);
         return;
       }
@@ -722,6 +752,84 @@ function greetOnce(){
     document.head.appendChild(s);
   }
 
+  function forceIframeFullSize(iframe) {
+    if (!iframe) return;
+    iframe.style.setProperty("position", "absolute", "important");
+    iframe.style.setProperty("inset", "0", "important");
+    iframe.style.setProperty("top", "0", "important");
+    iframe.style.setProperty("left", "0", "important");
+    iframe.style.setProperty("right", "0", "important");
+    iframe.style.setProperty("bottom", "0", "important");
+    iframe.style.setProperty("width", "100%", "important");
+    iframe.style.setProperty("height", "100%", "important");
+    iframe.style.setProperty("border", "0", "important");
+    iframe.style.setProperty("margin", "0", "important");
+    iframe.style.setProperty("padding", "0", "important");
+    iframe.style.setProperty("overflow", "hidden", "important");
+    iframe.style.setProperty("z-index", "1", "important");
+  }
+
+  function ensureMessageBirdMountedInsideModal(){
+    loadMessageBirdIfNeeded();
+
+    mbState.textContent = "جارٍ التحميل…";
+    mbFallback.style.display = "grid";
+
+    const start = Date.now();
+    const tryMount = setInterval(() => {
+
+      // Prefer ID, then fallback by src
+      let mbFrame = document.getElementById("live-chat-widget-iframe");
+      if (!mbFrame) {
+        const frames = Array.from(document.querySelectorAll("iframe"));
+        mbFrame = frames.find(f => {
+          const src = (f.getAttribute("src") || "");
+          return src.includes("livechat.messagebird.com") || src.includes("messagebird");
+        });
+      }
+
+      if (mbFrame) {
+        clearInterval(tryMount);
+
+        try {
+          if (!mbContainer.contains(mbFrame)) mbContainer.appendChild(mbFrame);
+
+          forceIframeFullSize(mbFrame);
+
+          // Guard: MB may rewrite inline width/height
+          const guardStart = Date.now();
+          const guard = setInterval(() => {
+            forceIframeFullSize(mbFrame);
+            if (Date.now() - guardStart > 5000) clearInterval(guard);
+          }, 250);
+
+          // Observe future changes and re-force sizing (lightweight)
+          try {
+            const obs = new MutationObserver(() => forceIframeFullSize(mbFrame));
+            obs.observe(mbFrame, { attributes: true, attributeFilter: ["style", "class"] });
+            setTimeout(() => obs.disconnect(), 12000);
+          } catch {}
+
+          mbFallback.style.display = "none";
+          mbState.textContent = "متصل";
+          log("MB iframe mounted + resized ✅");
+        } catch (e) {
+          mbState.textContent = "غير مدعوم";
+          mbFallback.style.display = "grid";
+          console.warn("[SUPPORT] Mount failed:", e);
+        }
+        return;
+      }
+
+      if (Date.now() - start > 9000) {
+        clearInterval(tryMount);
+        mbState.textContent = "غير ظاهر";
+        mbFallback.style.display = "grid";
+        log("MB iframe not found (fallback).");
+      }
+    }, 200);
+  }
+
   function openMessageBirdChat(contact){
     loadMessageBirdIfNeeded();
 
@@ -732,6 +840,7 @@ function greetOnce(){
       if (api && typeof api.toggleChat === "function") {
         clearInterval(timer);
 
+        // Identify (optional)
         try{
           if (api.identify && typeof api.identify === "function") {
             const c = contact || {};
@@ -744,8 +853,9 @@ function greetOnce(){
           }
         } catch {}
 
+        // NOTE: toggleChat may open MB in its default UI first, then we mount the iframe into our modal.
         try { api.toggleChat(); } catch {}
-        // بعد ما يفتح، حاول ننقله داخل المودال
+
         ensureMessageBirdMountedInsideModal();
       }
 
@@ -758,92 +868,26 @@ function greetOnce(){
 
   mbOpenFallback.addEventListener("click", () => openMessageBirdChat(null));
 
-function forceIframeFullSize(iframe) {
-  if (!iframe) return;
-
-  // أقوى طريقة: setProperty with important
-  iframe.style.setProperty("position", "absolute", "important");
-  iframe.style.setProperty("inset", "0", "important");
-  iframe.style.setProperty("top", "0", "important");
-  iframe.style.setProperty("left", "0", "important");
-  iframe.style.setProperty("right", "0", "important");
-  iframe.style.setProperty("bottom", "0", "important");
-  iframe.style.setProperty("width", "100%", "important");
-  iframe.style.setProperty("height", "100%", "important");
-  iframe.style.setProperty("border", "0", "important");
-  iframe.style.setProperty("overflow", "hidden", "important");
-}
-
-function ensureMessageBirdMountedInsideModal(){
-  loadMessageBirdIfNeeded();
-
-  mbState.textContent = "جارٍ التحميل…";
-  mbFallback.style.display = "grid";
-
-  const start = Date.now();
-  const tryMount = setInterval(() => {
-
-    // ✅ عندك iframe ID واضح — الأفضل نمسكه مباشرة
-    let mbFrame = document.getElementById("live-chat-widget-iframe");
-
-    // fallback: لو تغيّر الـ id مستقبلاً
-    if (!mbFrame) {
-      const frames = Array.from(document.querySelectorAll("iframe"));
-      mbFrame = frames.find(f => {
-        const src = (f.getAttribute("src") || "");
-        return src.includes("livechat.messagebird.com") || src.includes("messagebird");
-      });
-    }
-
-    if (mbFrame) {
-      clearInterval(tryMount);
-
-      try {
-        // انقله داخل الكونتينر لو ما كان داخله
-        if (!mbContainer.contains(mbFrame)) {
-          mbContainer.appendChild(mbFrame);
-        }
-
-        // ✅ فرض المقاس داخل المودال
-        forceIframeFullSize(mbFrame);
-
-        // بعض الأحيان MB يرجّع يكتب width/height بعد لحظة — نراقب فترة قصيرة
-        const guardStart = Date.now();
-        const guard = setInterval(() => {
-          forceIframeFullSize(mbFrame);
-          if (Date.now() - guardStart > 4000) clearInterval(guard);
-        }, 250);
-
-        mbFallback.style.display = "none";
-        mbState.textContent = "متصل";
-        console.log("[SUPPORT] MB iframe mounted + resized ✅");
-      } catch (e) {
-        mbState.textContent = "غير مدعوم";
-        mbFallback.style.display = "grid";
-        console.warn("[SUPPORT] Mount failed:", e);
-      }
-      return;
-    }
-
-    if (Date.now() - start > 8000) {
-      clearInterval(tryMount);
-      mbState.textContent = "غير ظاهر";
-      mbFallback.style.display = "grid";
-      console.warn("[SUPPORT] MB iframe not found (fallback).");
-    }
-  }, 200);
-}
-
-  // إذا وضعك محفوظ "mb" وفتحت المودال، نجهّز MB
-  if (mode === "mb") {
-    // لا تفتح تلقائيًا عند تحميل الصفحة (متصفح ممكن يمنع)
-    // لكن إذا فتح المستخدم المودال نركّبه داخل
+  // If user opens modal and mode is mb, mount immediately (no auto-open on page load)
+  function maybeMountOnOpen(){
+    if (mode === "mb") ensureMessageBirdMountedInsideModal();
   }
+
+  // patch openModal to mount if needed
+  const _openModal = openModal;
+  window.__supportOpenModal = () => _openModal();
+
+  // We call maybeMountOnOpen from openModal by listening to class toggle
+  const modalObs = new MutationObserver(() => {
+    if (modal.classList.contains("is-open")) maybeMountOnOpen();
+  });
+  modalObs.observe(modal, { attributes: true, attributeFilter: ["class"] });
+
+  // Initial UI state (don’t open anything automatically)
+  syncUI();
 
 })();
 </script>
 
 </body>
 </html>
-
-
