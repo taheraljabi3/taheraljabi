@@ -1,683 +1,821 @@
 <!DOCTYPE html>
-<html lang="ar">
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>مقالات تقنية - أحدث الأخبار والابتكارات</title>
-        <meta name="description" content="تعرف على آخر الأخبار في عالم التكنولوجيا من خلال مقالات متخصصة تغطي البرمجة، الذكاء الاصطناعي، والأجهزة الذكية.">
-        <meta name="keywords" content="تكنولوجيا, برمجة, مقالات تقنية, الذكاء الاصطناعي, أخبار التكنولوجيا">
-        <link rel="icon" href="favicon.ico" type="image/x-icon">
-        <link rel="stylesheet" href="style.css">
-        <meta name="google-site-verification" content="9Ct3HVF2_BQj4h6--0d3mcexLU9dnwjC_9YJMhCdaT0" />
-            <style>
-  /* AI Chat Widget (RTL) */
-  .ai-chat {
-    position: fixed;
-    bottom: 18px;
-    left: 18px; /* لو تبيها يمين: بدّلها right:18px; واحذف left */
-    z-index: 9999;
-    direction: rtl;
-    font-family: system-ui, -apple-system, Segoe UI, Tahoma, Arial, sans-serif;
-  }
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>مقالات تقنية - أحدث الأخبار والابتكارات</title>
+  <meta name="description" content="تعرف على آخر الأخبار في عالم التكنولوجيا من خلال مقالات متخصصة تغطي البرمجة، الذكاء الاصطناعي، والأجهزة الذكية.">
+  <meta name="keywords" content="تكنولوجيا, برمجة, مقالات تقنية, الذكاء الاصطناعي, أخبار التكنولوجيا">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="style.css">
+  <meta name="google-site-verification" content="9Ct3HVF2_BQj4h6--0d3mcexLU9dnwjC_9YJMhCdaT0" />
 
-  .ai-chat__fab {
-    width: 56px;
-    height: 56px;
-    border: none;
-    border-radius: 16px;
-    cursor: pointer;
-    box-shadow: 0 12px 30px rgba(0,0,0,.18);
-    background: #111;
-    color: #fff;
-    font-size: 22px;
-    display: grid;
-    place-items: center;
-    transition: transform .15s ease, box-shadow .15s ease;
-  }
-  .ai-chat__fab:hover { transform: translateY(-2px); box-shadow: 0 16px 36px rgba(0,0,0,.22); }
-  .ai-chat__fab:active { transform: translateY(0); }
+  <!-- =========================
+       AI Chat Widget - Inline CSS
+       ========================= -->
+  <style>
+    /* --- AI Chat Widget (RTL) --- */
+    :root {
+      --ai-bg: #ffffff;
+      --ai-text: #111;
+      --ai-muted: rgba(0,0,0,.6);
+      --ai-border: rgba(0,0,0,.10);
+      --ai-shadow: 0 18px 60px rgba(0,0,0,.25);
+      --ai-shadow-soft: 0 12px 30px rgba(0,0,0,.12);
+      --ai-brand: #111;
+      --ai-brand-2: #333;
+      --ai-success: #35d07f;
+      --ai-surface: #f6f7f9;
+    }
 
-  .ai-chat__panel {
-    width: 360px;
-    max-width: calc(100vw - 36px);
-    height: 520px;
-    max-height: calc(100vh - 120px);
-    background: #fff;
-    border-radius: 18px;
-    box-shadow: 0 18px 60px rgba(0,0,0,.25);
-    overflow: hidden;
-    position: absolute;
-    bottom: 70px;
-    left: 0;
-    display: none;
-  }
+    .ai-chat {
+      position: fixed;
+      bottom: 18px;
+      left: 18px; /* لو تبيها يمين: بدّلها right:18px; واحذف left */
+      z-index: 9999;
+      direction: rtl;
+      font-family: system-ui, -apple-system, Segoe UI, Tahoma, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
 
-  .ai-chat__header {
-    padding: 14px 14px 12px;
-    background: linear-gradient(135deg, #111, #333);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
+    .ai-chat__fab {
+      width: 56px;
+      height: 56px;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      box-shadow: 0 12px 30px rgba(0,0,0,.18);
+      background: var(--ai-brand);
+      color: #fff;
+      font-size: 22px;
+      display: grid;
+      place-items: center;
+      transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+      user-select: none;
+    }
+    .ai-chat__fab:hover { transform: translateY(-2px); box-shadow: 0 16px 36px rgba(0,0,0,.22); }
+    .ai-chat__fab:active { transform: translateY(0); }
+    .ai-chat__fab:disabled { opacity: .65; cursor: not-allowed; }
 
-  .ai-chat__title { display: flex; align-items: center; gap: 10px; }
-  .ai-chat__dot {
-    width: 10px; height: 10px; border-radius: 50%;
-    background: #35d07f;
-    box-shadow: 0 0 0 4px rgba(53,208,127,.18);
-  }
-  .ai-chat__name { font-weight: 700; font-size: 14px; line-height: 1.2; }
-  .ai-chat__status { font-size: 12px; opacity: .85; }
+    .ai-chat__panel {
+      width: 360px;
+      max-width: calc(100vw - 36px);
+      height: 520px;
+      max-height: calc(100vh - 120px);
+      background: var(--ai-bg);
+      border-radius: 18px;
+      box-shadow: var(--ai-shadow);
+      overflow: hidden;
+      position: absolute;
+      bottom: 70px;
+      left: 0;
+      display: none;
+      border: 1px solid rgba(0,0,0,.06);
+    }
+    .ai-chat__panel[aria-hidden="false"] { display: block; }
 
-  .ai-chat__actions { display: flex; gap: 6px; }
-  .ai-chat__iconbtn {
-    width: 34px; height: 30px;
-    border: 1px solid rgba(255,255,255,.25);
-    background: rgba(255,255,255,.08);
-    color: #fff;
-    border-radius: 10px;
-    cursor: pointer;
-  }
-  .ai-chat__iconbtn:hover { background: rgba(255,255,255,.14); }
+    .ai-chat__header {
+      padding: 14px 14px 12px;
+      background: linear-gradient(135deg, var(--ai-brand), var(--ai-brand-2));
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
 
-  .ai-chat__messages {
-    padding: 14px;
-    height: calc(100% - 58px - 92px);
-    overflow: auto;
-    background: #f6f7f9;
-  }
+    .ai-chat__title { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .ai-chat__dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--ai-success);
+      box-shadow: 0 0 0 4px rgba(53,208,127,.18);
+      flex: 0 0 auto;
+    }
+    .ai-chat__name { font-weight: 800; font-size: 14px; line-height: 1.2; }
+    .ai-chat__status { font-size: 12px; opacity: .88; }
 
-  .ai-msg { display: flex; margin: 10px 0; gap: 8px; }
-  .ai-msg--user { justify-content: flex-start; }
-  .ai-msg--bot { justify-content: flex-end; }
+    .ai-chat__actions { display: flex; gap: 6px; flex: 0 0 auto; }
+    .ai-chat__iconbtn {
+      width: 34px; height: 30px;
+      border: 1px solid rgba(255,255,255,.25);
+      background: rgba(255,255,255,.08);
+      color: #fff;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background .15s ease, transform .15s ease;
+      user-select: none;
+    }
+    .ai-chat__iconbtn:hover { background: rgba(255,255,255,.14); transform: translateY(-1px); }
+    .ai-chat__iconbtn:active { transform: translateY(0); }
 
-  .ai-bubble {
-    max-width: 80%;
-    padding: 10px 12px;
-    border-radius: 14px;
-    line-height: 1.6;
-    font-size: 13.5px;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
+    .ai-chat__messages {
+      padding: 14px;
+      height: calc(100% - 58px - 92px);
+      overflow: auto;
+      background: var(--ai-surface);
+    }
 
-  .ai-msg--user .ai-bubble {
-    background: #111;
-    color: #fff;
-    border-bottom-left-radius: 6px;
-  }
+    .ai-msg { display: flex; margin: 10px 0; gap: 8px; }
+    .ai-msg--user { justify-content: flex-start; }
+    .ai-msg--bot { justify-content: flex-end; }
 
-  .ai-msg--bot .ai-bubble {
-    background: #fff;
-    color: #111;
-    border: 1px solid rgba(0,0,0,.08);
-    border-bottom-right-radius: 6px;
-  }
+    .ai-bubble {
+      max-width: 80%;
+      padding: 10px 12px;
+      border-radius: 14px;
+      line-height: 1.7;
+      font-size: 13.5px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      border: 1px solid transparent;
+    }
 
-  .ai-meta { font-size: 11px; opacity: .65; margin-top: 4px; }
+    .ai-msg--user .ai-bubble {
+      background: var(--ai-brand);
+      color: #fff;
+      border-bottom-left-radius: 6px;
+    }
 
-  .ai-chat__footer {
-    padding: 10px 12px 12px;
-    background: #fff;
-    border-top: 1px solid rgba(0,0,0,.08);
-  }
+    .ai-msg--bot .ai-bubble {
+      background: #fff;
+      color: var(--ai-text);
+      border: 1px solid rgba(0,0,0,.08);
+      border-bottom-right-radius: 6px;
+    }
 
-  .ai-chat__hint {
-    font-size: 12px;
-    color: rgba(0,0,0,.6);
-    margin-bottom: 8px;
-  }
+    .ai-meta { font-size: 11px; opacity: .65; margin-top: 4px; }
 
-  .ai-chat__form { display: flex; gap: 8px; align-items: center; }
-  .ai-chat__input {
-    flex: 1;
-    border: 1px solid rgba(0,0,0,.14);
-    border-radius: 12px;
-    padding: 10px 12px;
-    font-size: 13.5px;
-    outline: none;
-  }
-  .ai-chat__input:focus { border-color: rgba(0,0,0,.35); }
+    .ai-chat__footer {
+      padding: 10px 12px 12px;
+      background: #fff;
+      border-top: 1px solid rgba(0,0,0,.08);
+    }
 
-  .ai-chat__send {
-    border: none;
-    border-radius: 12px;
-    padding: 10px 14px;
-    background: #111;
-    color: #fff;
-    cursor: pointer;
-    font-weight: 600;
-  }
-  .ai-chat__send:disabled { opacity: .6; cursor: not-allowed; }
+    .ai-chat__hint {
+      font-size: 12px;
+      color: var(--ai-muted);
+      margin-bottom: 8px;
+    }
 
-  .ai-chat__badge {
-    display: inline-block;
-    padding: 6px 10px;
-    border-radius: 999px;
-    background: rgba(0,0,0,.06);
-    color: rgba(0,0,0,.8);
-    font-size: 12px;
-    margin: 6px 0 2px;
-  }
+    .ai-chat__form { display: flex; gap: 8px; align-items: center; }
+    .ai-chat__input {
+      flex: 1;
+      border: 1px solid rgba(0,0,0,.14);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13.5px;
+      outline: none;
+      background: #fff;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    .ai-chat__input:focus {
+      border-color: rgba(0,0,0,.35);
+      box-shadow: 0 0 0 4px rgba(0,0,0,.06);
+    }
 
-  .ai-typing { display: inline-flex; gap: 4px; align-items: center; }
-  .ai-typing span {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: rgba(0,0,0,.35);
-    animation: aiDot 1.1s infinite ease-in-out;
-  }
-  .ai-typing span:nth-child(2){ animation-delay: .15s; }
-  .ai-typing span:nth-child(3){ animation-delay: .3s; }
-  @keyframes aiDot {
-    0%, 100% { transform: translateY(0); opacity: .5; }
-    50% { transform: translateY(-4px); opacity: 1; }
-  }
+    .ai-chat__send {
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      background: var(--ai-brand);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 700;
+      user-select: none;
+      transition: transform .15s ease, opacity .15s ease;
+    }
+    .ai-chat__send:hover { transform: translateY(-1px); }
+    .ai-chat__send:active { transform: translateY(0); }
+    .ai-chat__send:disabled { opacity: .65; cursor: not-allowed; transform: none; }
 
-  /* Overlay يمنع الإرسال بعد التحويل */
-  .ai-chat__overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(255,255,255,.78);
-    backdrop-filter: blur(2px);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 20px;
-  }
-  .ai-chat__overlay .box {
-    background: #fff;
-    border: 1px solid rgba(0,0,0,.08);
-    border-radius: 16px;
-    padding: 14px;
-    max-width: 280px;
-    box-shadow: 0 12px 30px rgba(0,0,0,.12);
-  }
-  .ai-chat__overlay .box b { display:block; margin-bottom: 6px; }
-  .ai-chat__overlay .box button {
-    margin-top: 10px;
-    border: none;
-    border-radius: 12px;
-    padding: 10px 14px;
-    background: #111;
-    color: #fff;
-    cursor: pointer;
-    width: 100%;
-  }
-</style>
-    </head>
+    .ai-chat__badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.06);
+      color: rgba(0,0,0,.8);
+      font-size: 12px;
+      margin: 6px 0 2px;
+      border: 1px solid rgba(0,0,0,.06);
+    }
 
+    .ai-typing { display: inline-flex; gap: 4px; align-items: center; padding: 2px 0; }
+    .ai-typing span {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: rgba(0,0,0,.35);
+      animation: aiDot 1.1s infinite ease-in-out;
+    }
+    .ai-typing span:nth-child(2){ animation-delay: .15s; }
+    .ai-typing span:nth-child(3){ animation-delay: .3s; }
+    @keyframes aiDot {
+      0%, 100% { transform: translateY(0); opacity: .5; }
+      50% { transform: translateY(-4px); opacity: 1; }
+    }
+
+    /* Overlay يمنع الإرسال بعد التحويل */
+    .ai-chat__overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,.78);
+      backdrop-filter: blur(2px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+    }
+    .ai-chat__overlay.is-open { display: flex; }
+    .ai-chat__overlay .box {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: 16px;
+      padding: 14px;
+      max-width: 300px;
+      box-shadow: var(--ai-shadow-soft);
+    }
+    .ai-chat__overlay .box b { display:block; margin-bottom: 6px; }
+    .ai-chat__overlay .box button {
+      margin-top: 10px;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      background: var(--ai-brand);
+      color: #fff;
+      cursor: pointer;
+      width: 100%;
+      font-weight: 700;
+    }
+
+    /* صغير: احترم تقليل الحركة */
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
 
 <body>
-    <header>
-        <h1>مقالات تقنية</h1>
-        <nav>
-            <ul>
-                <li><a href="index.html">الصفحة الرئيسية</a></li>
-                <li><a href="about.html">من نحن</a></li>
-                <li><a href="services.html">الخدمات</a></li>
-                <li><a href="blog.html">المدونة</a></li>
-                <li><a href="contact.html">اتصل بنا</a></li>
-            </ul>
-        </nav>
-        <section id="search-section">
-            <form id="search-form">
-                <input type="text" id="search-input" placeholder="ابحث عن مقال..." />
-                <button type="submit">بحث</button>
-            </form>
-        </section>
-    </header>
-    
-    <main>
-       <!-- مستطيل عرض المقالات بشكل إعلان -->
-        <div id="carousel-background">
-       <section id="featured-articles">
-        <button class="carousel-control left">&lt;</button> <!-- السهم الأيسر -->
-        
-        <div class="carousel-wrapper">
-            <div class="carousel">
-                <!-- سيتم ملء المقالات من JavaScript -->
-            </div>
-        </div>
-    </div>
-    
-        <button class="carousel-control right">&gt;</button> <!-- السهم الأيمن -->
-    </section>
-    
-
-
-        <section id="articles">
-            <div class="article-card">
-                <div class="article-image"><img src="https://www.infoworld.com/wp-content/uploads/2024/06/java_binary_code_gears_programming_coding_development_by_bluebay2014_gettyimages-1040871468_2400x1600-100795798-orig.jpg?quality=50&strip=all"  alt="java">
-                </div>
-                <h3>مقدمة في البرمجة بلغة JavaScript</h3>
-                <p>تعلم أساسيات البرمجة بلغة JavaScript بطريقة سهلة وممتعة. اكتشف كيف يمكنك البدء اليوم!</p>
-                <a href="article1.html" class="read-more">اقرأ المزيد</a>
-            </div>
-            <div class="article-card">
-                <div class="article-image"><img src="https://ahmadosama.com/wp-content/uploads/2024/06/%D8%A7%D9%84%D8%AE%D8%B3%D8%A7%D8%A6%D8%B1-%D8%A7%D9%84%D9%85%D8%A7%D9%84%D9%8A%D8%A9-%D8%A7%D9%84%D8%B6%D8%AE%D9%85%D8%A9-%D8%A7%D9%84%D8%AA%D9%8A-%D8%AA%D8%AA%D8%B3%D8%A8%D8%A8-%D8%A8%D9%87%D8%A7-%D8%A7%D9%84%D8%A7%D8%AE%D8%AA%D8%B1%D8%A7%D9%82%D8%A7%D8%AA.webp" alt=""></div>
-                <h3>كيف تحمي نفسك من الهجمات الإلكترونية</h3>
-                <p>تعلم كيفية حماية نفسك من الهجمات الإلكترونية بخطوات بسيطة.</p>
-                <a href="article2.html" class="read-more">اقرأ المزيد</a>
-            </div>
-            <div class="article-card">
-                <div class="article-image"><img src="https://www.aljazeera.net/wp-content/uploads/2024/01/image-1705331990.jpg?resize=1920%2C1080&quality=80" alt=""></div>
-                <h3>تطور تكنولوجيا الذكاء الاصطناعي</h3>
-                <p>اكتشف كيف تطورت تكنولوجيا الذكاء الاصطناعي في السنوات الأخيرة وتأثيرها على حياتنا اليومية.</p>
-                <a href="article3.html" class="read-more">اقرأ المزيد</a>
-            </div>
-            <div class="article-card">
-                <div class="article-image"><img src="https://appmaster.io/api/_files/827qUF5EFuwimEFJ3Q5Xaf/download/" alt=""></div>
-                <h3>أساسيات تطوير تطبيقات الويب</h3>
-                <p>تعلم كيفية بناء تطبيقات الويب باستخدام HTML, CSS و JavaScript.</p>
-                <a href="article4.html" class="read-more">اقرأ المزيد</a>
-            </div>
-            <div class="article-card">
-                <div class="article-image"><img src="https://academy.hsoub.com/uploads/monthly_2024_02/1848584578_.png.cf0fb683aec267d5b8627ca1c87deec1.png" alt=""></div>
-                <h3>أفضل الممارسات في كتابة الأكواد</h3>
-                <p>استراتيجيات لتحسين جودة الكود وسهولة صيانته.</p>
-                <a href="article5.html" class="read-more">اقرأ المزيد</a>
-            </div>
-            <div class="article-card">
-                <div class="article-image"><img src="https://www.unite.ai/wp-content/uploads/2022/04/AI-Python-Libraries.png" alt=""></div>
-                <h3>البرمجة الكائنية باستخدام Python</h3>
-                <p>دليلك إلى البرمجة الكائنية باستخدام لغة بايثون.</p>
-                <a href="article6.html" class="read-more">اقرأ المزيد</a>
-            </div>
-            <div class="article-card">
-                <div class="article-image"><img src="https://media.licdn.com/dms/image/D4D12AQGXoLA2ZXer3g/article-cover_image-shrink_720_1280/0/1692968204043?e=2147483647&v=beta&t=ERBATmVYLLk-1HsQzoIlMpTjzQhuIVYg68ckQljMQZY" alt=""></div>
-                <h3>تصميم قواعد البيانات باستخدام SQL</h3>
-                <p>كيفية تصميم قواعد بيانات قوية ومرنة باستخدام SQL.</p>
-                <a href="article7.html" class="read-more">اقرأ المزيد</a>
-            </div>
-            <div class="article-card">
-                <div class="article-image"><img src="https://github.blog/wp-content/uploads/2023/01/1200x640-2.png?fit=1200%2C640" alt=""></div>
-                <h3>إتقان Git و GitHub</h3>
-                <p>تعلم كيفية إدارة مشاريع البرمجة بفعالية باستخدام Git و GitHub.</p>
-                <a href="article8.html" class="read-more">اقرأ المزيد</a>
-            </div>
-            <div class="article-card">
-                <div class="article-image"><img src="https://prod-provider-images.s3.amazonaws.com/program_images/6AHrw3LAU7/flutter.png" alt=""></div>
-                <h3>تطوير التطبيقات المتنقلة باستخدام Flutter</h3>
-                <p>كيفية بناء تطبيقات متنقلة عالية الأداء باستخدام Flutter.</p>
-                <a href="article9.html" class="read-more">اقرأ المزيد</a>
-            </div>
-            <div class="article-card">
-                <div class="article-image"><img src="https://www.device42.com/blog/wp-content/uploads/2023/03/14_01edge-cloud-computing.jpg" alt=""></div>
-                <h3>الحوسبة السحابية: مقدمة وفوائدها</h3>
-                <p>تعرف على الأساسيات والفوائد الرئيسية للحوسبة السحابية.</p>
-                <a href="article10.html" class="read-more">اقرأ المزيد</a>
-            </div>
-            <div class="article-card">
-                <div class="article-image"><img src="https://www.educative.io/v2api/editorpage/5393602882568192/image/6038586442907648" alt=""></div>
-                <h3>البرمجة المتوازية في لغة C++</h3>
-                <p>تعلم كيفية استخدام البرمجة المتوازية لتسريع التطبيقات باستخدام C++.</p>
-                <a href="article11.html" class="read-more">اقرأ المزيد</a>
-            </div>
-            <div class="article-card">
-                <div class="article-image"><img src="https://www.intrangowebdesign.com/blog/images/improve-web-design.jpg" alt=""></div>
-                <h3>تقنيات تحسين أداء المواقع الإلكترونية</h3>
-                <p>خطوات لزيادة سرعة المواقع الإلكترونية وتحسين تجربة المستخدم.</p>
-                <a href="article12.html" class="read-more">اقرأ المزيد</a>
-            </div>
-            <div class="article-card">
-                <div class="article-image"><img src="https://miro.medium.com/v2/resize:fit:1400/1*BBOthbBs55UN8FaXsclx3g.png" alt=""></div>
-                <h3>إنشاء تطبيقات متوافقة مع جميع الأجهزة</h3>
-                <p>كيفية تصميم تطبيقات ويب متجاوبة تعمل على جميع الأجهزة بكفاءة.</p>
-                <a href="article13.html" class="read-more">اقرأ المزيد</a>
-            </div>
-            <div class="article-card">
-                <div class="article-image"><img src="https://www.simplilearn.com/ice9/free_resources_article_thumb/What_is_Data_Analysis.jpg" alt=""></div>
-                <h3>تحليل البيانات باستخدام Python</h3>
-                <p>تعرف على أدوات تحليل البيانات في بايثون وكيفية استخدامها.</p>
-                <a href="article14.html" class="read-more">اقرأ المزيد</a>
-            </div>
-            <div class="article-card">
-                <div class="article-image"><img src="https://d3g5ywftkpzr0e.cloudfront.net/wp-content/uploads/2023/07/13220529/Artificial-Intelligence-in-Indonesia-The-current-state-and-its-opportunities.jpeg" alt=""></div>
-                <h3>مستقبل تطوير البرمجيات باستخدام الذكاء الاصطناعي</h3>
-                <p>اكتشف كيف يساهم الذكاء الاصطناعي في تطوير البرمجيات بشكل أسرع وأكثر ذكاءً.</p>
-                <a href="article15.html" class="read-more">اقرأ المزيد</a>
-            </div>
-            <div class="article-card">
-                <div class="article-image"><img src="https://miro.medium.com/v2/resize:fit:1400/1*NO6d1BsPWWmZHeAXWxjGEA.png" alt=""></div>
-                <h3>أتمتة العمليات باستخدام Python و Selenium</h3>
-                <p>تعلم كيفية أتمتة المهام الروتينية في الويب باستخدام Selenium.</p>
-                <a href="article16.html" class="read-more">اقرأ المزيد</a>
-            </div>
-            <div class="article-card">
-                <div class="article-image"><img src="https://cdn-gcp.new.marutitech.com/robot_humanoid_using_tablet_computer_big_data_analytic_1_94eab7101e.jpg" alt=""></div>
-                <h3>الذكاء الاصطناعي وتعلم الآلة: كيف يغيران العالم</h3>
-                <p>سنتناول كيف يغير الذكاء الاصطناعي وتعلم الآلة العالم من حولنا، وما هي تطبيقاتهما في الحياة اليومية</p>
-                <a href="article17.html" class="read-more">اقرأ المزيد</a>
-            </div>
-        </section>
-    </main>
-    <div id="aiChatWidget" class="ai-chat">
-  <button id="aiChatFab" class="ai-chat__fab" aria-label="فتح المحادثة">💬</button>
-
-  <div id="aiChatPanel" class="ai-chat__panel" aria-hidden="true" role="dialog" aria-label="محادثة الدعم">
-    <div class="ai-chat__header">
-      <div class="ai-chat__title">
-        <div class="ai-chat__dot"></div>
-        <div>
-          <div class="ai-chat__name">مساعد الدعم</div>
-          <div class="ai-chat__status" id="aiChatStatus">متصل</div>
-        </div>
-      </div>
-      <div class="ai-chat__actions">
-        <button id="aiChatMin" class="ai-chat__iconbtn" title="تصغير">—</button>
-        <button id="aiChatClose" class="ai-chat__iconbtn" title="إغلاق">✕</button>
-      </div>
-    </div>
-
-    <div id="aiChatMessages" class="ai-chat__messages" aria-live="polite"></div>
-
-    <div class="ai-chat__footer">
-      <div class="ai-chat__hint" id="aiChatHint">
-        اكتب سؤالك… وإذا احتجنا موظف بنحوّلك مباشرة.
-      </div>
-      <form id="aiChatForm" class="ai-chat__form">
-        <input id="aiChatInput" class="ai-chat__input" type="text" placeholder="اكتب رسالتك هنا…" autocomplete="off" />
-        <button id="aiChatSend" class="ai-chat__send" type="submit">إرسال</button>
+  <header>
+    <h1>مقالات تقنية</h1>
+    <nav>
+      <ul>
+        <li><a href="index.html">الصفحة الرئيسية</a></li>
+        <li><a href="about.html">من نحن</a></li>
+        <li><a href="services.html">الخدمات</a></li>
+        <li><a href="blog.html">المدونة</a></li>
+        <li><a href="contact.html">اتصل بنا</a></li>
+      </ul>
+    </nav>
+    <section id="search-section">
+      <form id="search-form">
+        <input type="text" id="search-input" placeholder="ابحث عن مقال..." />
+        <button type="submit">بحث</button>
       </form>
-    </div>
+    </section>
+  </header>
 
-    <div id="aiChatOverlay" class="ai-chat__overlay">
-      <div class="box">
-        <b>تم تحويلك للدعم البشري</b>
-        <div>تم إيقاف الشات الآلي وفتح نافذة الدعم.</div>
-        <button id="aiOpenHumanChat">فتح الدعم الآن</button>
+  <main>
+    <!-- مستطيل عرض المقالات بشكل إعلان -->
+    <div id="carousel-background">
+      <section id="featured-articles">
+        <button class="carousel-control left">&lt;</button> <!-- السهم الأيسر -->
+        <div class="carousel-wrapper">
+          <div class="carousel">
+            <!-- سيتم ملء المقالات من JavaScript -->
+          </div>
+        </div>
+      </section>
+    </div>
+    <button class="carousel-control right">&gt;</button> <!-- السهم الأيمن -->
+
+    <section id="articles">
+      <!-- (محتوى المقالات كما هو عندك) -->
+      <!-- ... -->
+    </section>
+  </main>
+
+  <!-- =========================
+       AI Chat Widget - Inline HTML
+       ========================= -->
+  <div id="aiChatWidget" class="ai-chat">
+    <button id="aiChatFab" class="ai-chat__fab" aria-label="فتح المحادثة" type="button">💬</button>
+
+    <div id="aiChatPanel" class="ai-chat__panel" aria-hidden="true" role="dialog" aria-label="محادثة الدعم">
+      <div class="ai-chat__header">
+        <div class="ai-chat__title">
+          <div class="ai-chat__dot"></div>
+          <div>
+            <div class="ai-chat__name">مساعد الدعم</div>
+            <div class="ai-chat__status" id="aiChatStatus">متصل</div>
+          </div>
+        </div>
+        <div class="ai-chat__actions">
+          <button id="aiChatMin" class="ai-chat__iconbtn" title="تصغير" type="button">—</button>
+          <button id="aiChatClose" class="ai-chat__iconbtn" title="إغلاق" type="button">✕</button>
+        </div>
+      </div>
+
+      <div id="aiChatMessages" class="ai-chat__messages" aria-live="polite"></div>
+
+      <div class="ai-chat__footer">
+        <div class="ai-chat__hint" id="aiChatHint">اكتب سؤالك… وإذا احتجنا موظف بنحوّلك مباشرة.</div>
+        <form id="aiChatForm" class="ai-chat__form" autocomplete="off">
+          <input id="aiChatInput" class="ai-chat__input" type="text" placeholder="اكتب رسالتك هنا…" />
+          <button id="aiChatSend" class="ai-chat__send" type="submit">إرسال</button>
+        </form>
+      </div>
+
+      <div id="aiChatOverlay" class="ai-chat__overlay">
+        <div class="box">
+          <b>تم تحويلك للدعم البشري</b>
+          <div>تم إيقاف الشات الآلي وفتح نافذة الدعم.</div>
+          <button id="aiOpenHumanChat" type="button">فتح الدعم الآن</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
-        <script src="chat.js"></script>
-        <script src="script.js"></script>
 
-<script>
-(() => {
-  // =========================
-  // 1) إعدادات: عدّلها فقط
-  // =========================
-  const N8N_WEBHOOK_URL = "https://taherahmedsaeed.app.n8n.cloud/webhook-test/264e35a3-2adb-48b8-9a58-3040e9ec8107"; // <-- عدل
-  const MESSAGEBIRD_WIDGET_ID = "703013fa-c1c4-4280-a6a0-d4ef3deb4438"; // <-- عندك
+  <!-- ملفاتك الحالية (اختياري) -->
+  <script src="chat.js"></script>
+  <script src="script.js"></script>
 
-  // شرط التحويل: كيف نقرر؟ (افتراضي: data.mode === 'handoff')
-  function isHandoffResponse(data) {
-    return data && (data.mode === "handoff" || data.handoff === true);
-  }
+  <!-- =========================
+       AI Chat Widget - Inline JS
+       ========================= -->
+  <script>
+  (() => {
+    "use strict";
 
-  // =========================
-  // 2) Session
-  // =========================
-  const SESSION_KEY = "ai_chat_session_id_v1";
-  const sessionId = localStorage.getItem(SESSION_KEY) || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()));
-  localStorage.setItem(SESSION_KEY, sessionId);
+    /**
+     * ✅ المطلوب من n8n:
+     * يرجّع JSON فيه واحد من هذه الحقول (بالأولوية):
+     * - reply
+     * - output
+     * - text
+     * - answer
+     *
+     * مثال:
+     * { "reply": "اهلا!", "mode":"continue" }
+     * أو للتحويل:
+     * { "reply":"تم تحويلك", "mode":"handoff", "contact": {...} }
+     */
 
-  // =========================
-  // 3) عناصر UI
-  // =========================
-  const fab = document.getElementById("aiChatFab");
-  const panel = document.getElementById("aiChatPanel");
-  const closeBtn = document.getElementById("aiChatClose");
-  const minBtn = document.getElementById("aiChatMin");
-  const form = document.getElementById("aiChatForm");
-  const input = document.getElementById("aiChatInput");
-  const sendBtn = document.getElementById("aiChatSend");
-  const messagesEl = document.getElementById("aiChatMessages");
-  const statusEl = document.getElementById("aiChatStatus");
-  const hintEl = document.getElementById("aiChatHint");
-  const overlayEl = document.getElementById("aiChatOverlay");
-  const openHumanBtn = document.getElementById("aiOpenHumanChat");
+    // =========================
+    // 1) إعدادات (عدّلها فقط)
+    // =========================
+    const CONFIG = {
+      // ملاحظة: webhook-test يعمل فقط في وضع TEST داخل n8n
+      N8N_WEBHOOK_URL: "https://taherahmedsaeed.app.n8n.cloud/webhook-test/264e35a3-2adb-48b8-9a58-3040e9ec8107",
+      MESSAGEBIRD_WIDGET_ID: "703013fa-c1c4-4280-a6a0-d4ef3deb4438",
 
-  // حالة البوابة
-  let gateLocked = false; // إذا true = ممنوع الإرسال (بعد التحويل)
-
-  // =========================
-  // 4) Helpers
-  // =========================
-  function openPanel() {
-    panel.style.display = "block";
-    panel.setAttribute("aria-hidden", "false");
-    setTimeout(() => input.focus(), 50);
-  }
-  function closePanel() {
-    panel.style.display = "none";
-    panel.setAttribute("aria-hidden", "true");
-  }
-  function scrollToBottom() {
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-  }
-  function nowTime() {
-    const d = new Date();
-    return d.toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" });
-  }
-  function addMessage({ from, text }) {
-    const wrap = document.createElement("div");
-    wrap.className = "ai-msg ai-msg--" + from;
-
-    const bubble = document.createElement("div");
-    bubble.className = "ai-bubble";
-    bubble.textContent = text;
-
-    const meta = document.createElement("div");
-    meta.className = "ai-meta";
-    meta.textContent = nowTime();
-
-    const container = document.createElement("div");
-    container.appendChild(bubble);
-    container.appendChild(meta);
-
-    wrap.appendChild(container);
-    messagesEl.appendChild(wrap);
-    scrollToBottom();
-  }
-  function addBadge(text) {
-    const b = document.createElement("div");
-    b.className = "ai-chat__badge";
-    b.textContent = text;
-    messagesEl.appendChild(b);
-    scrollToBottom();
-  }
-  function addTyping() {
-    const wrap = document.createElement("div");
-    wrap.className = "ai-msg ai-msg--bot";
-    wrap.id = "aiTyping";
-
-    const bubble = document.createElement("div");
-    bubble.className = "ai-bubble";
-
-    const typing = document.createElement("div");
-    typing.className = "ai-typing";
-    typing.innerHTML = "<span></span><span></span><span></span>";
-
-    bubble.appendChild(typing);
-    wrap.appendChild(bubble);
-    messagesEl.appendChild(wrap);
-    scrollToBottom();
-  }
-  function removeTyping() {
-    const t = document.getElementById("aiTyping");
-    if (t) t.remove();
-  }
-  function setBusy(isBusy) {
-    sendBtn.disabled = isBusy;
-    input.disabled = isBusy;
-    statusEl.textContent = isBusy ? "جارٍ الرد…" : "متصل";
-  }
-
-  // =========================
-  // 5) الاتصال بـ n8n
-  // =========================
-async function sendToN8n(userText) {
-  const body = {
-    sessionId,
-    page: location.href,
-    message: userText,
-    locale: "ar"
-  };
-
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 ثانية
-
-  try {
-    const res = await fetch(N8N_WEBHOOK_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      signal: controller.signal
-    });
-
-    if (!res.ok) throw new Error("n8n error: " + res.status);
-
-    // لو n8n يرجع JSON — تمام
-    return await res.json();
-  } finally {
-    clearTimeout(timeoutId);
-  }
-}
-
-
-  // =========================
-  // 6) MessageBird: تحميل/فتح عند التحويل فقط
-  // =========================
-  function loadMessageBirdWidgetIfNeeded() {
-    if (document.getElementById("live-chat-widget-script")) return;
-
-    window.MessageBirdChatWidgetSettings = {
-      widgetId: MESSAGEBIRD_WIDGET_ID,
-      initializeOnLoad: true
+      REQUEST_TIMEOUT_MS: 25000,
+      DEBUG: true, // خليها true وقت التجربة، وبعدين false
     };
 
-    const s = document.createElement("script");
-    s.type = "text/javascript";
-    s.async = true;
-    s.id = "live-chat-widget-script";
-    s.src = "https://livechat.messagebird.com/bootstrap.js?widgetId=" + encodeURIComponent(MESSAGEBIRD_WIDGET_ID);
-    document.head.appendChild(s);
-  }
+    // =========================
+    // 2) Session + Storage
+    // =========================
+    const STORAGE = {
+      SESSION_KEY: "ai_chat_session_id_v1",
+      HISTORY_KEY: "ai_chat_history_v1",
+      GATE_KEY: "ai_chat_gate_locked_v1",
+    };
 
-  function openMessageBirdChat(contact) {
-    loadMessageBirdWidgetIfNeeded();
+    const sessionId =
+      localStorage.getItem(STORAGE.SESSION_KEY) ||
+      (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()));
 
-    const start = Date.now();
-    const timer = setInterval(() => {
-      const api = window.MessageBirdChatWidget;
+    localStorage.setItem(STORAGE.SESSION_KEY, sessionId);
 
-      if (api && api.toggleChat && api.identify) {
-        clearInterval(timer);
+    // =========================
+    // 3) عناصر UI
+    // =========================
+    const $ = (id) => document.getElementById(id);
 
-        // تعريف العميل (اختياري)
-        const c = contact || {};
-        api.identify({
-          externalId: c.id || sessionId,
-          name: c.name,
-          email: c.email,
-          phone: c.phone
+    const fab = $("aiChatFab");
+    const panel = $("aiChatPanel");
+    const closeBtn = $("aiChatClose");
+    const minBtn = $("aiChatMin");
+    const form = $("aiChatForm");
+    const input = $("aiChatInput");
+    const sendBtn = $("aiChatSend");
+    const messagesEl = $("aiChatMessages");
+    const statusEl = $("aiChatStatus");
+    const hintEl = $("aiChatHint");
+    const overlayEl = $("aiChatOverlay");
+    const openHumanBtn = $("aiOpenHumanChat");
+
+    // =========================
+    // 4) State
+    // =========================
+    let gateLocked = localStorage.getItem(STORAGE.GATE_KEY) === "1";
+    let greeted = false;
+
+    // =========================
+    // 5) Helpers UI
+    // =========================
+    function logDebug(...args) {
+      if (CONFIG.DEBUG) console.log("[AI-CHAT]", ...args);
+    }
+
+    function openPanel() {
+      panel.setAttribute("aria-hidden", "false");
+      setTimeout(() => input.focus(), 50);
+    }
+
+    function closePanel() {
+      panel.setAttribute("aria-hidden", "true");
+    }
+
+    function scrollToBottom() {
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function nowTime() {
+      const d = new Date();
+      return d.toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" });
+    }
+
+    function addMessage({ from, text }) {
+      const wrap = document.createElement("div");
+      wrap.className = "ai-msg ai-msg--" + from;
+
+      const bubble = document.createElement("div");
+      bubble.className = "ai-bubble";
+      bubble.textContent = String(text ?? "");
+
+      const meta = document.createElement("div");
+      meta.className = "ai-meta";
+      meta.textContent = nowTime();
+
+      const container = document.createElement("div");
+      container.appendChild(bubble);
+      container.appendChild(meta);
+
+      wrap.appendChild(container);
+      messagesEl.appendChild(wrap);
+      scrollToBottom();
+
+      persistHistory({ from, text: String(text ?? ""), t: Date.now() });
+    }
+
+    function addBadge(text) {
+      const b = document.createElement("div");
+      b.className = "ai-chat__badge";
+      b.textContent = text;
+      messagesEl.appendChild(b);
+      scrollToBottom();
+    }
+
+    function addTyping() {
+      if ($("aiTyping")) return;
+      const wrap = document.createElement("div");
+      wrap.className = "ai-msg ai-msg--bot";
+      wrap.id = "aiTyping";
+
+      const bubble = document.createElement("div");
+      bubble.className = "ai-bubble";
+
+      const typing = document.createElement("div");
+      typing.className = "ai-typing";
+      typing.innerHTML = "<span></span><span></span><span></span>";
+
+      bubble.appendChild(typing);
+      wrap.appendChild(bubble);
+      messagesEl.appendChild(wrap);
+      scrollToBottom();
+    }
+
+    function removeTyping() {
+      const t = $("aiTyping");
+      if (t) t.remove();
+    }
+
+    function setBusy(isBusy) {
+      sendBtn.disabled = isBusy || gateLocked;
+      input.disabled = isBusy || gateLocked;
+      statusEl.textContent = gateLocked ? "تم التحويل" : (isBusy ? "جارٍ الرد…" : "متصل");
+    }
+
+    function showOverlay(show) {
+      overlayEl.classList.toggle("is-open", !!show);
+    }
+
+    // =========================
+    // 6) History (اختياري لكنه مفيد)
+    // =========================
+    function loadHistory() {
+      try {
+        const raw = localStorage.getItem(STORAGE.HISTORY_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(arr)) return [];
+        return arr.slice(-30); // آخر 30 رسالة
+      } catch {
+        return [];
+      }
+    }
+
+    function persistHistory(item) {
+      try {
+        const arr = loadHistory();
+        arr.push(item);
+        localStorage.setItem(STORAGE.HISTORY_KEY, JSON.stringify(arr.slice(-30)));
+      } catch {}
+    }
+
+    function renderHistory() {
+      const history = loadHistory();
+      if (!history.length) return;
+
+      // لا نكرر تاريخ مرسوم سابقًا
+      if (messagesEl.childElementCount > 0) return;
+
+      history.forEach((m) => {
+        // نفس شكل الرسائل لكن بدون حفظ مرّة ثانية
+        const wrap = document.createElement("div");
+        wrap.className = "ai-msg ai-msg--" + (m.from || "bot");
+
+        const bubble = document.createElement("div");
+        bubble.className = "ai-bubble";
+        bubble.textContent = String(m.text ?? "");
+
+        const meta = document.createElement("div");
+        meta.className = "ai-meta";
+        meta.textContent = new Date(m.t || Date.now()).toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" });
+
+        const container = document.createElement("div");
+        container.appendChild(bubble);
+        container.appendChild(meta);
+
+        wrap.appendChild(container);
+        messagesEl.appendChild(wrap);
+      });
+
+      scrollToBottom();
+    }
+
+    // =========================
+    // 7) Parsing reply from n8n
+    // =========================
+    function extractReply(data) {
+      // 1) الشكل الأفضل: { reply: "..." }
+      if (data && typeof data === "object" && !Array.isArray(data)) {
+        const r = data.reply ?? data.output ?? data.text ?? data.answer;
+        if (typeof r === "string" && r.trim()) return r;
+      }
+
+      // 2) أحيانًا n8n يرجّع Array
+      if (Array.isArray(data) && data[0] && typeof data[0] === "object") {
+        const r = data[0].reply ?? data[0].output ?? data[0].text ?? data[0].answer;
+        if (typeof r === "string" && r.trim()) return r;
+      }
+
+      return null;
+    }
+
+    function isHandoffResponse(data) {
+      // يشتغل مع: { mode:"handoff" } أو { handoff:true }
+      return !!(data && (data.mode === "handoff" || data.handoff === true));
+    }
+
+    // =========================
+    // 8) n8n Request (مع timeout + دعم JSON/text)
+    // =========================
+    async function sendToN8n(userText) {
+      const body = {
+        sessionId,
+        page: location.href,
+        message: userText,
+        locale: "ar",
+        ts: Date.now(),
+      };
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), CONFIG.REQUEST_TIMEOUT_MS);
+
+      try {
+        const res = await fetch(CONFIG.N8N_WEBHOOK_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+          signal: controller.signal,
         });
 
-        api.toggleChat();
+        const contentType = (res.headers.get("content-type") || "").toLowerCase();
+
+        if (!res.ok) {
+          const raw = await safeReadText(res);
+          throw new Error(`n8n error: ${res.status} - ${raw || "no body"}`);
+        }
+
+        // ✅ إذا رجع JSON
+        if (contentType.includes("application/json")) {
+          return await res.json();
+        }
+
+        // ✅ إذا رجع نص (أحيانًا)
+        const txt = await res.text();
+        // حاول تحويله JSON لو كان JSON كنص
+        try {
+          return JSON.parse(txt);
+        } catch {
+          return { reply: txt };
+        }
+      } finally {
+        clearTimeout(timeoutId);
       }
-
-      if (Date.now() - start > 9000) {
-        clearInterval(timer);
-        addMessage({ from: "bot", text: "تأخر فتح الدعم. جرّب زر (فتح الدعم الآن) أو أعد تحميل الصفحة." });
-      }
-    }, 200);
-  }
-
-  function lockGateAndHandoff(payload) {
-    gateLocked = true;
-    overlayEl.style.display = "flex";
-    statusEl.textContent = "تم التحويل";
-    hintEl.textContent = "تم إيقاف الشات الآلي. افتح الدعم البشري.";
-
-    // افتح MessageBird مباشرة (ضمن نفس تجربة الصفحة)
-    const contact = payload && payload.contact ? payload.contact : null;
-    openMessageBirdChat(contact);
-  }
-
-  // =========================
-  // 7) أحداث UI
-  // =========================
-  fab.addEventListener("click", () => {
-    if (panel.style.display === "block") closePanel();
-    else openPanel();
-  });
-  closeBtn.addEventListener("click", closePanel);
-  minBtn.addEventListener("click", closePanel);
-
-  // ترحيب أول مرة
-  let greeted = false;
-  function greetOnce() {
-    if (greeted) return;
-    greeted = true;
-    addMessage({ from: "bot", text: "هلا! أنا مساعد الدعم 🤝\nاكتب سؤالك، وإذا احتجنا موظف بحوّلك فورًا." });
-  }
-  fab.addEventListener("click", greetOnce);
-
-  openHumanBtn.addEventListener("click", () => {
-    // في حال التحويل صار لكن العميل أغلق ويدجت MessageBird
-    openMessageBirdChat(null);
-  });
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const text = (input.value || "").trim();
-    if (!text) return;
-
-    // منع الإرسال بعد التحويل
-    if (gateLocked) {
-      addBadge("تم التحويل للدعم البشري — استخدم نافذة الدعم.");
-      return;
     }
 
-    addMessage({ from: "user", text });
-    input.value = "";
+    async function safeReadText(res) {
+      try { return await res.text(); } catch { return ""; }
+    }
 
-    setBusy(true);
-    addTyping();
+    // =========================
+    // 9) MessageBird (Lazy load)
+    // =========================
+    function loadMessageBirdWidgetIfNeeded() {
+      if (document.getElementById("live-chat-widget-script")) return;
 
-    try {
-      const data = await sendToN8n(text);
-      removeTyping();
+      window.MessageBirdChatWidgetSettings = {
+        widgetId: CONFIG.MESSAGEBIRD_WIDGET_ID,
+        initializeOnLoad: true,
+      };
 
-      // توقع استجابة n8n:
-      // { reply: "..." , mode:"continue" }
-      // { reply:"..." , mode:"handoff", contact:{...} }
-      if (isHandoffResponse(data)) {
-        if (data.reply) addMessage({ from: "bot", text: data.reply });
-        addBadge("جاري تحويلك للدعم…");
-        lockGateAndHandoff(data);
-      } else {
-if (!data || typeof data.reply !== "string") {
-  throw new Error("Invalid n8n response: missing reply");
-}
-addMessage({ from: "bot", text: data.reply });
-      }
-    } catch (err) {
-      removeTyping();
-      addMessage({ from: "bot", text: "صار خطأ في الاتصال بالويبهوك. تأكد من الرابط وحاول مرة ثانية." });
-      console.error(err);
-    } finally {
+      const s = document.createElement("script");
+      s.type = "text/javascript";
+      s.async = true;
+      s.id = "live-chat-widget-script";
+      s.src = "https://livechat.messagebird.com/bootstrap.js?widgetId=" + encodeURIComponent(CONFIG.MESSAGEBIRD_WIDGET_ID);
+      document.head.appendChild(s);
+    }
+
+    function openMessageBirdChat(contact) {
+      loadMessageBirdWidgetIfNeeded();
+
+      const start = Date.now();
+      const timer = setInterval(() => {
+        const api = window.MessageBirdChatWidget;
+
+        if (api && typeof api.toggleChat === "function") {
+          clearInterval(timer);
+
+          // identify اختياري وقد لا يكون متاح دائمًا في نفس اللحظة
+          try {
+            if (api.identify && typeof api.identify === "function") {
+              const c = contact || {};
+              api.identify({
+                externalId: c.id || sessionId,
+                name: c.name,
+                email: c.email,
+                phone: c.phone,
+              });
+            }
+          } catch (e) {
+            logDebug("identify failed:", e);
+          }
+
+          try { api.toggleChat(); } catch (e) { logDebug("toggleChat failed:", e); }
+        }
+
+        if (Date.now() - start > 12000) {
+          clearInterval(timer);
+          addMessage({ from: "bot", text: "تأخر فتح الدعم. جرّب زر (فتح الدعم الآن) أو أعد تحميل الصفحة." });
+        }
+      }, 250);
+    }
+
+    function lockGateAndHandoff(payload) {
+      gateLocked = true;
+      localStorage.setItem(STORAGE.GATE_KEY, "1");
+      showOverlay(true);
       setBusy(false);
+
+      hintEl.textContent = "تم إيقاف الشات الآلي. افتح الدعم البشري.";
+      statusEl.textContent = "تم التحويل";
+
+      const contact = payload && payload.contact ? payload.contact : null;
+      openMessageBirdChat(contact);
     }
-  });
 
-})();
-</script>
-<!-- ========================= End Inline Widget ========================= -->
+    // =========================
+    // 10) Greeting + Restore UI
+    // =========================
+    function greetOnce() {
+      if (greeted) return;
+      greeted = true;
+      addMessage({ from: "bot", text: "هلا! أنا مساعد الدعم 🤝\nاكتب سؤالك، وإذا احتجنا موظف بحوّلك فورًا." });
+    }
 
+    function restoreGateUIIfLocked() {
+      if (gateLocked) {
+        showOverlay(true);
+        setBusy(false);
+        hintEl.textContent = "تم إيقاف الشات الآلي. افتح الدعم البشري.";
+        statusEl.textContent = "تم التحويل";
+      } else {
+        showOverlay(false);
+        setBusy(false);
+      }
+    }
 
-    <footer>
-        <p>© 2024 جميع الحقوق محفوظة - الجابي تيك</p>
-    </footer>
+    // =========================
+    // 11) Events
+    // =========================
+    fab.addEventListener("click", () => {
+      const isOpen = panel.getAttribute("aria-hidden") === "false";
+      if (isOpen) closePanel();
+      else {
+        openPanel();
+        renderHistory();
+        greetOnce();
+        restoreGateUIIfLocked();
+      }
+    });
+
+    closeBtn.addEventListener("click", closePanel);
+    minBtn.addEventListener("click", closePanel);
+
+    openHumanBtn.addEventListener("click", () => openMessageBirdChat(null));
+
+    // إرسال بالـ Enter
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        // form submit يتكفل
+      }
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const text = (input.value || "").trim();
+      if (!text) return;
+
+      if (gateLocked) {
+        addBadge("تم التحويل للدعم البشري — استخدم نافذة الدعم.");
+        return;
+      }
+
+      addMessage({ from: "user", text });
+      input.value = "";
+
+      setBusy(true);
+      addTyping();
+
+      try {
+        const data = await sendToN8n(text);
+        removeTyping();
+
+        logDebug("N8N RAW:", data);
+
+        const reply = extractReply(data);
+
+        if (isHandoffResponse(data)) {
+          if (reply) addMessage({ from: "bot", text: reply });
+          addBadge("جاري تحويلك للدعم…");
+          lockGateAndHandoff(data);
+          return;
+        }
+
+        if (!reply) {
+          // إذا ما لقينا reply، نعرض تشخيص بسيط
+          addMessage({
+            from: "bot",
+            text: "وصل رد من n8n لكن بدون نص واضح. تأكد أن Respond to Webhook يرجّع JSON فيه reply."
+          });
+          if (CONFIG.DEBUG) addBadge("DEBUG: " + JSON.stringify(data).slice(0, 140));
+          return;
+        }
+
+        addMessage({ from: "bot", text: reply });
+
+      } catch (err) {
+        removeTyping();
+
+        const msg =
+          (err && err.name === "AbortError")
+            ? "انتهت مهلة الاتصال (Timeout). تأكد أن n8n يرد بسرعة أو زِد المهلة."
+            : "صار خطأ في الاتصال بالويبهوك. تأكد من الرابط/الـ CORS وحاول مرة ثانية.";
+
+        addMessage({ from: "bot", text: msg });
+
+        logDebug("ERROR:", err);
+        if (CONFIG.DEBUG) addBadge("DEBUG ERR: " + String(err && err.message ? err.message : err));
+      } finally {
+        setBusy(false);
+      }
+    });
+
+    // =========================
+    // 12) Boot
+    // =========================
+    restoreGateUIIfLocked();
+    setBusy(false);
+
+  })();
+  </script>
+
+  <footer>
+    <p>© 2024 جميع الحقوق محفوظة - الجابي تيك</p>
+  </footer>
 </body>
 </html>
-
-
-
-
-
-
-
