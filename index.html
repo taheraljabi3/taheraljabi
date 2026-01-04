@@ -35,6 +35,11 @@
       -moz-osx-font-smoothing: grayscale;
     }
 
+    /* لو تبغاه يمين تحت بدل يسار، فعّل هذي:
+    .ai-chat { right: 18px; left: auto; }
+    .ai-chat__panel { right: 0; left: auto; }
+    */
+
     .ai-chat__fab {
       width: 56px;
       height: 56px;
@@ -113,8 +118,9 @@
     }
 
     .ai-msg { display: flex; margin: 10px 0; gap: 8px; }
-    .ai-msg--user { justify-content: flex-start; }
-    .ai-msg--bot { justify-content: flex-end; }
+    /* RTL شائع: المستخدم يمين والبوت يسار. لو تبغاه عكسها بدّلها */
+    .ai-msg--user { justify-content: flex-end; }
+    .ai-msg--bot  { justify-content: flex-start; }
 
     .ai-bubble {
       max-width: 80%;
@@ -130,14 +136,16 @@
     .ai-msg--user .ai-bubble {
       background: var(--ai-brand);
       color: #fff;
-      border-bottom-left-radius: 6px;
+      border-bottom-left-radius: 14px;
+      border-bottom-right-radius: 6px;
     }
 
     .ai-msg--bot .ai-bubble {
       background: #fff;
       color: var(--ai-text);
       border: 1px solid rgba(0,0,0,.08);
-      border-bottom-right-radius: 6px;
+      border-bottom-right-radius: 14px;
+      border-bottom-left-radius: 6px;
     }
 
     .ai-meta { font-size: 11px; opacity: .65; margin-top: 4px; }
@@ -271,13 +279,16 @@
   <main>
     <div id="carousel-background">
       <section id="featured-articles">
-        <button class="carousel-control left">&lt;</button>
+        <button class="carousel-control left" type="button" aria-label="السابق">&lt;</button>
+
         <div class="carousel-wrapper">
           <div class="carousel"></div>
         </div>
+
+        <!-- ✅ تم نقل زر اليمين داخل نفس القسم -->
+        <button class="carousel-control right" type="button" aria-label="التالي">&gt;</button>
       </section>
     </div>
-    <button class="carousel-control right">&gt;</button>
 
     <section id="articles">
       <!-- (محتوى المقالات كما هو عندك) -->
@@ -307,7 +318,14 @@
       <div class="ai-chat__footer">
         <div class="ai-chat__hint" id="aiChatHint">اكتب سؤالك… وإذا احتجنا موظف بنحوّلك مباشرة.</div>
         <form id="aiChatForm" class="ai-chat__form" autocomplete="off">
-          <input id="aiChatInput" class="ai-chat__input" type="text" placeholder="اكتب رسالتك هنا…" />
+          <input
+            id="aiChatInput"
+            class="ai-chat__input"
+            type="text"
+            placeholder="اكتب رسالتك هنا…"
+            aria-label="اكتب رسالتك"
+            required
+          />
           <button id="aiChatSend" class="ai-chat__send" type="submit">إرسال</button>
         </form>
       </div>
@@ -322,8 +340,20 @@
     </div>
   </div>
 
-  <!-- ✅ علّق chat.js عشان ما يتكرر كود الشات -->
-  <!-- <script src="chat.js"></script> -->
+  <!-- ✅ حماية من أي كراش في script.js (كاروسيل) -->
+  <script>
+    window.addEventListener("error", (e) => {
+      const msg = String(e?.message || "");
+      // لو خطأ الكاروسيل عندك يطلع كـ Error ويوقف أمور ثانية، نخليه تحذير فقط
+      if (msg.includes("لا توجد عناصر في الكاروسيل") || msg.toLowerCase().includes("carousel")) {
+        console.warn("[SAFE-GUARD] Carousel error ignored:", msg);
+        e.preventDefault?.();
+        return true;
+      }
+    });
+  </script>
+
+  <!-- ملفك الخارجي -->
   <script src="script.js"></script>
 
   <script>
@@ -345,7 +375,7 @@
 
     const sessionId =
       localStorage.getItem(STORAGE.SESSION_KEY) ||
-      (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()));
+      (crypto.randomUUID ? crypto.randomUUID() : (Date.now() + "-" + Math.random().toString(16).slice(2)));
     localStorage.setItem(STORAGE.SESSION_KEY, sessionId);
 
     const $ = (id) => document.getElementById(id);
@@ -362,6 +392,12 @@
     const hintEl = $("aiChatHint");
     const overlayEl = $("aiChatOverlay");
     const openHumanBtn = $("aiOpenHumanChat");
+
+    // ✅ لو أي عنصر ناقص، ما نكسر الصفحة
+    if (!fab || !panel || !form || !input || !sendBtn || !messagesEl || !statusEl || !hintEl || !overlayEl || !closeBtn || !minBtn || !openHumanBtn) {
+      console.error("[AI-CHAT] Missing DOM elements. Widget will not run.");
+      return;
+    }
 
     let gateLocked = localStorage.getItem(STORAGE.GATE_KEY) === "1";
     let greeted = false;
@@ -426,6 +462,10 @@
 
         scrollToBottom();
       } catch {}
+    }
+
+    function normalizeText(t) {
+      return String(t ?? "").replace(/\s+/g, " ").trim();
     }
 
     function addMessage({ from, text }) {
@@ -511,95 +551,18 @@
       addMessage({ from: "bot", text: "هلا! أنا مساعد الدعم 🤝\nاكتب سؤالك، وإذا احتجنا موظف بحوّلك فورًا." });
     }
 
-    // =========================
-    // ✅ Parse n8n NDJSON streaming logs
-    // =========================
-    function parseN8nNdjson(text) {
-      const lines = String(text || "").split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-
-      const triageChunks = [];
-      let respondPayload = null;
-      let hasError = false;
-      let errorNodeName = null;
-
-      for (const line of lines) {
-        if (!line.startsWith("{") || !line.endsWith("}")) continue;
-
-        let obj;
-        try { obj = JSON.parse(line); } catch { continue; }
-        if (!obj || typeof obj !== "object") continue;
-
-        if (obj.type === "error") {
-          hasError = true;
-          errorNodeName = obj?.metadata?.nodeName || "Unknown node";
-          continue;
-        }
-
-        const nodeName = obj?.metadata?.nodeName;
-
-        // stream tokens from agent
-        if (obj.type === "item" && nodeName === "Triage Agent") {
-          const c = obj.content;
-          if (typeof c === "string" && c) triageChunks.push(c);
-        }
-
-        // Respond to Webhook node may contain JSON string in content
-        if (obj.type === "item" && nodeName === "Respond to Webhook") {
-          const c = obj.content;
-          if (typeof c === "string" && c.trim()) {
-            // sometimes content is a JSON string like {"mode":"continue","reply":"..."}
-            try {
-              respondPayload = JSON.parse(c);
-            } catch {
-              // if it's plain text, keep it
-              respondPayload = { reply: c, mode: "continue" };
-            }
-          }
-        }
-      }
-
-      if (hasError) {
-        return {
-          ok: false,
-          error: `n8n stream error (node: ${errorNodeName})`,
-          reply: triageChunks.join(""),
-          payload: respondPayload
-        };
-      }
-
-      const replyFromStream = triageChunks.join("").trim();
-      const mode = (respondPayload && typeof respondPayload === "object" && respondPayload.mode) ? respondPayload.mode : "continue";
-      const reply = (respondPayload && typeof respondPayload.reply === "string" && respondPayload.reply.trim())
-        ? respondPayload.reply.trim()
-        : replyFromStream;
-
-      return {
-        ok: true,
-        reply: reply || null,
-        mode,
-        contact: respondPayload && respondPayload.contact ? respondPayload.contact : null,
-        rawPayload: respondPayload
-      };
-    }
-
     function normalizeN8nResponse(anyData) {
-      // preferred: array response
       if (Array.isArray(anyData)) return anyData[0] || null;
       if (anyData && typeof anyData === "object") return anyData;
 
-      // string: could be NDJSON stream or normal JSON
       if (typeof anyData === "string") {
-        const parsedStream = parseN8nNdjson(anyData);
-        if (parsedStream && parsedStream.ok && parsedStream.reply) {
-          return { reply: parsedStream.reply, mode: parsedStream.mode, contact: parsedStream.contact || undefined };
-        }
-        // try parse as JSON
+        // Try parse JSON
         try {
           const j = JSON.parse(anyData);
           if (Array.isArray(j)) return j[0] || null;
           if (j && typeof j === "object") return j;
         } catch {}
-        // fallback plain text
+        // Fallback plain text
         return { reply: anyData, mode: "continue" };
       }
 
@@ -612,16 +575,13 @@
         (typeof obj.reply === "string" && obj.reply.trim() ? obj.reply : null) ||
         (typeof obj.output === "string" && obj.output.trim() ? obj.output : null) ||
         null;
-      return r;
+      return r ? normalizeText(r) : null;
     }
 
     function isHandoffResponse(obj) {
       return !!(obj && (obj.mode === "handoff" || obj.handoff === true));
     }
 
-    // =========================
-    // ✅ Request: always read text, then normalize (NDJSON or JSON)
-    // =========================
     async function sendToN8n(userText) {
       const body = { sessionId, page: location.href, message: userText, locale: "ar" };
 
@@ -641,17 +601,13 @@
 
         if (!res.ok) throw new Error("n8n error: " + res.status);
 
-        // ✅ always text (because n8n is streaming debug logs)
+        // ✅ الآن n8n يرجّع JSON نظيف
         const txt = await res.text();
         logDebug("N8N TEXT (head):", txt.slice(0, 260));
 
-        // normalize to object
         const obj = normalizeN8nResponse(txt);
-
-        // return in the standard array shape expected
         if (obj) return [obj];
 
-        // fallback
         return [{ reply: txt, mode: "continue" }];
 
       } finally {
@@ -659,9 +615,7 @@
       }
     }
 
-    // =========================
     // MessageBird (Lazy load)
-    // =========================
     function loadMessageBirdWidgetIfNeeded() {
       if (document.getElementById("live-chat-widget-script")) return;
 
@@ -725,9 +679,7 @@
       openMessageBirdChat(contact);
     }
 
-    // =========================
     // Events
-    // =========================
     fab.addEventListener("click", () => {
       const isOpen = panel.getAttribute("aria-hidden") === "false";
       if (isOpen) closePanel();
@@ -746,7 +698,7 @@
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const text = (input.value || "").trim();
+      const text = normalizeText(input.value);
       if (!text) return;
 
       if (gateLocked) {
@@ -771,7 +723,7 @@
         if (!obj) {
           addMessage({
             from: "bot",
-            text: "وصل رد من n8n لكن بشكل غير متوقع. تأكد أن Respond to Webhook يرجّع reply أو أن الستريم يحتوي content."
+            text: "وصل رد من n8n لكن بشكل غير متوقع. تأكد أن Respond to Webhook يرجّع reply/mode."
           });
           if (CONFIG.DEBUG) addBadge("DEBUG: " + String(JSON.stringify(rawArr)).slice(0, 220));
           return;
@@ -789,7 +741,7 @@
         if (!reply) {
           addMessage({
             from: "bot",
-            text: "وصل رد من n8n لكن بدون نص واضح. (تأكد أن Triage Agent يرسل content أو Respond to Webhook يرجّع reply)."
+            text: "وصل رد من n8n لكن بدون نص واضح. تأكد أن Respond to Webhook يرجّع reply."
           });
           if (CONFIG.DEBUG) addBadge("DEBUG OBJ: " + JSON.stringify(obj).slice(0, 240));
           return;
