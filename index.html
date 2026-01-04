@@ -10,9 +10,6 @@
   <link rel="stylesheet" href="style.css">
   <meta name="google-site-verification" content="9Ct3HVF2_BQj4h6--0d3mcexLU9dnwjC_9YJMhCdaT0" />
 
-  <!-- =========================
-       AI Chat Widget - Inline CSS
-       ========================= -->
   <style>
     :root {
       --ai-bg: #ffffff;
@@ -30,7 +27,7 @@
     .ai-chat {
       position: fixed;
       bottom: 18px;
-      left: 18px; /* لو تبيها يمين: بدّلها right:18px; واحذف left */
+      left: 18px;
       z-index: 9999;
       direction: rtl;
       font-family: system-ui, -apple-system, Segoe UI, Tahoma, Arial, sans-serif;
@@ -287,9 +284,6 @@
     </section>
   </main>
 
-  <!-- =========================
-       AI Chat Widget - Inline HTML
-       ========================= -->
   <div id="aiChatWidget" class="ai-chat">
     <button id="aiChatFab" class="ai-chat__fab" aria-label="فتح المحادثة" type="button">💬</button>
 
@@ -328,28 +322,15 @@
     </div>
   </div>
 
-  <!-- ✅ مهم جدًا: لمنع تكرار أكواد الشات وأخطاء JSON
-       احذف chat.js نهائيًا أو علّقه، لأنه غالبًا فيه كود قديم يسبب نفس الخطأ
-  -->
+  <!-- ✅ علّق chat.js عشان ما يتكرر كود الشات -->
   <!-- <script src="chat.js"></script> -->
   <script src="script.js"></script>
 
-  <!-- =========================
-       AI Chat Widget - Inline JS (FINAL)
-       ========================= -->
   <script>
   (() => {
     "use strict";
 
-    /**
-     * ✅ n8n يرجّع Array بهذا الشكل:
-     * [
-     *   { "reply": "...", "mode": "continue" }
-     * ]
-     */
-
     const CONFIG = {
-      // للإنتاج استخدم /webhook/ بدل /webhook-test/
       N8N_WEBHOOK_URL: "https://taherahmedsaeed.app.n8n.cloud/webhook-test/264e35a3-2adb-48b8-9a58-3040e9ec8107",
       MESSAGEBIRD_WIDGET_ID: "703013fa-c1c4-4280-a6a0-d4ef3deb4438",
       REQUEST_TIMEOUT_MS: 25000,
@@ -365,7 +346,6 @@
     const sessionId =
       localStorage.getItem(STORAGE.SESSION_KEY) ||
       (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()));
-
     localStorage.setItem(STORAGE.SESSION_KEY, sessionId);
 
     const $ = (id) => document.getElementById(id);
@@ -532,67 +512,97 @@
     }
 
     // =========================
-    // JSON extraction (Array) — fixes: Unexpected non-whitespace...
+    // ✅ Parse n8n NDJSON streaming logs
     // =========================
-    function extractFirstJsonArray(text) {
-      if (!text) return null;
+    function parseN8nNdjson(text) {
+      const lines = String(text || "").split(/\r?\n/).map(l => l.trim()).filter(Boolean);
 
-      const start = text.indexOf("[");
-      if (start === -1) return null;
+      const triageChunks = [];
+      let respondPayload = null;
+      let hasError = false;
+      let errorNodeName = null;
 
-      let depth = 0;
-      let inString = false;
-      let escape = false;
+      for (const line of lines) {
+        if (!line.startsWith("{") || !line.endsWith("}")) continue;
 
-      for (let i = start; i < text.length; i++) {
-        const ch = text[i];
+        let obj;
+        try { obj = JSON.parse(line); } catch { continue; }
+        if (!obj || typeof obj !== "object") continue;
 
-        if (inString) {
-          if (escape) escape = false;
-          else if (ch === "\\") escape = true;
-          else if (ch === '"') inString = false;
+        if (obj.type === "error") {
+          hasError = true;
+          errorNodeName = obj?.metadata?.nodeName || "Unknown node";
           continue;
         }
 
-        if (ch === '"') { inString = true; continue; }
-        if (ch === "[") depth++;
-        if (ch === "]") depth--;
+        const nodeName = obj?.metadata?.nodeName;
 
-        if (depth === 0) {
-          const candidate = text.slice(start, i + 1);
-          try {
-            const parsed = JSON.parse(candidate);
-            return Array.isArray(parsed) ? parsed : null;
-          } catch {
-            return null;
+        // stream tokens from agent
+        if (obj.type === "item" && nodeName === "Triage Agent") {
+          const c = obj.content;
+          if (typeof c === "string" && c) triageChunks.push(c);
+        }
+
+        // Respond to Webhook node may contain JSON string in content
+        if (obj.type === "item" && nodeName === "Respond to Webhook") {
+          const c = obj.content;
+          if (typeof c === "string" && c.trim()) {
+            // sometimes content is a JSON string like {"mode":"continue","reply":"..."}
+            try {
+              respondPayload = JSON.parse(c);
+            } catch {
+              // if it's plain text, keep it
+              respondPayload = { reply: c, mode: "continue" };
+            }
           }
         }
       }
-      return null;
+
+      if (hasError) {
+        return {
+          ok: false,
+          error: `n8n stream error (node: ${errorNodeName})`,
+          reply: triageChunks.join(""),
+          payload: respondPayload
+        };
+      }
+
+      const replyFromStream = triageChunks.join("").trim();
+      const mode = (respondPayload && typeof respondPayload === "object" && respondPayload.mode) ? respondPayload.mode : "continue";
+      const reply = (respondPayload && typeof respondPayload.reply === "string" && respondPayload.reply.trim())
+        ? respondPayload.reply.trim()
+        : replyFromStream;
+
+      return {
+        ok: true,
+        reply: reply || null,
+        mode,
+        contact: respondPayload && respondPayload.contact ? respondPayload.contact : null,
+        rawPayload: respondPayload
+      };
     }
 
-    // =========================
-    // n8n helpers
-    // =========================
-    function normalizeN8nResponse(raw) {
-      if (Array.isArray(raw)) return raw[0] || null;
-      if (raw && typeof raw === "object") return raw;
+    function normalizeN8nResponse(anyData) {
+      // preferred: array response
+      if (Array.isArray(anyData)) return anyData[0] || null;
+      if (anyData && typeof anyData === "object") return anyData;
 
-      if (typeof raw === "string" && raw.trim()) {
-        // حاول تستخرج JSON Array من النص
-        const arr = extractFirstJsonArray(raw);
-        if (arr && arr[0]) return arr[0];
-
-        // حاول JSON.parse كامل
+      // string: could be NDJSON stream or normal JSON
+      if (typeof anyData === "string") {
+        const parsedStream = parseN8nNdjson(anyData);
+        if (parsedStream && parsedStream.ok && parsedStream.reply) {
+          return { reply: parsedStream.reply, mode: parsedStream.mode, contact: parsedStream.contact || undefined };
+        }
+        // try parse as JSON
         try {
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed)) return parsed[0] || null;
-          if (parsed && typeof parsed === "object") return parsed;
+          const j = JSON.parse(anyData);
+          if (Array.isArray(j)) return j[0] || null;
+          if (j && typeof j === "object") return j;
         } catch {}
-
-        // نص عادي
-        return { reply: raw, mode: "continue" };
+        // fallback plain text
+        return { reply: anyData, mode: "continue" };
       }
+
       return null;
     }
 
@@ -610,15 +620,10 @@
     }
 
     // =========================
-    // n8n request — ALWAYS read text then extract JSON Array
+    // ✅ Request: always read text, then normalize (NDJSON or JSON)
     // =========================
     async function sendToN8n(userText) {
-      const body = {
-        sessionId,
-        page: location.href,
-        message: userText,
-        locale: "ar"
-      };
+      const body = { sessionId, page: location.href, message: userText, locale: "ar" };
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), CONFIG.REQUEST_TIMEOUT_MS);
@@ -636,18 +641,19 @@
 
         if (!res.ok) throw new Error("n8n error: " + res.status);
 
-        // ✅ اقرأ كنص دائمًا
+        // ✅ always text (because n8n is streaming debug logs)
         const txt = await res.text();
-        logDebug("N8N TEXT:", txt.slice(0, 220));
+        logDebug("N8N TEXT (head):", txt.slice(0, 260));
 
-        // ✅ استخرج Array
-        const arr = extractFirstJsonArray(txt);
+        // normalize to object
+        const obj = normalizeN8nResponse(txt);
 
-        if (!arr) {
-          // fallback: نص -> reply
-          return [{ reply: txt, mode: "continue" }];
-        }
-        return arr;
+        // return in the standard array shape expected
+        if (obj) return [obj];
+
+        // fallback
+        return [{ reply: txt, mode: "continue" }];
+
       } finally {
         clearTimeout(timeoutId);
       }
@@ -755,19 +761,19 @@
       addTyping();
 
       try {
-        const raw = await sendToN8n(text);
+        const rawArr = await sendToN8n(text);
         removeTyping();
 
-        logDebug("N8N RAW:", raw);
+        logDebug("N8N RAW ARR:", rawArr);
 
-        const obj = normalizeN8nResponse(raw);
+        const obj = Array.isArray(rawArr) ? (rawArr[0] || null) : normalizeN8nResponse(rawArr);
 
         if (!obj) {
           addMessage({
             from: "bot",
-            text: "وصل رد من n8n لكن بشكل غير متوقع. تأكد أن Respond to Webhook يرجّع: [ { reply, mode } ]"
+            text: "وصل رد من n8n لكن بشكل غير متوقع. تأكد أن Respond to Webhook يرجّع reply أو أن الستريم يحتوي content."
           });
-          if (CONFIG.DEBUG) addBadge("DEBUG: " + JSON.stringify(raw).slice(0, 220));
+          if (CONFIG.DEBUG) addBadge("DEBUG: " + String(JSON.stringify(rawArr)).slice(0, 220));
           return;
         }
 
@@ -783,9 +789,9 @@
         if (!reply) {
           addMessage({
             from: "bot",
-            text: "وصل رد من n8n لكن بدون reply/output نصي. تأكد أن العنصر الأول يحتوي reply."
+            text: "وصل رد من n8n لكن بدون نص واضح. (تأكد أن Triage Agent يرسل content أو Respond to Webhook يرجّع reply)."
           });
-          if (CONFIG.DEBUG) addBadge("DEBUG OBJ: " + JSON.stringify(obj).slice(0, 220));
+          if (CONFIG.DEBUG) addBadge("DEBUG OBJ: " + JSON.stringify(obj).slice(0, 240));
           return;
         }
 
