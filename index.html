@@ -701,81 +701,126 @@
       }
     });
 
-    closeBtn.addEventListener("click", closePanel);
-    minBtn.addEventListener("click", closePanel);
-    openHumanBtn.addEventListener("click", () => openMessageBirdChat(null));
+closeBtn.addEventListener("click", closePanel);
+minBtn.addEventListener("click", closePanel);
+openHumanBtn.addEventListener("click", () => openMessageBirdChat(null));
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
+// =========================
+// Helpers (n8n response parsing)
+// =========================
+function normalizeN8nResponse(raw) {
+  // المطلوب: [ { reply, mode } ]
+  if (Array.isArray(raw)) return raw[0] || null;
 
-      const text = (input.value || "").trim();
-      if (!text) return;
+  // أحيانًا قد يرجع Object مباشرة
+  if (raw && typeof raw === "object") return raw;
 
-      if (gateLocked) {
-        addBadge("تم التحويل للدعم البشري — استخدم نافذة الدعم.");
-        return;
-      }
+  // لو رجع نص
+  if (typeof raw === "string" && raw.trim()) {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed[0] || null;
+      if (parsed && typeof parsed === "object") return parsed;
+      return null;
+    } catch {
+      // نص عادي → نرجعه كـ reply
+      return { reply: raw, mode: "continue" };
+    }
+  }
 
-      addMessage({ from: "user", text });
-      input.value = "";
+  return null;
+}
 
-      setBusy(true);
-      addTyping();
+function extractReply(obj) {
+  if (!obj || typeof obj !== "object") return null;
+  // نسمح بـ reply أو output (عشان n8n أحيانًا يطلع output)
+  const r =
+    (typeof obj.reply === "string" && obj.reply.trim() ? obj.reply : null) ||
+    (typeof obj.output === "string" && obj.output.trim() ? obj.output : null) ||
+    null;
+  return r;
+}
 
-      try {
-        const raw = await sendToN8n(text);
-        removeTyping();
+function isHandoffResponse(obj) {
+  return !!(obj && (obj.mode === "handoff" || obj.handoff === true));
+}
 
-        logDebug("N8N RAW:", raw);
+// =========================
+// Submit
+// =========================
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-        // ✅ أهم سطر: نتعامل مع Array ونأخذ أول عنصر
-        const obj = normalizeN8nResponse(raw);
+  const text = (input.value || "").trim();
+  if (!text) return;
 
-        if (!obj) {
-          addMessage({
-            from: "bot",
-            text: "وصل رد من n8n لكن بشكل غير متوقع. تأكد أن Respond to Webhook يرجّع Array مثل: [ { reply, mode } ]"
-          });
-          if (CONFIG.DEBUG) addBadge("DEBUG: " + String(JSON.stringify(raw)).slice(0, 160));
-          return;
-        }
+  if (gateLocked) {
+    addBadge("تم التحويل للدعم البشري — استخدم نافذة الدعم.");
+    return;
+  }
 
-        const reply = extractReply(obj);
+  addMessage({ from: "user", text });
+  input.value = "";
 
-        if (isHandoffResponse(obj)) {
-          if (reply) addMessage({ from: "bot", text: reply });
-          addBadge("جاري تحويلك للدعم…");
-          lockGateAndHandoff(obj);
-          return;
-        }
+  setBusy(true);
+  addTyping();
 
-        if (!reply) {
-          addMessage({
-            from: "bot",
-            text: "وصل رد من n8n لكن بدون نص واضح. تأكد أن العنصر الأول يحتوي reply نصي."
-          });
-          if (CONFIG.DEBUG) addBadge("DEBUG: " + String(JSON.stringify(obj)).slice(0, 160));
-          return;
-        }
+  try {
+    const raw = await sendToN8n(text);
 
-        addMessage({ from: "bot", text: reply });
+    removeTyping();
+    logDebug("N8N RAW:", raw);
 
-      } catch (err) {
-        removeTyping();
+    // ✅ أهم خطوة: نتعامل مع Array ونأخذ أول عنصر
+    const obj = normalizeN8nResponse(raw);
 
-        const msg =
-          (err && err.name === "AbortError")
-            ? "انتهت مهلة الاتصال (Timeout). تأكد أن n8n يرد بسرعة أو زِد المهلة."
-            : "صار خطأ في الاتصال بالويبهوك. تأكد من الرابط/الـ CORS وحاول مرة ثانية.";
+    if (!obj) {
+      addMessage({
+        from: "bot",
+        text: "وصل رد من n8n لكن بشكل غير متوقع. تأكد أن Respond to Webhook يرجّع: [ { reply, mode } ]"
+      });
+      if (CONFIG.DEBUG) addBadge("DEBUG: " + JSON.stringify(raw).slice(0, 220));
+      return;
+    }
 
-        addMessage({ from: "bot", text: msg });
+    const reply = extractReply(obj);
 
-        logDebug("ERROR:", err);
-        if (CONFIG.DEBUG) addBadge("DEBUG ERR: " + String(err && err.message ? err.message : err));
-      } finally {
-        setBusy(false);
-      }
-    });
+    // ✅ تحويل للدعم البشري
+    if (isHandoffResponse(obj)) {
+      if (reply) addMessage({ from: "bot", text: reply });
+      addBadge("جاري تحويلك للدعم…");
+      lockGateAndHandoff(obj);
+      return;
+    }
+
+    // ✅ رد طبيعي
+    if (!reply) {
+      addMessage({
+        from: "bot",
+        text: "وصل رد من n8n لكن بدون reply/output نصي. تأكد أن العنصر الأول يحتوي reply."
+      });
+      if (CONFIG.DEBUG) addBadge("DEBUG OBJ: " + JSON.stringify(obj).slice(0, 220));
+      return;
+    }
+
+    addMessage({ from: "bot", text: reply });
+
+  } catch (err) {
+    removeTyping();
+
+    const msg =
+      (err && err.name === "AbortError")
+        ? "انتهت مهلة الاتصال (Timeout). تأكد أن n8n يرد بسرعة أو زِد المهلة."
+        : "صار خطأ في الاتصال بالويبهوك. تأكد من الرابط/الـ CORS وحاول مرة ثانية.";
+
+    addMessage({ from: "bot", text: msg });
+
+    logDebug("ERROR:", err);
+    if (CONFIG.DEBUG) addBadge("DEBUG ERR: " + String(err && err.message ? err.message : err));
+  } finally {
+    setBusy(false);
+  }
+});
 
     // =========================
     // 11) Boot
@@ -791,3 +836,4 @@
   </footer>
 </body>
 </html>
+
