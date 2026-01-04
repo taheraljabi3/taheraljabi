@@ -98,6 +98,20 @@
       justify-content:space-between;
       gap:10px;
     }
+/* يضمن أن مساحة MB نفسها تتمدد داخل المودال */
+#mbContainer {
+  position: relative;
+  overflow: hidden;
+}
+
+#mbContainer iframe {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border: 0 !important;
+  overflow: hidden !important;
+}
 
     .support-title{
       display:flex;
@@ -792,3 +806,4 @@
 
 </body>
 </html>
+
