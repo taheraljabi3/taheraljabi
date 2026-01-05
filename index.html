@@ -910,50 +910,66 @@
     if (card && !card.contains(e.target) && e.target !== fab && !pill.contains(e.target)) closeModal();
   });
 
-  // ==========================================================
-  // ✅ MB: Start message from N8N summary (supports nested output)
-  // ==========================================================
-  const MB_START_MSG_DEFAULT = "السلام عليكم ورحمة الله وبركاته، أريد موظف دعم فني.";
-  let mbStartMessageOverride = null;
+// ==========================================================
+// ✅ MB: Start message from N8N summary
+// - send once per (handoffId + message)
+// ==========================================================
+const MB_START_MSG_DEFAULT = "السلام عليكم ورحمة الله وبركاته، أريد موظف دعم فني.";
+let mbStartMessageOverride = null;
 
-  // key is dynamic (per handoff/ticket). fallback per session.
-  let MB_START_SENT_KEY = "mb_start_sent_" + sessionId;
+// key per ticket/session
+let MB_START_SENT_KEY = "mb_start_sent_" + sessionId;
 
-  function setMbStartFromN8n(raw){
-    try{
-      const obj = unwrapN8nPayload(raw);
+// store last sent message fingerprint (per key)
+function fingerprint(s){
+  return String(s || "").trim().slice(0, 500); // كفاية للمقارنة بدون تعقيد
+}
 
-      const tid = String(obj.handoffId || obj.ticketId || "").trim();
-      if (tid) MB_START_SENT_KEY = "mb_start_sent_" + tid;
+function setMbStartFromN8n(raw){
+  try{
+    const obj = unwrapN8nPayload(raw);
 
-      const summary = (typeof obj.mbStartMessage === "string") ? obj.mbStartMessage.trim() : "";
-      if (summary) mbStartMessageOverride = summary;
-    }catch{}
-  }
+    // IMPORTANT: لو handoffId فاضي، استخدم sessionId
+    const tid = String(obj.handoffId || obj.ticketId || sessionId).trim();
+    MB_START_SENT_KEY = "mb_start_sent_" + tid;
 
-  function sendMbStartMessageOnce(){
-    try{
-      if (localStorage.getItem(MB_START_SENT_KEY)) return;
+    const summary = (typeof obj.mbStartMessage === "string") ? obj.mbStartMessage.trim() : "";
+    if (summary) mbStartMessageOverride = summary;
 
-      const api = window.MessageBirdChatWidget;
-      if (!api) return;
+  }catch{}
+}
 
-      const msg = String(mbStartMessageOverride || MB_START_MSG_DEFAULT).trim();
-      if (!msg) return;
+function sendMbStartMessageOnce(){
+  try{
+    const api = window.MessageBirdChatWidget;
+    if (!api) return;
 
-      if (typeof api.startConversation === "function") {
-        api.startConversation(msg);
-        localStorage.setItem(MB_START_SENT_KEY, "1");
-        log("MB startConversation sent ✅", { key: MB_START_SENT_KEY });
-        return;
-      }
+    const msg = String(mbStartMessageOverride || MB_START_MSG_DEFAULT).trim();
+    if (!msg) return;
 
-      localStorage.setItem(MB_START_SENT_KEY, "1");
-      log("MB startConversation not available; skipped sending.", { key: MB_START_SENT_KEY });
-    } catch (e) {
-      log("sendMbStartMessageOnce error", e);
+    // ✅ لا تمنع إلا إذا نفس الرسالة انرسلت لنفس المفتاح
+    const last = localStorage.getItem(MB_START_SENT_KEY);
+    const fp = fingerprint(msg);
+    if (last === fp) {
+      log("MB start msg already sent (same msg).", { key: MB_START_SENT_KEY });
+      return;
     }
+
+    if (typeof api.startConversation === "function") {
+      api.startConversation(msg);
+      localStorage.setItem(MB_START_SENT_KEY, fp);
+      log("MB startConversation sent ✅", { key: MB_START_SENT_KEY });
+      return;
+    }
+
+    // fallback (ما نقدر نكتب داخل iframe)
+    localStorage.setItem(MB_START_SENT_KEY, fp);
+    log("MB startConversation not available; skipped sending.", { key: MB_START_SENT_KEY });
+
+  } catch (e) {
+    log("sendMbStartMessageOnce error", e);
   }
+}
 
   // ===== MODE switching (ONLY n8n) =====
   function setMode(nextMode, source="n8n"){
@@ -1271,6 +1287,7 @@
 
 </body>
 </html>
+
 
 
 
