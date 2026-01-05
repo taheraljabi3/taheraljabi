@@ -706,25 +706,37 @@
   };
 
   const STORAGE = {
-    SESSION_KEY: "support_session_id_v3",
-    AI_HISTORY_KEY: "support_ai_history_v3",
-    MODE_KEY: "support_mode_v3", // "continue" | "handoff"
+    SESSION_KEY: "support_session_id_v4",      // ✅ كل جلسة ID جديد (عشوائي)
+    AI_HISTORY_KEY: "support_ai_history_v4",
+    MODE_KEY: "support_mode_v4",              // "continue" | "handoff"
   };
 
-  // Session
-  const sessionId =
-    localStorage.getItem(STORAGE.SESSION_KEY) ||
-    (crypto.randomUUID ? crypto.randomUUID() : (Date.now() + "-" + Math.random().toString(16).slice(2)));
-  localStorage.setItem(STORAGE.SESSION_KEY, sessionId);
-
-  // Mode: locked by n8n (default CONTINUE)
-  let mode = (localStorage.getItem(STORAGE.MODE_KEY) || "continue").toLowerCase();
-  if (mode !== "handoff") mode = "continue";
-  localStorage.setItem(STORAGE.MODE_KEY, mode);
-
+  // ===== Helpers =====
   const $ = (id) => document.getElementById(id);
   const log = (...a) => CONFIG.DEBUG && console.log("[SUPPORT]", ...a);
 
+  function newRandomId(){
+    // قوي + سريع: crypto.randomUUID إن وجد، وإلا fallback آمن
+    if (crypto.randomUUID) return crypto.randomUUID();
+    const buf = new Uint8Array(16);
+    (crypto.getRandomValues ? crypto.getRandomValues(buf) : buf.fill(Math.random()*255));
+    const hex = [...buf].map(b => b.toString(16).padStart(2,"0")).join("");
+    return `${Date.now().toString(16)}-${hex}`;
+  }
+
+  function normalizeText(t){
+    return String(t ?? "").replace(/\s+/g, " ").trim();
+  }
+
+  // ===== Session (✅ عشوائي كل مرة) =====
+  const sessionId = newRandomId();
+  localStorage.setItem(STORAGE.SESSION_KEY, sessionId);
+
+  // ===== Mode (default CONTINUE) =====
+  let mode = "continue";
+  localStorage.setItem(STORAGE.MODE_KEY, mode);
+
+  // ===== DOM =====
   const modal = $("supportModal");
   const fab = $("supportFab");
   const pill = $("supportPill");
@@ -768,125 +780,14 @@
     return;
   }
 
-  let greeted = false;
-
-  function openModal(){
-    modal.classList.add("is-open");
-    modal.setAttribute("aria-hidden", "false");
-    renderAiHistory();
-    greetOnce();
-    syncUI();
-    setTimeout(() => {
-      if (mode === "continue") aiInput.focus();
-    }, 60);
-
-    if (mode === "handoff") {
-      ensureMessageBirdMountedInsideModal();
-      openMessageBirdChat(null);
-    }
+  // ===== “Human tab” should be truly hidden until HANDOFF =====
+  function setHumanTabVisible(visible){
+    // ✅ مخفي فعليًا: لا يظهر ولا يأخذ مساحة ولا يضغط التخطيط
+    tabMb.style.display = visible ? "" : "none";
   }
+  setHumanTabVisible(false);
 
-  function closeModal(){
-    modal.classList.remove("is-open");
-    modal.setAttribute("aria-hidden", "true");
-  }
-
-  function toggleModal(){
-    if (modal.classList.contains("is-open")) closeModal();
-    else openModal();
-  }
-
-  // Open triggers
-  fab.addEventListener("click", toggleModal);
-  pill.addEventListener("click", toggleModal);
-  pill.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") toggleModal();
-  });
-
-  btnClose.addEventListener("click", closeModal);
-  btnMin.addEventListener("click", closeModal);
-
-  // Close on ESC
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modal.classList.contains("is-open")) closeModal();
-  });
-
-  // Click outside to close
-  document.addEventListener("mousedown", (e) => {
-    if (!modal.classList.contains("is-open")) return;
-    const card = modal.querySelector(".support-card");
-    if (card && !card.contains(e.target) && e.target !== fab && !pill.contains(e.target)) closeModal();
-  });
-
-  function setMode(nextMode, source = "local"){
-    const m = String(nextMode || "").toLowerCase();
-    const normalized = (m === "handoff") ? "handoff" : "continue";
-    if (normalized === mode) return;
-
-    mode = normalized;
-    localStorage.setItem(STORAGE.MODE_KEY, mode);
-
-    log("MODE =>", mode, "source:", source);
-    syncUI();
-
-    if (mode === "handoff") {
-      // show human tab immediately
-      addAiMessage("bot", "تم تحويلك الآن للدعم البشري (HANDOFF).");
-      ensureMessageBirdMountedInsideModal();
-      openMessageBirdChat(null);
-    } else {
-      // back to AI
-      addAiMessage("bot", "تمت العودة لوضع المساعد (CONTINUE). كيف أقدر أساعدك؟");
-      // Try closing MB widget (best-effort)
-      try{
-        const api = window.MessageBirdChatWidget;
-        if (api && typeof api.toggleChat === "function") {
-          // toggle could close if open; harmless if not
-          api.toggleChat();
-        }
-      }catch{}
-    }
-  }
-
-  function syncUI(){
-    const isContinue = (mode === "continue");
-
-    // Layers follow MODE only (locked as requested)
-    layerAi.classList.toggle("active", isContinue);
-    layerMb.classList.toggle("active", !isContinue);
-
-    tabAi.classList.toggle("active", isContinue);
-    tabMb.classList.toggle("active", !isContinue);
-
-    aiBadge.textContent = isContinue ? "CONTINUE" : "موقوف";
-    mbBadge.textContent = isContinue ? "مخفي" : "HANDOFF";
-
-    // Status
-    statusText.textContent = "وضع المساعد: " + (isContinue ? "CONTINUE" : "HANDOFF");
-    modePill.textContent = "MODE: " + (isContinue ? "CONTINUE" : "HANDOFF");
-    launcherSub.textContent = isContinue ? "جاهز لمساعدتك الآن" : "تم التحويل للدعم البشري";
-
-    statusDot.style.background = isContinue ? "var(--brand3)" : "var(--brand)";
-    statusDot.style.boxShadow = isContinue
-      ? "0 0 0 4px rgba(34,197,94,.18)"
-      : "0 0 0 4px rgba(110,231,255,.16)";
-
-    // AI input locked during HANDOFF
-    aiInput.disabled = !isContinue;
-    aiSend.disabled = !isContinue;
-
-    aiHint.textContent = isContinue
-      ? "اكتب سؤالك… وسيبقى الوضع CONTINUE تلقائيًا."
-      : "أنت في وضع HANDOFF — العودة تتم تلقائيًا عند إنهاء المحادثة.";
-
-    // MB state
-    mbState.textContent = isContinue ? "غير نشط" : "جارٍ التحميل…";
-  }
-
-  function normalizeText(t){
-    return String(t ?? "").replace(/\s+/g, " ").trim();
-  }
-
+  // ===== History (optional) =====
   function persistAiHistory(item){
     try{
       const raw = localStorage.getItem(STORAGE.AI_HISTORY_KEY);
@@ -935,21 +836,135 @@
     }catch{}
   }
 
+  let greeted = false;
   function greetOnce(){
     if (greeted) return;
-    // If there is history, don't greet again
     try{
       const raw = localStorage.getItem(STORAGE.AI_HISTORY_KEY);
       const arr = raw ? JSON.parse(raw) : [];
-      if (Array.isArray(arr) && arr.length) {
-        greeted = true;
-        return;
-      }
+      if (Array.isArray(arr) && arr.length) { greeted = true; return; }
     }catch{}
     greeted = true;
-    addAiMessage("bot",
-      "هلا! أنا مساعد الدعم 💎\nاكتب سؤالك — و(لو n8n قرر HANDOFF) بنحوّلك للموظف مباشرة."
-    );
+    addAiMessage("bot","هلا! أنا مساعد الدعم 🤝\nاكتب سؤالك، وإذا احتجت دعم مباشر بحوّلك فورًا.");
+  }
+
+  // ===== Modal open/close =====
+  function openModal(){
+    modal.classList.add("is-open");
+    modal.setAttribute("aria-hidden", "false");
+    renderAiHistory();
+    greetOnce();
+    syncUI();
+    setTimeout(() => { if (mode === "continue") aiInput.focus(); }, 60);
+
+    // إذا كان HANDOFF بالفعل (لو تم ضبطه عبر n8n قبل فتح المودال)
+    if (mode === "handoff") {
+      setHumanTabVisible(true);
+      ensureMessageBirdMountedInsideModal();
+      openMessageBirdChat(null);
+    }
+  }
+
+  function closeModal(){
+    modal.classList.remove("is-open");
+    modal.setAttribute("aria-hidden", "true");
+  }
+
+  function toggleModal(){
+    if (modal.classList.contains("is-open")) closeModal();
+    else openModal();
+  }
+
+  fab.addEventListener("click", toggleModal);
+  pill.addEventListener("click", toggleModal);
+  pill.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") toggleModal();
+  });
+
+  btnClose.addEventListener("click", closeModal);
+  btnMin.addEventListener("click", closeModal);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal.classList.contains("is-open")) closeModal();
+  });
+
+  document.addEventListener("mousedown", (e) => {
+    if (!modal.classList.contains("is-open")) return;
+    const card = modal.querySelector(".support-card");
+    if (card && !card.contains(e.target) && e.target !== fab && !pill.contains(e.target)) closeModal();
+  });
+
+  // ===== Mode switching (ONLY via n8n) =====
+  function setMode(nextMode, source = "n8n"){
+    const m = String(nextMode || "").toLowerCase();
+    const normalized = (m === "handoff") ? "handoff" : "continue";
+    if (normalized === mode) return;
+
+    mode = normalized;
+    localStorage.setItem(STORAGE.MODE_KEY, mode);
+    log("MODE =>", mode, "source:", source);
+
+    if (mode === "handoff") {
+      // ✅ أظهر تبويب الموظف الآن (مخفي فعليًا قبلها)
+      setHumanTabVisible(true);
+      addAiMessage("bot", "تم تحويلكم للمهندس المناوب");
+      syncUI();
+
+      // ✅ افتح الدعم البشري مباشرة
+      ensureMessageBirdMountedInsideModal();
+      openMessageBirdChat(null);
+      return;
+    }
+
+    // العودة إلى CONTINUE
+    addAiMessage("bot", "تمت العودة لوضع المساعد. كيف أقدر أساعدك؟");
+    // أخفِ تبويب الموظف بالكامل مرة أخرى
+    setHumanTabVisible(false);
+
+    // Best-effort: إغلاق ويدجت MB
+    try{
+      const api = window.MessageBirdChatWidget;
+      if (api && typeof api.toggleChat === "function") {
+        api.toggleChat();
+      }
+    }catch{}
+
+    syncUI();
+  }
+
+  function syncUI(){
+    const isContinue = (mode === "continue");
+
+    layerAi.classList.toggle("active", isContinue);
+    layerMb.classList.toggle("active", !isContinue);
+
+    tabAi.classList.toggle("active", isContinue);
+    tabMb.classList.toggle("active", !isContinue);
+
+    // Badges
+    aiBadge.textContent = isContinue ? "CONTINUE" : "موقوف";
+    // mbBadge لا نعرض "مخفي" أبدًا — لأنه مخفي فعليًا
+    mbBadge.textContent = isContinue ? "" : "HANDOFF";
+
+    // Status
+    statusText.textContent = "وضع المساعد: " + (isContinue ? "CONTINUE" : "HANDOFF");
+    modePill.textContent = "MODE: " + (isContinue ? "CONTINUE" : "HANDOFF");
+    launcherSub.textContent = isContinue ? "جاهز لمساعدتك الآن" : "تم التحويل للدعم البشري";
+
+    // بما أنك الآن على ثيم أبيض: نخلي النقطة سوداء دائمًا
+    statusDot.style.background = "#111827";
+    statusDot.style.boxShadow = "0 0 0 4px rgba(17,24,39,.10)";
+
+    // AI input locked during HANDOFF
+    aiInput.disabled = !isContinue;
+    aiSend.disabled = !isContinue;
+
+    aiHint.textContent = isContinue
+      ? "اكتب سؤالك… وسيبقى الوضع CONTINUE تلقائيًا."
+      : "أنت في وضع HANDOFF — تم فتح قناة الدعم المباشر.";
+
+    // MB state
+    mbState.textContent = isContinue ? "غير نشط" : "جارٍ التحميل…";
   }
 
   function setAiBusy(b){
@@ -960,15 +975,12 @@
 
   // ===== n8n contract helpers =====
   function getN8nMode(obj){
-    // Accept: obj.mode = "continue"|"handoff"
-    // Accept: obj.handoff === true (handoff)
-    // Accept: obj.mode can be uppercase
+    // n8n يقرر: mode="handoff" أو handoff=true
     if (!obj || typeof obj !== "object") return null;
     if (obj.handoff === true) return "handoff";
     const m = (typeof obj.mode === "string") ? obj.mode.toLowerCase().trim() : null;
     if (m === "handoff") return "handoff";
     if (m === "continue") return "continue";
-    // Optional: support end -> return continue
     if (m === "end" || m === "ended" || m === "close") return "continue";
     return null;
   }
@@ -983,12 +995,7 @@
   }
 
   async function sendToN8n(userText){
-    const body = {
-      sessionId,
-      page: location.href,
-      message: userText,
-      locale: "ar"
-    };
+    const body = { sessionId, page: location.href, message: userText, locale: "ar" };
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), CONFIG.REQUEST_TIMEOUT_MS);
@@ -996,10 +1003,7 @@
     try{
       const res = await fetch(CONFIG.N8N_WEBHOOK_URL, {
         method: "POST",
-        headers: {
-          "Content-Type":"application/json",
-          "Accept":"application/json, text/plain, */*"
-        },
+        headers: { "Content-Type":"application/json", "Accept":"application/json, text/plain, */*" },
         body: JSON.stringify(body),
         signal: controller.signal
       });
@@ -1009,7 +1013,6 @@
       const txt = await res.text();
       log("N8N (head):", txt.slice(0, 240));
 
-      // supports: JSON object, JSON array, or plain text
       try{
         const parsed = JSON.parse(txt);
         if (Array.isArray(parsed)) return parsed[0] || { reply: "تم الاستلام", mode: "continue" };
@@ -1024,7 +1027,6 @@
   // ===== AI send =====
   aiForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-
     if (mode !== "continue") return;
 
     const text = normalizeText(aiInput.value);
@@ -1037,16 +1039,14 @@
     try{
       const obj = await sendToN8n(text);
 
-      // MODE is controlled ONLY by n8n
-      const nextMode = getN8nMode(obj);
-      if (nextMode) setMode(nextMode, "n8n");
-
       const reply = extractReply(obj);
       if (reply) addAiMessage("bot", reply);
       else addAiMessage("bot", "تم استلام رسالتك، كيف أقدر أساعدك؟");
 
-      // If n8n flips back to CONTINUE, UI returns automatically (per spec)
-      // Already handled by setMode("continue")
+      // ✅ بعدها نطبّق تغيير MODE لو جاء من n8n
+      const nextMode = getN8nMode(obj);
+      if (nextMode) setMode(nextMode, "n8n");
+
     } catch(err){
       const msg = (err && err.name === "AbortError") ? "انتهت مهلة الاتصال." : "صار خطأ في الاتصال.";
       addAiMessage("bot", msg);
@@ -1072,17 +1072,24 @@
     document.head.appendChild(s);
   }
 
+  // NOTE: With your updated light CSS, iframe size is controlled via CSS.
+  // Keep this for safety if MB overwrites styles.
   function forceIframeFullSize(iframe){
     if (!iframe) return;
     iframe.style.setProperty("position", "absolute", "important");
-    iframe.style.setProperty("inset", "0", "important");
-    iframe.style.setProperty("width", "100%", "important");
-    iframe.style.setProperty("height", "100%", "important");
+    iframe.style.setProperty("top", "10px", "important");
+    iframe.style.setProperty("left", "10px", "important");
+    iframe.style.setProperty("right", "10px", "important");
+    iframe.style.setProperty("bottom", "10px", "important");
+    iframe.style.setProperty("width", "calc(100% - 20px)", "important");
+    iframe.style.setProperty("height", "calc(100% - 20px)", "important");
     iframe.style.setProperty("border", "0", "important");
     iframe.style.setProperty("margin", "0", "important");
     iframe.style.setProperty("padding", "0", "important");
     iframe.style.setProperty("overflow", "hidden", "important");
     iframe.style.setProperty("z-index", "1", "important");
+    iframe.style.setProperty("border-radius", "18px", "important");
+    iframe.style.setProperty("background", "#fff", "important");
   }
 
   function ensureMessageBirdMountedInsideModal(){
@@ -1110,14 +1117,12 @@
           if (!mbContainer.contains(mbFrame)) mbContainer.appendChild(mbFrame);
           forceIframeFullSize(mbFrame);
 
-          // Guard for 5s (MB sometimes rewrites inline styles)
           const guardStart = Date.now();
           const guard = setInterval(() => {
             forceIframeFullSize(mbFrame);
-            if (Date.now() - guardStart > 5000) clearInterval(guard);
+            if (Date.now() - guardStart > 6000) clearInterval(guard);
           }, 250);
 
-          // Observe future changes briefly
           try{
             const obs = new MutationObserver(() => forceIframeFullSize(mbFrame));
             obs.observe(mbFrame, { attributes:true, attributeFilter:["style","class"] });
@@ -1167,7 +1172,7 @@
           }
         }catch{}
 
-        // Open (may open default UI first), then mount iframe into our modal
+        // Open default widget (then mount iframe into our modal)
         try{ api.toggleChat(); }catch{}
         ensureMessageBirdMountedInsideModal();
       }
@@ -1181,19 +1186,530 @@
 
   mbOpenFallback.addEventListener("click", () => openMessageBirdChat(null));
 
-  // ===== End handoff: return to CONTINUE automatically =====
-  // (We can’t reliably detect “chat ended” inside the iframe, so we provide a clear end button.)
+  // ===== End handoff: return to CONTINUE =====
   mbEnd.addEventListener("click", () => {
-    // End handoff locally -> CONTINUE (per your spec)
     setMode("continue", "user_end");
   });
 
   // Initial UI state
   syncUI();
 
-  // If modal opens while already in HANDOFF, mount immediately
+  // If modal opens while already in HANDOFF
   const modalObs = new MutationObserver(() => {
     if (modal.classList.contains("is-open") && mode === "handoff") {
+      setHumanTabVisible(true);
+      ensureMessageBirdMountedInsideModal();
+      openMessageBirdChat(null);
+    }
+  });
+  modalObs.observe(modal, { attributes:true, attributeFilter:["class"] });
+
+})();
+</script>
+<script>
+(() => {
+  "use strict";
+
+  const CONFIG = {
+    N8N_WEBHOOK_URL: "https://taherahmedsaeed.app.n8n.cloud/webhook-test/264e35a3-2adb-48b8-9a58-3040e9ec8107",
+    MESSAGEBIRD_WIDGET_ID: "703013fa-c1c4-4280-a6a0-d4ef3deb4438",
+    REQUEST_TIMEOUT_MS: 25000,
+    DEBUG: true,
+  };
+
+  const STORAGE = {
+    SESSION_KEY: "support_session_id_v4",      // ✅ كل جلسة ID جديد (عشوائي)
+    AI_HISTORY_KEY: "support_ai_history_v4",
+    MODE_KEY: "support_mode_v4",              // "continue" | "handoff"
+  };
+
+  // ===== Helpers =====
+  const $ = (id) => document.getElementById(id);
+  const log = (...a) => CONFIG.DEBUG && console.log("[SUPPORT]", ...a);
+
+  function newRandomId(){
+    // قوي + سريع: crypto.randomUUID إن وجد، وإلا fallback آمن
+    if (crypto.randomUUID) return crypto.randomUUID();
+    const buf = new Uint8Array(16);
+    (crypto.getRandomValues ? crypto.getRandomValues(buf) : buf.fill(Math.random()*255));
+    const hex = [...buf].map(b => b.toString(16).padStart(2,"0")).join("");
+    return `${Date.now().toString(16)}-${hex}`;
+  }
+
+  function normalizeText(t){
+    return String(t ?? "").replace(/\s+/g, " ").trim();
+  }
+
+  // ===== Session (✅ عشوائي كل مرة) =====
+  const sessionId = newRandomId();
+  localStorage.setItem(STORAGE.SESSION_KEY, sessionId);
+
+  // ===== Mode (default CONTINUE) =====
+  let mode = "continue";
+  localStorage.setItem(STORAGE.MODE_KEY, mode);
+
+  // ===== DOM =====
+  const modal = $("supportModal");
+  const fab = $("supportFab");
+  const pill = $("supportPill");
+  const launcherSub = $("launcherSub");
+
+  const btnClose = $("supportClose");
+  const btnMin = $("supportMin");
+
+  const tabAi = $("tabAi");
+  const tabMb = $("tabMb");
+  const layerAi = $("layerAi");
+  const layerMb = $("layerMb");
+  const aiBadge = $("aiBadge");
+  const mbBadge = $("mbBadge");
+
+  const statusDot = $("statusDot");
+  const statusText = $("statusText");
+  const modePill = $("modePill");
+
+  const aiMessages = $("aiMessages");
+  const aiForm = $("aiForm");
+  const aiInput = $("aiInput");
+  const aiSend = $("aiSend");
+  const aiHint = $("aiHint");
+
+  const mbContainer = $("mbContainer");
+  const mbFallback = $("mbFallback");
+  const mbOpenFallback = $("mbOpenFallback");
+  const mbState = $("mbState");
+  const mbEnd = $("mbEnd");
+
+  // Guards
+  const required = [
+    modal,fab,pill,launcherSub,btnClose,btnMin,
+    tabAi,tabMb,layerAi,layerMb,aiBadge,mbBadge,statusDot,statusText,modePill,
+    aiMessages,aiForm,aiInput,aiSend,aiHint,
+    mbContainer,mbFallback,mbOpenFallback,mbState,mbEnd
+  ];
+  if (required.some(x => !x)) {
+    console.error("[SUPPORT] Missing DOM elements; aborting widget init.");
+    return;
+  }
+
+  // ===== “Human tab” should be truly hidden until HANDOFF =====
+  function setHumanTabVisible(visible){
+    // ✅ مخفي فعليًا: لا يظهر ولا يأخذ مساحة ولا يضغط التخطيط
+    tabMb.style.display = visible ? "" : "none";
+  }
+  setHumanTabVisible(false);
+
+  // ===== History (optional) =====
+  function persistAiHistory(item){
+    try{
+      const raw = localStorage.getItem(STORAGE.AI_HISTORY_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      const safe = Array.isArray(arr) ? arr : [];
+      safe.push(item);
+      localStorage.setItem(STORAGE.AI_HISTORY_KEY, JSON.stringify(safe.slice(-60)));
+    }catch{}
+  }
+
+  function scrollAiBottom(){
+    aiMessages.scrollTop = aiMessages.scrollHeight;
+  }
+
+  function addAiMessage(from, text, t = Date.now(), persist = true){
+    const wrap = document.createElement("div");
+    wrap.className = "msg " + (from === "user" ? "user" : "bot");
+
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    bubble.textContent = String(text ?? "");
+
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    meta.textContent = new Date(t).toLocaleTimeString("ar-SA", { hour:"2-digit", minute:"2-digit" });
+
+    const col = document.createElement("div");
+    col.appendChild(bubble);
+    col.appendChild(meta);
+
+    wrap.appendChild(col);
+    aiMessages.appendChild(wrap);
+    scrollAiBottom();
+
+    if (persist) persistAiHistory({ from, text: String(text ?? ""), t });
+  }
+
+  function renderAiHistory(){
+    if (aiMessages.childElementCount > 0) return;
+    try{
+      const raw = localStorage.getItem(STORAGE.AI_HISTORY_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(arr) || !arr.length) return;
+      arr.slice(-60).forEach(m => addAiMessage(m.from, m.text, m.t, false));
+      scrollAiBottom();
+    }catch{}
+  }
+
+  let greeted = false;
+  function greetOnce(){
+    if (greeted) return;
+    try{
+      const raw = localStorage.getItem(STORAGE.AI_HISTORY_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(arr) && arr.length) { greeted = true; return; }
+    }catch{}
+    greeted = true;
+    addAiMessage("bot","هلا! أنا مساعد الدعم 🤝\nاكتب سؤالك، وإذا احتجت دعم مباشر بحوّلك فورًا.");
+  }
+
+  // ===== Modal open/close =====
+  function openModal(){
+    modal.classList.add("is-open");
+    modal.setAttribute("aria-hidden", "false");
+    renderAiHistory();
+    greetOnce();
+    syncUI();
+    setTimeout(() => { if (mode === "continue") aiInput.focus(); }, 60);
+
+    // إذا كان HANDOFF بالفعل (لو تم ضبطه عبر n8n قبل فتح المودال)
+    if (mode === "handoff") {
+      setHumanTabVisible(true);
+      ensureMessageBirdMountedInsideModal();
+      openMessageBirdChat(null);
+    }
+  }
+
+  function closeModal(){
+    modal.classList.remove("is-open");
+    modal.setAttribute("aria-hidden", "true");
+  }
+
+  function toggleModal(){
+    if (modal.classList.contains("is-open")) closeModal();
+    else openModal();
+  }
+
+  fab.addEventListener("click", toggleModal);
+  pill.addEventListener("click", toggleModal);
+  pill.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") toggleModal();
+  });
+
+  btnClose.addEventListener("click", closeModal);
+  btnMin.addEventListener("click", closeModal);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal.classList.contains("is-open")) closeModal();
+  });
+
+  document.addEventListener("mousedown", (e) => {
+    if (!modal.classList.contains("is-open")) return;
+    const card = modal.querySelector(".support-card");
+    if (card && !card.contains(e.target) && e.target !== fab && !pill.contains(e.target)) closeModal();
+  });
+
+  // ===== Mode switching (ONLY via n8n) =====
+  function setMode(nextMode, source = "n8n"){
+    const m = String(nextMode || "").toLowerCase();
+    const normalized = (m === "handoff") ? "handoff" : "continue";
+    if (normalized === mode) return;
+
+    mode = normalized;
+    localStorage.setItem(STORAGE.MODE_KEY, mode);
+    log("MODE =>", mode, "source:", source);
+
+    if (mode === "handoff") {
+      // ✅ أظهر تبويب الموظف الآن (مخفي فعليًا قبلها)
+      setHumanTabVisible(true);
+      addAiMessage("bot", "تم تحويلكم للمهندس المناوب");
+      syncUI();
+
+      // ✅ افتح الدعم البشري مباشرة
+      ensureMessageBirdMountedInsideModal();
+      openMessageBirdChat(null);
+      return;
+    }
+
+    // العودة إلى CONTINUE
+    addAiMessage("bot", "تمت العودة لوضع المساعد. كيف أقدر أساعدك؟");
+    // أخفِ تبويب الموظف بالكامل مرة أخرى
+    setHumanTabVisible(false);
+
+    // Best-effort: إغلاق ويدجت MB
+    try{
+      const api = window.MessageBirdChatWidget;
+      if (api && typeof api.toggleChat === "function") {
+        api.toggleChat();
+      }
+    }catch{}
+
+    syncUI();
+  }
+
+  function syncUI(){
+    const isContinue = (mode === "continue");
+
+    layerAi.classList.toggle("active", isContinue);
+    layerMb.classList.toggle("active", !isContinue);
+
+    tabAi.classList.toggle("active", isContinue);
+    tabMb.classList.toggle("active", !isContinue);
+
+    // Badges
+    aiBadge.textContent = isContinue ? "CONTINUE" : "موقوف";
+    // mbBadge لا نعرض "مخفي" أبدًا — لأنه مخفي فعليًا
+    mbBadge.textContent = isContinue ? "" : "HANDOFF";
+
+    // Status
+    statusText.textContent = "وضع المساعد: " + (isContinue ? "CONTINUE" : "HANDOFF");
+    modePill.textContent = "MODE: " + (isContinue ? "CONTINUE" : "HANDOFF");
+    launcherSub.textContent = isContinue ? "جاهز لمساعدتك الآن" : "تم التحويل للدعم البشري";
+
+    // بما أنك الآن على ثيم أبيض: نخلي النقطة سوداء دائمًا
+    statusDot.style.background = "#111827";
+    statusDot.style.boxShadow = "0 0 0 4px rgba(17,24,39,.10)";
+
+    // AI input locked during HANDOFF
+    aiInput.disabled = !isContinue;
+    aiSend.disabled = !isContinue;
+
+    aiHint.textContent = isContinue
+      ? "اكتب سؤالك… وسيبقى الوضع CONTINUE تلقائيًا."
+      : "أنت في وضع HANDOFF — تم فتح قناة الدعم المباشر.";
+
+    // MB state
+    mbState.textContent = isContinue ? "غير نشط" : "جارٍ التحميل…";
+  }
+
+  function setAiBusy(b){
+    const isContinue = (mode === "continue");
+    aiSend.disabled = b || !isContinue;
+    aiInput.disabled = b || !isContinue;
+  }
+
+  // ===== n8n contract helpers =====
+  function getN8nMode(obj){
+    // n8n يقرر: mode="handoff" أو handoff=true
+    if (!obj || typeof obj !== "object") return null;
+    if (obj.handoff === true) return "handoff";
+    const m = (typeof obj.mode === "string") ? obj.mode.toLowerCase().trim() : null;
+    if (m === "handoff") return "handoff";
+    if (m === "continue") return "continue";
+    if (m === "end" || m === "ended" || m === "close") return "continue";
+    return null;
+  }
+
+  function extractReply(obj){
+    if (!obj || typeof obj !== "object") return null;
+    const r =
+      (typeof obj.reply === "string" && obj.reply.trim()) ? obj.reply.trim() :
+      (typeof obj.output === "string" && obj.output.trim()) ? obj.output.trim() :
+      null;
+    return r ? normalizeText(r) : null;
+  }
+
+  async function sendToN8n(userText){
+    const body = { sessionId, page: location.href, message: userText, locale: "ar" };
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), CONFIG.REQUEST_TIMEOUT_MS);
+
+    try{
+      const res = await fetch(CONFIG.N8N_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type":"application/json", "Accept":"application/json, text/plain, */*" },
+        body: JSON.stringify(body),
+        signal: controller.signal
+      });
+
+      if (!res.ok) throw new Error("n8n error: " + res.status);
+
+      const txt = await res.text();
+      log("N8N (head):", txt.slice(0, 240));
+
+      try{
+        const parsed = JSON.parse(txt);
+        if (Array.isArray(parsed)) return parsed[0] || { reply: "تم الاستلام", mode: "continue" };
+        if (parsed && typeof parsed === "object") return parsed;
+      }catch{}
+      return { reply: txt, mode: "continue" };
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  // ===== AI send =====
+  aiForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (mode !== "continue") return;
+
+    const text = normalizeText(aiInput.value);
+    if (!text) return;
+
+    addAiMessage("user", text);
+    aiInput.value = "";
+    setAiBusy(true);
+
+    try{
+      const obj = await sendToN8n(text);
+
+      const reply = extractReply(obj);
+      if (reply) addAiMessage("bot", reply);
+      else addAiMessage("bot", "تم استلام رسالتك، كيف أقدر أساعدك؟");
+
+      // ✅ بعدها نطبّق تغيير MODE لو جاء من n8n
+      const nextMode = getN8nMode(obj);
+      if (nextMode) setMode(nextMode, "n8n");
+
+    } catch(err){
+      const msg = (err && err.name === "AbortError") ? "انتهت مهلة الاتصال." : "صار خطأ في الاتصال.";
+      addAiMessage("bot", msg);
+      log("ERR", err);
+    } finally {
+      setAiBusy(false);
+    }
+  });
+
+  // ===== MessageBird embedding =====
+  function loadMessageBirdIfNeeded(){
+    if (document.getElementById("mb-script")) return;
+
+    window.MessageBirdChatWidgetSettings = {
+      widgetId: CONFIG.MESSAGEBIRD_WIDGET_ID,
+      initializeOnLoad: true,
+    };
+
+    const s = document.createElement("script");
+    s.id = "mb-script";
+    s.async = true;
+    s.src = "https://livechat.messagebird.com/bootstrap.js?widgetId=" + encodeURIComponent(CONFIG.MESSAGEBIRD_WIDGET_ID);
+    document.head.appendChild(s);
+  }
+
+  // NOTE: With your updated light CSS, iframe size is controlled via CSS.
+  // Keep this for safety if MB overwrites styles.
+  function forceIframeFullSize(iframe){
+    if (!iframe) return;
+    iframe.style.setProperty("position", "absolute", "important");
+    iframe.style.setProperty("top", "10px", "important");
+    iframe.style.setProperty("left", "10px", "important");
+    iframe.style.setProperty("right", "10px", "important");
+    iframe.style.setProperty("bottom", "10px", "important");
+    iframe.style.setProperty("width", "calc(100% - 20px)", "important");
+    iframe.style.setProperty("height", "calc(100% - 20px)", "important");
+    iframe.style.setProperty("border", "0", "important");
+    iframe.style.setProperty("margin", "0", "important");
+    iframe.style.setProperty("padding", "0", "important");
+    iframe.style.setProperty("overflow", "hidden", "important");
+    iframe.style.setProperty("z-index", "1", "important");
+    iframe.style.setProperty("border-radius", "18px", "important");
+    iframe.style.setProperty("background", "#fff", "important");
+  }
+
+  function ensureMessageBirdMountedInsideModal(){
+    loadMessageBirdIfNeeded();
+
+    mbState.textContent = "جارٍ التحميل…";
+    mbFallback.style.display = "grid";
+
+    const start = Date.now();
+    const tryMount = setInterval(() => {
+      let mbFrame = document.getElementById("live-chat-widget-iframe");
+
+      if (!mbFrame) {
+        const frames = Array.from(document.querySelectorAll("iframe"));
+        mbFrame = frames.find(f => {
+          const src = (f.getAttribute("src") || "");
+          return src.includes("livechat.messagebird.com") || src.includes("messagebird");
+        });
+      }
+
+      if (mbFrame) {
+        clearInterval(tryMount);
+
+        try{
+          if (!mbContainer.contains(mbFrame)) mbContainer.appendChild(mbFrame);
+          forceIframeFullSize(mbFrame);
+
+          const guardStart = Date.now();
+          const guard = setInterval(() => {
+            forceIframeFullSize(mbFrame);
+            if (Date.now() - guardStart > 6000) clearInterval(guard);
+          }, 250);
+
+          try{
+            const obs = new MutationObserver(() => forceIframeFullSize(mbFrame));
+            obs.observe(mbFrame, { attributes:true, attributeFilter:["style","class"] });
+            setTimeout(() => obs.disconnect(), 12000);
+          }catch{}
+
+          mbFallback.style.display = "none";
+          mbState.textContent = "متصل";
+          log("MB iframe mounted ✅");
+        } catch(e){
+          mbState.textContent = "غير مدعوم";
+          mbFallback.style.display = "grid";
+          console.warn("[SUPPORT] Mount failed:", e);
+        }
+        return;
+      }
+
+      if (Date.now() - start > 9000) {
+        clearInterval(tryMount);
+        mbState.textContent = "غير ظاهر";
+        mbFallback.style.display = "grid";
+        log("MB iframe not found (fallback).");
+      }
+    }, 200);
+  }
+
+  function openMessageBirdChat(contact){
+    loadMessageBirdIfNeeded();
+
+    const start = Date.now();
+    const timer = setInterval(() => {
+      const api = window.MessageBirdChatWidget;
+
+      if (api && typeof api.toggleChat === "function") {
+        clearInterval(timer);
+
+        // Identify (optional)
+        try{
+          if (api.identify && typeof api.identify === "function") {
+            const c = contact || {};
+            api.identify({
+              externalId: c.id || sessionId,
+              name: c.name,
+              email: c.email,
+              phone: c.phone,
+            });
+          }
+        }catch{}
+
+        // Open default widget (then mount iframe into our modal)
+        try{ api.toggleChat(); }catch{}
+        ensureMessageBirdMountedInsideModal();
+      }
+
+      if (Date.now() - start > 12000) {
+        clearInterval(timer);
+        mbState.textContent = "تعذر التحميل";
+      }
+    }, 250);
+  }
+
+  mbOpenFallback.addEventListener("click", () => openMessageBirdChat(null));
+
+  // ===== End handoff: return to CONTINUE =====
+  mbEnd.addEventListener("click", () => {
+    setMode("continue", "user_end");
+  });
+
+  // Initial UI state
+  syncUI();
+
+  // If modal opens while already in HANDOFF
+  const modalObs = new MutationObserver(() => {
+    if (modal.classList.contains("is-open") && mode === "handoff") {
+      setHumanTabVisible(true);
       ensureMessageBirdMountedInsideModal();
       openMessageBirdChat(null);
     }
@@ -1205,5 +1721,6 @@
 
 </body>
 </html>
+
 
 
