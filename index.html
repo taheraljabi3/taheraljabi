@@ -16,26 +16,18 @@
     --surface2:#f7f9ff;
     --panel:#ffffff;
 
-    --text:#0b1220;        /* أسود مائل للأزرق */
-    --muted:#445066;       /* رمادي غامق */
+    --text:#0b1220;
+    --muted:#445066;
     --muted2:#6b768f;
 
     --line: rgba(11,18,32,.10);
     --line2: rgba(11,18,32,.14);
 
-    --blue:#1d4ed8;        /* أزرق أساسي */
-    --blue2:#2563eb;       /* أزرق ثانوي */
-    --blueSoft: rgba(37,99,235,.10);
-    --blueSoft2: rgba(37,99,235,.16);
+    --blue:#1d4ed8;
+    --blue2:#2563eb;
 
     --shadow: 0 22px 60px rgba(11,18,32,.14);
     --shadow2: 0 10px 26px rgba(11,18,32,.10);
-
-    --r12: 12px;
-    --r14: 14px;
-    --r16: 16px;
-    --r18: 18px;
-    --r22: 22px;
 
     --ease: cubic-bezier(.2,.8,.2,1);
   }
@@ -71,6 +63,7 @@
     box-shadow: var(--shadow2);
     cursor:pointer;
     transition: transform .18s var(--ease), border-color .18s var(--ease), box-shadow .18s var(--ease);
+    backdrop-filter: blur(10px);
   }
   .support-pill:hover{
     transform: translateY(-2px);
@@ -136,8 +129,7 @@
     position: fixed;
     bottom: 86px;
     left: 18px;
-    width: min(520px, calc(100vw - 36px));
-    height: auto;
+    width: min(540px, calc(100vw - 36px)); /* شوي أوسع */
     max-height: calc(100vh - 120px);
     z-index: 99999;
     display:none;
@@ -145,7 +137,6 @@
   .support-modal.is-open{ display:block; }
 
   .support-card{
-    height: auto;
     border-radius: 22px;
     overflow:hidden;
     border: 1px solid var(--line2);
@@ -211,7 +202,7 @@
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
-    max-width: 230px;
+    max-width: 250px;
     color: var(--text);
   }
   .support-title p{
@@ -244,7 +235,7 @@
   }
   .icon-btn:active{ transform: translateY(0); }
 
-  /* ===== Tabs (locked to mode) ===== */
+  /* ===== Tabs ===== */
   .tabs{
     display:flex;
     gap:10px;
@@ -292,8 +283,8 @@
     background: rgba(255,255,255,.98);
     display:flex;
     flex-direction:column;
-    min-height: 420px;
-    max-height: calc(100vh - 260px);
+    min-height: 460px;
+    max-height: calc(100vh - 250px);
   }
 
   .layer{
@@ -415,17 +406,23 @@
   .send:active{ transform: translateY(0); }
   .send:disabled{ opacity:.6; cursor:not-allowed; transform:none; filter:none; }
 
-  /* ===== MessageBird Pro Container (Bootstrap-friendly) ===== */
+  /* ==========================================================
+     ✅ MessageBird: حاوية "احترافية" بدون إطار داخل إطار
+     - no shadow
+     - no extra padding
+     - fills space nicely
+     ========================================================== */
   .mb-shell{
     position: relative;
     width: 100%;
-    height: 520px;                 /* ✅ ارتفاع محترم */
-    max-height: 60vh;              /* ✅ مرن للشاشات الصغيرة */
+    height: 62vh;          /* أكبر */
+    min-height: 540px;     /* ثابت محترم */
+    max-height: 68vh;      /* مرن */
     border-radius: 18px;
-    border: 1px solid var(--line2);
+    border: 1px solid rgba(11,18,32,.10);
     background: #fff;
     overflow: hidden;
-    box-shadow: 0 10px 24px rgba(11,18,32,.06);
+    box-shadow: none;      /* ✅ أهم شيء */
   }
 
   .mb-shell iframe,
@@ -458,7 +455,7 @@
     width: 100%;
     max-width: 360px;
     border-radius: 18px;
-    border: 1px solid var(--line2);
+    border: 1px solid rgba(11,18,32,.12);
     background: rgba(255,255,255,.98);
     box-shadow: var(--shadow2);
     padding: 14px;
@@ -498,7 +495,17 @@
       bottom: 78px;
     }
     .support-pill .txt b, .support-pill .txt span{ max-width: 140px; }
-    .support-body{ max-height: calc(100vh - 240px); }
+    .support-body{ max-height: calc(100vh - 220px); }
+    .mb-shell{
+      min-height: 460px;
+      height: 64vh;
+      max-height: 72vh;
+      border-radius: 16px;
+    }
+    .mb-shell iframe,
+    .mb-shell #live-chat-widget-iframe{
+      border-radius: 16px !important;
+    }
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -1190,3 +1197,4 @@
 
 </body>
 </html>
+
