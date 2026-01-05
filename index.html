@@ -727,6 +727,24 @@
     return String(t ?? "").replace(/\s+/g, " ").trim();
   }
 
+  function isObj(x){
+    return x && typeof x === "object" && !Array.isArray(x);
+  }
+
+  // ✅ فكّ رد n8n المتداخل: {output:{...}} أو {output:{output:{...}}} أو Array
+  function unwrapN8nPayload(raw){
+    let o = raw;
+
+    if (Array.isArray(o)) o = o[0];
+    if (!isObj(o)) return {};
+
+    for (let i = 0; i < 3; i++){
+      if (isObj(o.output)) o = o.output;
+      else break;
+    }
+    return isObj(o) ? o : {};
+  }
+
   // ===== Session: random each page load =====
   const sessionId = newRandomId();
   localStorage.setItem(STORAGE.SESSION_KEY, sessionId);
@@ -893,9 +911,7 @@
   });
 
   // ==========================================================
-  // ✅ MB: Start message from N8N summary
-  // - n8n should return: mbStartMessage (string) and optional handoffId/ticketId
-  // - we send it once per handoffId (fallback: session)
+  // ✅ MB: Start message from N8N summary (supports nested output)
   // ==========================================================
   const MB_START_MSG_DEFAULT = "السلام عليكم ورحمة الله وبركاته، أريد موظف دعم فني.";
   let mbStartMessageOverride = null;
@@ -903,23 +919,15 @@
   // key is dynamic (per handoff/ticket). fallback per session.
   let MB_START_SENT_KEY = "mb_start_sent_" + sessionId;
 
-  function setMbStartFromN8n(obj){
+  function setMbStartFromN8n(raw){
     try{
-      if (!obj || typeof obj !== "object") return;
+      const obj = unwrapN8nPayload(raw);
 
-      // If n8n provides handoffId/ticketId, make the "sent" key per ticket
       const tid = String(obj.handoffId || obj.ticketId || "").trim();
       if (tid) MB_START_SENT_KEY = "mb_start_sent_" + tid;
 
-      // If n8n provides a start summary message, use it
       const summary = (typeof obj.mbStartMessage === "string") ? obj.mbStartMessage.trim() : "";
-      if (summary) {
-        mbStartMessageOverride = summary;
-
-        // If you want to always send the newest summary even within same ticket,
-        // you can uncomment next line. Default: we respect one-time send per ticket.
-        // try{ localStorage.removeItem(MB_START_SENT_KEY); }catch{}
-      }
+      if (summary) mbStartMessageOverride = summary;
     }catch{}
   }
 
@@ -940,7 +948,6 @@
         return;
       }
 
-      // fallback: can't inject into iframe
       localStorage.setItem(MB_START_SENT_KEY, "1");
       log("MB startConversation not available; skipped sending.", { key: MB_START_SENT_KEY });
     } catch (e) {
@@ -1024,9 +1031,11 @@
     aiInput.disabled = b || !isContinue;
   }
 
-  // ===== n8n helpers =====
-  function getN8nMode(obj){
-    if (!obj || typeof obj !== "object") return null;
+  // ===== n8n helpers (supports nested output) =====
+  function getN8nMode(raw){
+    const obj = unwrapN8nPayload(raw);
+    if (!obj) return null;
+
     if (obj.handoff === true) return "handoff";
     const m = (typeof obj.mode === "string") ? obj.mode.toLowerCase().trim() : null;
     if (m === "handoff") return "handoff";
@@ -1035,12 +1044,16 @@
     return null;
   }
 
-  function extractReply(obj){
-    if (!obj || typeof obj !== "object") return null;
+  function extractReply(raw){
+    const obj = unwrapN8nPayload(raw);
+    if (!obj) return null;
+
+    // from your format: output.output is the reply text
     const r =
       (typeof obj.reply === "string" && obj.reply.trim()) ? obj.reply.trim() :
       (typeof obj.output === "string" && obj.output.trim()) ? obj.output.trim() :
       null;
+
     return r ? normalizeText(r) : null;
   }
 
@@ -1065,10 +1078,12 @@
 
       try{
         const parsed = JSON.parse(txt);
-        if (Array.isArray(parsed)) return parsed[0] || { reply: "تم الاستلام", mode: "continue" };
+        if (Array.isArray(parsed)) return parsed[0] || { output: { output: "تم الاستلام", mode: "continue" } };
         if (parsed && typeof parsed === "object") return parsed;
       }catch{}
-      return { reply: txt, mode: "continue" };
+
+      // fallback: treat plain text as reply
+      return { output: { output: txt, mode: "continue" } };
     } finally {
       clearTimeout(timeoutId);
     }
@@ -1087,16 +1102,16 @@
     setAiBusy(true);
 
     try{
-      const obj = await sendToN8n(text);
+      const raw = await sendToN8n(text);
 
-      const reply = extractReply(obj);
+      const reply = extractReply(raw);
       if (reply) addAiMessage("bot", reply);
       else addAiMessage("bot", "تم استلام رسالتك، كيف أقدر أساعدك؟");
 
-      // ✅ store MB start summary from n8n BEFORE switching mode
-      setMbStartFromN8n(obj);
+      // ✅ read mbStartMessage + handoffId from nested output BEFORE switching mode
+      setMbStartFromN8n(raw);
 
-      const nextMode = getN8nMode(obj);
+      const nextMode = getN8nMode(raw);
       if (nextMode) setMode(nextMode, "n8n");
 
     } catch(err){
@@ -1158,10 +1173,7 @@
 
       if (!mbFrame) {
         const frames = Array.from(document.querySelectorAll("iframe"));
-        mbFrame = frames.find(f => {
-          const src = (f.getAttribute("src") || "");
-          return /messagebird|livechat\.messagebird\.com/i.test(src);
-        });
+        mbFrame = frames.find(f => /messagebird|livechat\.messagebird\.com/i.test(f.getAttribute("src") || ""));
       }
 
       if (mbFrame) {
@@ -1231,13 +1243,11 @@
           log("MB identify error", e);
         }
 
-        try{ api.toggleChat(true); }catch{
-          try{ api.toggleChat(); }catch{}
-        }
+        try{ api.toggleChat(true); }catch{ try{ api.toggleChat(); }catch{} }
 
         ensureMessageBirdMountedInsideModal();
 
-        // ✅ send the N8N summary (or default) once per ticket/session
+        // ✅ send summary once per ticket/session
         sendMbStartMessageOnce();
 
         return;
@@ -1252,8 +1262,6 @@
   }
 
   mbOpenFallback.addEventListener("click", () => openMessageBirdChat(null));
-
-  // ===== End handoff: back to CONTINUE =====
   mbEnd.addEventListener("click", () => setMode("continue", "user_end"));
 
   // Initial state
@@ -1261,9 +1269,9 @@
 })();
 </script>
 
-
 </body>
 </html>
+
 
 
 
