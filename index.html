@@ -3,95 +3,188 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>مقالات تقنية - أحدث الأخبار والابتكارات</title>
+  <title>مركز الدعم - تصميم فاخر</title>
 
   <style>
     :root{
-      --bg:#0b0c10;
-      --card:#111318;
-      --card2:#0f1116;
-      --text:#f5f7ff;
-      --muted:rgba(255,255,255,.72);
-      --muted2:rgba(255,255,255,.55);
-      --line:rgba(255,255,255,.10);
-      --shadow: 0 18px 60px rgba(0,0,0,.45);
-      --shadow2: 0 10px 28px rgba(0,0,0,.35);
+      --bg0:#07080c;
+      --bg1:#0b0c12;
+      --panel:#10131b;
+      --panel2:#0e1118;
+      --glass: rgba(255,255,255,.06);
+      --glass2: rgba(255,255,255,.04);
+
+      --text:#f6f7ff;
+      --muted: rgba(255,255,255,.70);
+      --muted2: rgba(255,255,255,.55);
+      --line: rgba(255,255,255,.10);
+
       --brand:#6ee7ff;
       --brand2:#8b5cf6;
-      --success:#35d07f;
+      --brand3:#22c55e;
+
       --danger:#ff4d4d;
+      --warn:#fbbf24;
+
+      --shadow: 0 22px 70px rgba(0,0,0,.55);
+      --shadow2: 0 12px 30px rgba(0,0,0,.45);
+
+      --r14: 14px;
+      --r16: 16px;
+      --r18: 18px;
+      --r22: 22px;
+
+      --ease: cubic-bezier(.2,.8,.2,1);
     }
 
-    body { font-family: system-ui, -apple-system, Segoe UI, Tahoma, Arial, sans-serif; }
+    html, body { height: 100%; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Tahoma, Arial, sans-serif;
+      background: radial-gradient(1200px 700px at 20% -10%, rgba(110,231,255,.10), transparent 55%),
+                  radial-gradient(900px 700px at 110% 10%, rgba(139,92,246,.10), transparent 55%),
+                  radial-gradient(900px 900px at 50% 120%, rgba(34,197,94,.08), transparent 55%),
+                  linear-gradient(180deg, var(--bg0), var(--bg1));
+      color: var(--text);
+    }
 
-    /* ===== Launcher ===== */
-    .support-launcher {
+    /* ===== Launcher (Premium) ===== */
+    .support-launcher{
       position: fixed;
       bottom: 18px;
       left: 18px;
       z-index: 99999;
       display:flex;
-      gap:10px;
       align-items:center;
+      gap:10px;
+      user-select:none;
+    }
+
+    .support-pill{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow2);
+      cursor:pointer;
+      transition: transform .18s var(--ease), border-color .18s var(--ease);
+    }
+    .support-pill:hover{
+      transform: translateY(-2px);
+      border-color: rgba(110,231,255,.25);
+    }
+
+    .support-avatar{
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(110,231,255,.35), rgba(139,92,246,.35));
+      display:grid;
+      place-items:center;
+      font-size: 18px;
+      box-shadow: 0 10px 24px rgba(0,0,0,.25);
+      border: 1px solid rgba(255,255,255,.14);
+    }
+
+    .support-pill .txt{
+      display:flex;
+      flex-direction:column;
+      line-height: 1.2;
+      min-width: 0;
+    }
+    .support-pill .txt b{
+      font-size: 12.5px;
+      letter-spacing: .2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 160px;
+    }
+    .support-pill .txt span{
+      font-size: 11.5px;
+      color: var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 160px;
     }
 
     .support-fab{
-      width: 56px;
-      height: 56px;
+      width: 54px;
+      height: 54px;
       border: none;
-      border-radius: 16px;
+      border-radius: 18px;
       cursor: pointer;
       box-shadow: var(--shadow2);
       background: linear-gradient(135deg, var(--brand2), var(--brand));
-      color: #111;
+      color: #07080c;
       font-size: 22px;
-      display: grid;
-      place-items: center;
-      transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
-      user-select: none;
+      display:grid;
+      place-items:center;
+      transition: transform .18s var(--ease), opacity .18s var(--ease);
     }
-    .support-fab:hover { transform: translateY(-2px); }
-    .support-fab:active { transform: translateY(0); }
+    .support-fab:hover{ transform: translateY(-2px); }
+    .support-fab:active{ transform: translateY(0); }
 
-    /* ===== Modal (Widget) ===== */
-    .support-modal {
+    /* ===== Modal ===== */
+    .support-modal{
       position: fixed;
-      bottom: 84px;
+      bottom: 86px;
       left: 18px;
-      width: 380px;
+      width: 420px;
       max-width: calc(100vw - 36px);
-      height: 560px;
+      height: 620px;
       max-height: calc(100vh - 120px);
       z-index: 99999;
       display:none;
     }
-    .support-modal.is-open { display:block; }
+    .support-modal.is-open{ display:block; }
 
     .support-card{
       height:100%;
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      box-shadow: var(--shadow);
+      border-radius: 24px;
       overflow:hidden;
-      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.12);
+      background:
+        radial-gradient(900px 500px at 10% 0%, rgba(110,231,255,.16), transparent 55%),
+        radial-gradient(900px 500px at 90% 0%, rgba(139,92,246,.14), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
       position: relative;
       transform-origin: bottom left;
-      animation: pop .18s ease-out;
+      animation: pop .20s var(--ease);
     }
 
-    @keyframes pop {
-      from { transform: scale(.96) translateY(8px); opacity: .0; }
-      to   { transform: scale(1) translateY(0);   opacity: 1; }
+    .support-card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,.22), rgba(0,0,0,.35));
+      pointer-events:none;
+      z-index:0;
+    }
+
+    @keyframes pop{
+      from{ transform: scale(.97) translateY(10px); opacity: 0; }
+      to  { transform: scale(1) translateY(0); opacity: 1; }
     }
 
     /* ===== Header ===== */
     .support-header{
-      padding: 12px 12px 10px;
-      background: radial-gradient(1200px 400px at 10% 0%, rgba(110,231,255,.25), transparent 50%),
-                  radial-gradient(900px 500px at 90% 0%, rgba(139,92,246,.25), transparent 55%),
-                  rgba(15,17,22,.75);
-      border-bottom: 1px solid var(--line);
+      position: relative;
+      z-index:1;
+      padding: 14px 14px 12px;
+      background:
+        radial-gradient(1000px 400px at 10% 0%, rgba(110,231,255,.18), transparent 55%),
+        radial-gradient(900px 500px at 90% 0%, rgba(139,92,246,.18), transparent 60%),
+        rgba(12,14,20,.70);
+      border-bottom: 1px solid rgba(255,255,255,.10);
       display:flex;
       align-items:center;
       justify-content:space-between;
@@ -105,11 +198,26 @@
       min-width:0;
     }
 
+    .status{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+    }
+
     .status-dot{
-      width:10px;height:10px;border-radius:999px;
-      background: var(--success);
-      box-shadow: 0 0 0 4px rgba(53,208,127,.18);
+      width:10px; height:10px; border-radius:999px;
+      background: var(--brand3);
+      box-shadow: 0 0 0 4px rgba(34,197,94,.18);
       flex:0 0 auto;
+    }
+    .status-text{
+      font-size: 11.5px;
+      color: var(--muted);
+      white-space:nowrap;
     }
 
     .support-title h3{
@@ -117,12 +225,11 @@
       font-size: 13.5px;
       font-weight: 900;
       letter-spacing:.2px;
-      color: var(--text);
       line-height:1.2;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
-      max-width: 180px;
+      max-width: 190px;
     }
     .support-title p{
       margin:2px 0 0;
@@ -132,68 +239,76 @@
 
     .support-actions{
       display:flex;
-      gap:6px;
+      gap:8px;
       flex:0 0 auto;
+      align-items:center;
     }
+
     .icon-btn{
-      width: 34px;
-      height: 30px;
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(255,255,255,.06);
+      width: 36px;
+      height: 34px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.05);
       color: var(--text);
       cursor:pointer;
-      transition: transform .15s ease, background .15s ease;
+      transition: transform .18s var(--ease), background .18s var(--ease), border-color .18s var(--ease);
     }
-    .icon-btn:hover { background: rgba(255,255,255,.10); transform: translateY(-1px); }
-    .icon-btn:active { transform: translateY(0); }
+    .icon-btn:hover{
+      background: rgba(255,255,255,.09);
+      border-color: rgba(110,231,255,.25);
+      transform: translateY(-1px);
+    }
+    .icon-btn:active{ transform: translateY(0); }
 
-    /* ===== Tabs ===== */
+    /* ===== Tabs (locked to mode) ===== */
     .tabs{
+      position: relative;
+      z-index:1;
       display:flex;
-      gap:8px;
-      padding: 10px 12px;
-      background: rgba(17,19,24,.78);
-      border-bottom: 1px solid var(--line);
+      gap:10px;
+      padding: 10px 14px;
+      background: rgba(10,12,18,.55);
+      border-bottom: 1px solid rgba(255,255,255,.10);
     }
     .tab{
       flex:1;
-      padding: 10px 10px;
-      border-radius: 12px;
+      padding: 10px 12px;
+      border-radius: 14px;
       border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.05);
+      background: rgba(255,255,255,.04);
       color: var(--muted);
-      cursor:pointer;
-      font-weight: 800;
+      cursor: not-allowed; /* locked by spec */
+      font-weight: 900;
       font-size: 12.5px;
-      transition: background .15s ease, transform .15s ease, color .15s ease, border-color .15s ease;
-      user-select:none;
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:8px;
+      gap:10px;
+      transition: background .18s var(--ease), border-color .18s var(--ease), color .18s var(--ease), transform .18s var(--ease);
+      user-select:none;
     }
     .tab.active{
-      background: linear-gradient(135deg, rgba(110,231,255,.16), rgba(139,92,246,.16));
+      background: linear-gradient(135deg, rgba(110,231,255,.15), rgba(139,92,246,.15));
       border-color: rgba(110,231,255,.25);
       color: var(--text);
     }
-    .tab:active { transform: translateY(1px); }
 
     .badge{
       font-size: 11px;
-      padding: 4px 8px;
+      padding: 4px 10px;
       border-radius: 999px;
       border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
+      background: rgba(255,255,255,.05);
       color: var(--muted);
     }
 
-    /* ===== Body / Layers ===== */
+    /* ===== Body ===== */
     .support-body{
       position: relative;
-      height: calc(100% - 58px - 52px);
-      background: rgba(15,17,22,.55);
+      z-index:1;
+      height: calc(100% - 66px - 54px);
+      background: rgba(10,12,18,.35);
     }
 
     .layer{
@@ -203,108 +318,177 @@
     }
     .layer.active{ display:block; }
 
-    /* ===== AI chat ===== */
+    /* ===== AI ===== */
     .ai-messages{
-      height: calc(100% - 92px);
+      height: calc(100% - 104px);
       overflow:auto;
-      padding: 12px;
+      padding: 14px;
+      scroll-behavior: smooth;
     }
 
-    .msg{
-      display:flex;
-      margin: 10px 0;
-    }
+    .msg{ display:flex; margin: 10px 0; }
     .msg.user{ justify-content: flex-end; }
     .msg.bot{ justify-content: flex-start; }
 
     .bubble{
-      max-width: 82%;
-      padding: 10px 12px;
-      border-radius: 14px;
-      line-height: 1.7;
+      max-width: 84%;
+      padding: 11px 12px;
+      border-radius: 16px;
+      line-height: 1.75;
       font-size: 13px;
       white-space: pre-wrap;
       word-break: break-word;
       border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.06);
+      background: rgba(255,255,255,.05);
       color: var(--text);
+      box-shadow: 0 10px 22px rgba(0,0,0,.18);
     }
     .msg.user .bubble{
-      background: linear-gradient(135deg, rgba(110,231,255,.15), rgba(139,92,246,.15));
+      background: linear-gradient(135deg, rgba(110,231,255,.14), rgba(139,92,246,.14));
       border-color: rgba(110,231,255,.18);
     }
 
     .meta{
-      margin-top: 4px;
+      margin-top: 6px;
       font-size: 11px;
       color: var(--muted2);
+      opacity: .95;
     }
 
     .ai-footer{
-      height: 92px;
-      border-top: 1px solid var(--line);
-      background: rgba(17,19,24,.85);
-      padding: 10px 12px;
+      height: 104px;
+      border-top: 1px solid rgba(255,255,255,.10);
+      background: rgba(12,14,20,.62);
+      padding: 12px 14px;
       box-sizing:border-box;
     }
 
     .hint{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
       font-size: 12px;
       color: var(--muted);
-      margin-bottom: 8px;
+      margin-bottom: 10px;
+    }
+    .hint .pill{
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      color: var(--muted);
+      white-space:nowrap;
+      font-weight: 800;
+      font-size: 11.5px;
     }
 
     .form-row{
       display:flex;
-      gap:8px;
+      gap:10px;
       align-items:center;
     }
     .input{
       flex:1;
-      border-radius: 12px;
+      border-radius: 14px;
       border: 1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.20);
+      background: rgba(0,0,0,.22);
       color: var(--text);
-      padding: 10px 12px;
+      padding: 11px 12px;
       outline:none;
       font-size: 13px;
+      transition: box-shadow .18s var(--ease), border-color .18s var(--ease);
     }
     .input:focus{
       border-color: rgba(110,231,255,.35);
       box-shadow: 0 0 0 4px rgba(110,231,255,.10);
     }
+
     .send{
       border:none;
-      border-radius: 12px;
-      padding: 10px 14px;
+      border-radius: 14px;
+      padding: 11px 14px;
       cursor:pointer;
-      font-weight: 900;
+      font-weight: 950;
       background: linear-gradient(135deg, var(--brand), var(--brand2));
-      color: #0b0c10;
-      transition: transform .15s ease, opacity .15s ease;
+      color: #07080c;
+      transition: transform .18s var(--ease), opacity .18s var(--ease), filter .18s var(--ease);
       user-select:none;
+      min-width: 92px;
     }
-    .send:hover{ transform: translateY(-1px); }
+    .send:hover{ transform: translateY(-1px); filter: brightness(1.05); }
     .send:active{ transform: translateY(0); }
-    .send:disabled{ opacity:.6; cursor:not-allowed; transform:none; }
+    .send:disabled{ opacity:.6; cursor:not-allowed; transform:none; filter:none; }
 
-    /* ===== MessageBird container inside modal ===== */
+    /* ===== Human (MessageBird) ===== */
     .mb-wrap{
       height:100%;
       display:flex;
       flex-direction:column;
     }
+
     .mb-top{
-      padding: 12px;
+      padding: 12px 14px;
       color: var(--muted);
       font-size: 12.5px;
-      border-bottom: 1px solid var(--line);
-      background: rgba(17,19,24,.65);
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      background: rgba(12,14,20,.62);
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:10px;
     }
+
+    .mb-top .left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+
+    .mb-top .title{
+      display:flex;
+      flex-direction:column;
+      min-width:0;
+    }
+    .mb-top .title b{
+      color: var(--text);
+      font-size: 12.5px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 240px;
+    }
+    .mb-top .title span{
+      color: var(--muted);
+      font-size: 11.5px;
+    }
+
+    .mb-controls{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex:0 0 auto;
+    }
+
+    .btn-soft{
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.05);
+      color: var(--text);
+      padding: 9px 10px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-weight: 900;
+      font-size: 12px;
+      transition: transform .18s var(--ease), background .18s var(--ease), border-color .18s var(--ease);
+      white-space:nowrap;
+    }
+    .btn-soft:hover{
+      background: rgba(255,255,255,.09);
+      border-color: rgba(110,231,255,.22);
+      transform: translateY(-1px);
+    }
+    .btn-soft:active{ transform: translateY(0); }
 
     #mbContainer{
       flex:1;
@@ -321,33 +505,38 @@
       place-items:center;
       padding: 16px;
       text-align:center;
-      background: rgba(0,0,0,.15);
+      background: rgba(0,0,0,.12);
       z-index: 2;
     }
     .mb-card{
-      background: rgba(255,255,255,.06);
+      width: 100%;
+      max-width: 320px;
+      border-radius: 18px;
       border: 1px solid rgba(255,255,255,.12);
-      border-radius: 16px;
-      padding: 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
       box-shadow: var(--shadow2);
-      max-width: 290px;
+      padding: 14px;
       color: var(--text);
     }
-    .mb-card b{ display:block; margin-bottom:6px; }
-    .mb-card p{ margin:0; font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+    .mb-card b{ display:block; margin-bottom:8px; }
+    .mb-card p{ margin:0; font-size: 12.5px; color: var(--muted); line-height: 1.7; }
+
     .mb-card .btn{
-      margin-top: 10px;
+      margin-top: 12px;
       width:100%;
       border:none;
-      border-radius: 12px;
-      padding: 10px 14px;
-      font-weight: 900;
+      border-radius: 14px;
+      padding: 11px 14px;
+      font-weight: 950;
       cursor:pointer;
       background: linear-gradient(135deg, var(--brand), var(--brand2));
-      color: #0b0c10;
+      color: #07080c;
+      transition: transform .18s var(--ease), opacity .18s var(--ease);
     }
+    .mb-card .btn:hover{ transform: translateY(-1px); }
+    .mb-card .btn:active{ transform: translateY(0); }
 
-    /* Strong embed override (MB often sets inline width/height) */
+    /* Strong embed override */
     #mbContainer iframe,
     #mbContainer #live-chat-widget-iframe{
       position:absolute !important;
@@ -361,7 +550,7 @@
       z-index: 1;
     }
 
-    /* Optional: hide MB floating launcher/button if it appears */
+    /* Hide MB launcher if appears */
     #live-chat-widget, .live-chat-widget, .messagebird-launcher, .messagebird-widget-launcher {
       display: none !important;
       visibility: hidden !important;
@@ -369,8 +558,13 @@
       pointer-events: none !important;
     }
 
+    @media (max-width: 420px){
+      .support-modal{ height: 600px; }
+      .support-pill .txt b, .support-pill .txt span{ max-width: 130px; }
+    }
+
     @media (prefers-reduced-motion: reduce){
-      *{ animation:none !important; transition:none !important; }
+      *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
     }
   </style>
 </head>
@@ -378,7 +572,14 @@
 <body>
 
   <!-- ===== Launcher ===== -->
-  <div class="support-launcher">
+  <div class="support-launcher" aria-label="الدعم">
+    <div id="supportPill" class="support-pill" role="button" tabindex="0" aria-label="فتح مركز الدعم">
+      <div class="support-avatar">💎</div>
+      <div class="txt">
+        <b>مركز الدعم</b>
+        <span id="launcherSub">جاهز لمساعدتك الآن</span>
+      </div>
+    </div>
     <button id="supportFab" class="support-fab" type="button" aria-label="فتح الدعم">💬</button>
   </div>
 
@@ -387,25 +588,29 @@
     <div class="support-card" role="dialog" aria-label="دعم العملاء">
       <div class="support-header">
         <div class="support-title">
-          <span class="status-dot" id="statusDot"></span>
+          <div class="status">
+            <span class="status-dot" id="statusDot"></span>
+            <span class="status-text" id="statusText">وضع المساعد: CONTINUE</span>
+          </div>
           <div style="min-width:0">
-            <h3 id="supportTitle">مركز الدعم</h3>
-            <p id="supportSub">مساعد ذكي + تحويل مباشر</p>
+            <h3 id="supportTitle">مركز الدعم الفاخر</h3>
+            <p id="supportSub">مساعد ذكي — ويتحوّل مباشرة لموظف عند الحاجة</p>
           </div>
         </div>
+
         <div class="support-actions">
           <button id="supportMin" class="icon-btn" type="button" title="تصغير">—</button>
           <button id="supportClose" class="icon-btn" type="button" title="إغلاق">✕</button>
         </div>
       </div>
 
-      <div class="tabs">
-        <button id="tabAi" class="tab active" type="button">
-          🤖 AI <span class="badge" id="aiBadge">نشط</span>
-        </button>
-        <button id="tabMb" class="tab" type="button">
+      <div class="tabs" aria-label="التبويبات">
+        <div id="tabAi" class="tab active" aria-disabled="true">
+          🤖 AI <span class="badge" id="aiBadge">CONTINUE</span>
+        </div>
+        <div id="tabMb" class="tab" aria-disabled="true">
           👩‍💻 موظف <span class="badge" id="mbBadge">مخفي</span>
-        </button>
+        </div>
       </div>
 
       <div class="support-body">
@@ -415,7 +620,10 @@
           <div id="aiMessages" class="ai-messages" aria-live="polite"></div>
 
           <div class="ai-footer">
-            <div id="aiHint" class="hint">اكتب سؤالك… وإذا احتجنا موظف بنحوّلك مباشرة.</div>
+            <div class="hint">
+              <span id="aiHint">اكتب سؤالك… وسيبقى الوضع CONTINUE تلقائيًا.</span>
+              <span class="pill" id="modePill">MODE: CONTINUE</span>
+            </div>
             <form id="aiForm" class="form-row" autocomplete="off">
               <input id="aiInput" class="input" type="text" placeholder="اكتب رسالتك…" required />
               <button id="aiSend" class="send" type="submit">إرسال</button>
@@ -427,9 +635,17 @@
         <div id="layerMb" class="layer">
           <div class="mb-wrap">
             <div class="mb-top">
-              <div>أنت الآن مع فريق الدعم البشري</div>
-              <div style="display:flex; gap:8px; align-items:center;">
+              <div class="left">
+                <div class="support-avatar" style="width:32px;height:32px;border-radius:12px;">👩‍💻</div>
+                <div class="title">
+                  <b>الدعم البشري (HANDOFF)</b>
+                  <span>يمكنك إنهاء المحادثة للعودة تلقائيًا إلى CONTINUE</span>
+                </div>
+              </div>
+
+              <div class="mb-controls">
                 <span class="badge" id="mbState">جارٍ التحميل…</span>
+                <button id="mbEnd" class="btn-soft" type="button" title="إنهاء المحادثة والعودة للمساعد">إنهاء</button>
               </div>
             </div>
 
@@ -461,21 +677,30 @@
   };
 
   const STORAGE = {
-    SESSION_KEY: "support_session_id_v2",
-    AI_HISTORY_KEY: "support_ai_history_v2",
-    MODE_KEY: "support_mode_v2", // "ai" | "mb"
+    SESSION_KEY: "support_session_id_v3",
+    AI_HISTORY_KEY: "support_ai_history_v3",
+    MODE_KEY: "support_mode_v3", // "continue" | "handoff"
   };
 
+  // Session
   const sessionId =
     localStorage.getItem(STORAGE.SESSION_KEY) ||
     (crypto.randomUUID ? crypto.randomUUID() : (Date.now() + "-" + Math.random().toString(16).slice(2)));
   localStorage.setItem(STORAGE.SESSION_KEY, sessionId);
+
+  // Mode: locked by n8n (default CONTINUE)
+  let mode = (localStorage.getItem(STORAGE.MODE_KEY) || "continue").toLowerCase();
+  if (mode !== "handoff") mode = "continue";
+  localStorage.setItem(STORAGE.MODE_KEY, mode);
 
   const $ = (id) => document.getElementById(id);
   const log = (...a) => CONFIG.DEBUG && console.log("[SUPPORT]", ...a);
 
   const modal = $("supportModal");
   const fab = $("supportFab");
+  const pill = $("supportPill");
+  const launcherSub = $("launcherSub");
+
   const btnClose = $("supportClose");
   const btnMin = $("supportMin");
 
@@ -483,29 +708,37 @@
   const tabMb = $("tabMb");
   const layerAi = $("layerAi");
   const layerMb = $("layerMb");
-
   const aiBadge = $("aiBadge");
   const mbBadge = $("mbBadge");
-  const mbState = $("mbState");
+
   const statusDot = $("statusDot");
+  const statusText = $("statusText");
+  const modePill = $("modePill");
 
   const aiMessages = $("aiMessages");
   const aiForm = $("aiForm");
   const aiInput = $("aiInput");
   const aiSend = $("aiSend");
+  const aiHint = $("aiHint");
 
   const mbContainer = $("mbContainer");
   const mbFallback = $("mbFallback");
   const mbOpenFallback = $("mbOpenFallback");
+  const mbState = $("mbState");
+  const mbEnd = $("mbEnd");
 
   // Guards
-  const required = [modal,fab,btnClose,btnMin,tabAi,tabMb,layerAi,layerMb,aiBadge,mbBadge,mbState,statusDot,aiMessages,aiForm,aiInput,aiSend,mbContainer,mbFallback,mbOpenFallback];
+  const required = [
+    modal,fab,pill,launcherSub,btnClose,btnMin,
+    tabAi,tabMb,layerAi,layerMb,aiBadge,mbBadge,statusDot,statusText,modePill,
+    aiMessages,aiForm,aiInput,aiSend,aiHint,
+    mbContainer,mbFallback,mbOpenFallback,mbState,mbEnd
+  ];
   if (required.some(x => !x)) {
     console.error("[SUPPORT] Missing DOM elements; aborting widget init.");
     return;
   }
 
-  let mode = localStorage.getItem(STORAGE.MODE_KEY) || "ai";
   let greeted = false;
 
   function openModal(){
@@ -515,14 +748,34 @@
     greetOnce();
     syncUI();
     setTimeout(() => {
-      if (mode === "ai") aiInput.focus();
+      if (mode === "continue") aiInput.focus();
     }, 60);
+
+    if (mode === "handoff") {
+      ensureMessageBirdMountedInsideModal();
+      openMessageBirdChat(null);
+    }
   }
 
   function closeModal(){
     modal.classList.remove("is-open");
     modal.setAttribute("aria-hidden", "true");
   }
+
+  function toggleModal(){
+    if (modal.classList.contains("is-open")) closeModal();
+    else openModal();
+  }
+
+  // Open triggers
+  fab.addEventListener("click", toggleModal);
+  pill.addEventListener("click", toggleModal);
+  pill.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") toggleModal();
+  });
+
+  btnClose.addEventListener("click", closeModal);
+  btnMin.addEventListener("click", closeModal);
 
   // Close on ESC
   document.addEventListener("keydown", (e) => {
@@ -533,50 +786,76 @@
   document.addEventListener("mousedown", (e) => {
     if (!modal.classList.contains("is-open")) return;
     const card = modal.querySelector(".support-card");
-    if (card && !card.contains(e.target) && e.target !== fab) closeModal();
+    if (card && !card.contains(e.target) && e.target !== fab && !pill.contains(e.target)) closeModal();
   });
 
-  fab.addEventListener("click", () => {
-    if (modal.classList.contains("is-open")) closeModal();
-    else openModal();
-  });
-  btnClose.addEventListener("click", closeModal);
-  btnMin.addEventListener("click", closeModal);
+  function setMode(nextMode, source = "local"){
+    const m = String(nextMode || "").toLowerCase();
+    const normalized = (m === "handoff") ? "handoff" : "continue";
+    if (normalized === mode) return;
 
-  function switchTo(m){
-    mode = m;
+    mode = normalized;
     localStorage.setItem(STORAGE.MODE_KEY, mode);
+
+    log("MODE =>", mode, "source:", source);
     syncUI();
-  }
 
-  function syncUI(){
-    const isAi = mode === "ai";
-
-    tabAi.classList.toggle("active", isAi);
-    tabMb.classList.toggle("active", !isAi);
-
-    layerAi.classList.toggle("active", isAi);
-    layerMb.classList.toggle("active", !isAi);
-
-    aiBadge.textContent = isAi ? "نشط" : "متوقف";
-    mbBadge.textContent = isAi ? "مخفي" : "نشط";
-
-    aiInput.disabled = !isAi;
-    aiSend.disabled = !isAi;
-
-    statusDot.style.background = isAi ? "var(--success)" : "var(--brand)";
-
-    if (!isAi) {
+    if (mode === "handoff") {
+      // show human tab immediately
+      addAiMessage("bot", "تم تحويلك الآن للدعم البشري (HANDOFF).");
       ensureMessageBirdMountedInsideModal();
+      openMessageBirdChat(null);
+    } else {
+      // back to AI
+      addAiMessage("bot", "تمت العودة لوضع المساعد (CONTINUE). كيف أقدر أساعدك؟");
+      // Try closing MB widget (best-effort)
+      try{
+        const api = window.MessageBirdChatWidget;
+        if (api && typeof api.toggleChat === "function") {
+          // toggle could close if open; harmless if not
+          api.toggleChat();
+        }
+      }catch{}
     }
   }
 
-  tabAi.addEventListener("click", () => switchTo("ai"));
-  tabMb.addEventListener("click", () => switchTo("mb"));
+  function syncUI(){
+    const isContinue = (mode === "continue");
 
-  function now(){
-    const d = new Date();
-    return d.toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" });
+    // Layers follow MODE only (locked as requested)
+    layerAi.classList.toggle("active", isContinue);
+    layerMb.classList.toggle("active", !isContinue);
+
+    tabAi.classList.toggle("active", isContinue);
+    tabMb.classList.toggle("active", !isContinue);
+
+    aiBadge.textContent = isContinue ? "CONTINUE" : "موقوف";
+    mbBadge.textContent = isContinue ? "مخفي" : "HANDOFF";
+
+    // Status
+    statusText.textContent = "وضع المساعد: " + (isContinue ? "CONTINUE" : "HANDOFF");
+    modePill.textContent = "MODE: " + (isContinue ? "CONTINUE" : "HANDOFF");
+    launcherSub.textContent = isContinue ? "جاهز لمساعدتك الآن" : "تم التحويل للدعم البشري";
+
+    statusDot.style.background = isContinue ? "var(--brand3)" : "var(--brand)";
+    statusDot.style.boxShadow = isContinue
+      ? "0 0 0 4px rgba(34,197,94,.18)"
+      : "0 0 0 4px rgba(110,231,255,.16)";
+
+    // AI input locked during HANDOFF
+    aiInput.disabled = !isContinue;
+    aiSend.disabled = !isContinue;
+
+    aiHint.textContent = isContinue
+      ? "اكتب سؤالك… وسيبقى الوضع CONTINUE تلقائيًا."
+      : "أنت في وضع HANDOFF — العودة تتم تلقائيًا عند إنهاء المحادثة.";
+
+    // MB state
+    mbState.textContent = isContinue ? "غير نشط" : "جارٍ التحميل…";
+  }
+
+  function normalizeText(t){
+    return String(t ?? "").replace(/\s+/g, " ").trim();
   }
 
   function persistAiHistory(item){
@@ -585,7 +864,7 @@
       const arr = raw ? JSON.parse(raw) : [];
       const safe = Array.isArray(arr) ? arr : [];
       safe.push(item);
-      localStorage.setItem(STORAGE.AI_HISTORY_KEY, JSON.stringify(safe.slice(-40)));
+      localStorage.setItem(STORAGE.AI_HISTORY_KEY, JSON.stringify(safe.slice(-60)));
     }catch{}
   }
 
@@ -622,88 +901,102 @@
       const raw = localStorage.getItem(STORAGE.AI_HISTORY_KEY);
       const arr = raw ? JSON.parse(raw) : [];
       if (!Array.isArray(arr) || !arr.length) return;
-      arr.slice(-40).forEach(m => addAiMessage(m.from, m.text, m.t, false));
+      arr.slice(-60).forEach(m => addAiMessage(m.from, m.text, m.t, false));
       scrollAiBottom();
     }catch{}
   }
 
   function greetOnce(){
     if (greeted) return;
-
-    // إذا عندك تاريخ سابق لا ترسل تحية جديدة
-    try {
+    // If there is history, don't greet again
+    try{
       const raw = localStorage.getItem(STORAGE.AI_HISTORY_KEY);
       const arr = raw ? JSON.parse(raw) : [];
       if (Array.isArray(arr) && arr.length) {
         greeted = true;
         return;
       }
-    } catch {}
-
+    }catch{}
     greeted = true;
-    addAiMessage("bot", "هلا! أنا مساعد الدعم 🤝\nاكتب سؤالك، وإذا احتجنا موظف بحوّلك فورًا.");
-  }
-
-  function normalizeText(t){
-    return String(t ?? "").replace(/\s+/g, " ").trim();
+    addAiMessage("bot",
+      "هلا! أنا مساعد الدعم 💎\nاكتب سؤالك — و(لو n8n قرر HANDOFF) بنحوّلك للموظف مباشرة."
+    );
   }
 
   function setAiBusy(b){
-    aiSend.disabled = b || mode !== "ai";
-    aiInput.disabled = b || mode !== "ai";
+    const isContinue = (mode === "continue");
+    aiSend.disabled = b || !isContinue;
+    aiInput.disabled = b || !isContinue;
   }
 
-  function isHandoff(obj){
-    return !!(obj && (obj.mode === "handoff" || obj.handoff === true));
+  // ===== n8n contract helpers =====
+  function getN8nMode(obj){
+    // Accept: obj.mode = "continue"|"handoff"
+    // Accept: obj.handoff === true (handoff)
+    // Accept: obj.mode can be uppercase
+    if (!obj || typeof obj !== "object") return null;
+    if (obj.handoff === true) return "handoff";
+    const m = (typeof obj.mode === "string") ? obj.mode.toLowerCase().trim() : null;
+    if (m === "handoff") return "handoff";
+    if (m === "continue") return "continue";
+    // Optional: support end -> return continue
+    if (m === "end" || m === "ended" || m === "close") return "continue";
+    return null;
   }
 
   function extractReply(obj){
     if (!obj || typeof obj !== "object") return null;
-    const r = (typeof obj.reply === "string" && obj.reply.trim()) ? obj.reply.trim()
-            : (typeof obj.output === "string" && obj.output.trim()) ? obj.output.trim()
-            : null;
+    const r =
+      (typeof obj.reply === "string" && obj.reply.trim()) ? obj.reply.trim() :
+      (typeof obj.output === "string" && obj.output.trim()) ? obj.output.trim() :
+      null;
     return r ? normalizeText(r) : null;
   }
 
   async function sendToN8n(userText){
-    const body = { sessionId, page: location.href, message: userText, locale: "ar" };
+    const body = {
+      sessionId,
+      page: location.href,
+      message: userText,
+      locale: "ar"
+    };
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), CONFIG.REQUEST_TIMEOUT_MS);
 
     try{
       const res = await fetch(CONFIG.N8N_WEBHOOK_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Accept": "application/json, text/plain, */*" },
+        headers: {
+          "Content-Type":"application/json",
+          "Accept":"application/json, text/plain, */*"
+        },
         body: JSON.stringify(body),
         signal: controller.signal
       });
+
       if (!res.ok) throw new Error("n8n error: " + res.status);
 
       const txt = await res.text();
-      log("N8N (head):", txt.slice(0, 220));
+      log("N8N (head):", txt.slice(0, 240));
 
       // supports: JSON object, JSON array, or plain text
-      try {
+      try{
         const parsed = JSON.parse(txt);
         if (Array.isArray(parsed)) return parsed[0] || { reply: "تم الاستلام", mode: "continue" };
         if (parsed && typeof parsed === "object") return parsed;
-      } catch {}
+      }catch{}
       return { reply: txt, mode: "continue" };
     } finally {
       clearTimeout(timeoutId);
     }
   }
 
-  // Enter to send (and shift+enter for newline if you later switch to textarea)
-  aiInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      // allow form submit
-    }
-  });
-
+  // ===== AI send =====
   aiForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (mode !== "ai") return;
+
+    if (mode !== "continue") return;
 
     const text = normalizeText(aiInput.value);
     if (!text) return;
@@ -714,19 +1007,17 @@
 
     try{
       const obj = await sendToN8n(text);
+
+      // MODE is controlled ONLY by n8n
+      const nextMode = getN8nMode(obj);
+      if (nextMode) setMode(nextMode, "n8n");
+
       const reply = extractReply(obj);
+      if (reply) addAiMessage("bot", reply);
+      else addAiMessage("bot", "تم استلام رسالتك، كيف أقدر أساعدك؟");
 
-      if (isHandoff(obj)) {
-        addAiMessage("bot", reply || "تم تحويلكم للمهندس المناوب.");
-        // التحويل داخل نفس المودال
-        switchTo("mb");
-
-        // افتح MB (سيفتح/يركب داخل نفس المودال)
-        openMessageBirdChat(obj.contact || null);
-        return;
-      }
-
-      addAiMessage("bot", reply || "تم استلام رسالتك، كيف أقدر أساعدك؟");
+      // If n8n flips back to CONTINUE, UI returns automatically (per spec)
+      // Already handled by setMode("continue")
     } catch(err){
       const msg = (err && err.name === "AbortError") ? "انتهت مهلة الاتصال." : "صار خطأ في الاتصال.";
       addAiMessage("bot", msg);
@@ -752,14 +1043,10 @@
     document.head.appendChild(s);
   }
 
-  function forceIframeFullSize(iframe) {
+  function forceIframeFullSize(iframe){
     if (!iframe) return;
     iframe.style.setProperty("position", "absolute", "important");
     iframe.style.setProperty("inset", "0", "important");
-    iframe.style.setProperty("top", "0", "important");
-    iframe.style.setProperty("left", "0", "important");
-    iframe.style.setProperty("right", "0", "important");
-    iframe.style.setProperty("bottom", "0", "important");
     iframe.style.setProperty("width", "100%", "important");
     iframe.style.setProperty("height", "100%", "important");
     iframe.style.setProperty("border", "0", "important");
@@ -777,9 +1064,8 @@
 
     const start = Date.now();
     const tryMount = setInterval(() => {
-
-      // Prefer ID, then fallback by src
       let mbFrame = document.getElementById("live-chat-widget-iframe");
+
       if (!mbFrame) {
         const frames = Array.from(document.querySelectorAll("iframe"));
         mbFrame = frames.find(f => {
@@ -791,29 +1077,28 @@
       if (mbFrame) {
         clearInterval(tryMount);
 
-        try {
+        try{
           if (!mbContainer.contains(mbFrame)) mbContainer.appendChild(mbFrame);
-
           forceIframeFullSize(mbFrame);
 
-          // Guard: MB may rewrite inline width/height
+          // Guard for 5s (MB sometimes rewrites inline styles)
           const guardStart = Date.now();
           const guard = setInterval(() => {
             forceIframeFullSize(mbFrame);
             if (Date.now() - guardStart > 5000) clearInterval(guard);
           }, 250);
 
-          // Observe future changes and re-force sizing (lightweight)
-          try {
+          // Observe future changes briefly
+          try{
             const obs = new MutationObserver(() => forceIframeFullSize(mbFrame));
-            obs.observe(mbFrame, { attributes: true, attributeFilter: ["style", "class"] });
+            obs.observe(mbFrame, { attributes:true, attributeFilter:["style","class"] });
             setTimeout(() => obs.disconnect(), 12000);
-          } catch {}
+          }catch{}
 
           mbFallback.style.display = "none";
           mbState.textContent = "متصل";
-          log("MB iframe mounted + resized ✅");
-        } catch (e) {
+          log("MB iframe mounted ✅");
+        } catch(e){
           mbState.textContent = "غير مدعوم";
           mbFallback.style.display = "grid";
           console.warn("[SUPPORT] Mount failed:", e);
@@ -851,11 +1136,10 @@
               phone: c.phone,
             });
           }
-        } catch {}
+        }catch{}
 
-        // NOTE: toggleChat may open MB in its default UI first, then we mount the iframe into our modal.
-        try { api.toggleChat(); } catch {}
-
+        // Open (may open default UI first), then mount iframe into our modal
+        try{ api.toggleChat(); }catch{}
         ensureMessageBirdMountedInsideModal();
       }
 
@@ -868,23 +1152,24 @@
 
   mbOpenFallback.addEventListener("click", () => openMessageBirdChat(null));
 
-  // If user opens modal and mode is mb, mount immediately (no auto-open on page load)
-  function maybeMountOnOpen(){
-    if (mode === "mb") ensureMessageBirdMountedInsideModal();
-  }
-
-  // patch openModal to mount if needed
-  const _openModal = openModal;
-  window.__supportOpenModal = () => _openModal();
-
-  // We call maybeMountOnOpen from openModal by listening to class toggle
-  const modalObs = new MutationObserver(() => {
-    if (modal.classList.contains("is-open")) maybeMountOnOpen();
+  // ===== End handoff: return to CONTINUE automatically =====
+  // (We can’t reliably detect “chat ended” inside the iframe, so we provide a clear end button.)
+  mbEnd.addEventListener("click", () => {
+    // End handoff locally -> CONTINUE (per your spec)
+    setMode("continue", "user_end");
   });
-  modalObs.observe(modal, { attributes: true, attributeFilter: ["class"] });
 
-  // Initial UI state (don’t open anything automatically)
+  // Initial UI state
   syncUI();
+
+  // If modal opens while already in HANDOFF, mount immediately
+  const modalObs = new MutationObserver(() => {
+    if (modal.classList.contains("is-open") && mode === "handoff") {
+      ensureMessageBirdMountedInsideModal();
+      openMessageBirdChat(null);
+    }
+  });
+  modalObs.observe(modal, { attributes:true, attributeFilter:["class"] });
 
 })();
 </script>
