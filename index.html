@@ -511,6 +511,53 @@
   @media (prefers-reduced-motion: reduce){
     *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
   }
+  /* =========================================================
+   ✅ MessageBird OVERRIDES (قوي)
+   - يلغي fixed/right/bottom الافتراضي
+   - يخليه داخل حاويتنا فقط
+   ========================================================= */
+
+/* 1) ويدجت MB نفسه: لا يكون fixed ولا يهرب خارج المودال */
+#live-chat-widget{
+  position: static !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  top: auto !important;
+  z-index: 1 !important;
+  display: block !important;
+}
+
+/* 2) iframe: خليه يملأ الحاوية بالكامل */
+#live-chat-widget-iframe{
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  border: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 18px !important;
+  background: #fff !important;
+}
+
+/* 3) في بعض الأجهزة MB يضيف class opened ويعطيه fixed.. نكسرها */
+#live-chat-widget-iframe.opened{
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  top: auto !important;
+  left: auto !important;
+}
+
+/* 4) حاويتك: تأكد أنها relative عشان absolute يشتغل صح */
+.mb-shell{
+  position: relative !important;
+  overflow: hidden !important;
+}
+
 </style>
 
 </head>
@@ -1197,4 +1244,5 @@
 
 </body>
 </html>
+
 
