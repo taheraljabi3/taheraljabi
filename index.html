@@ -780,13 +780,13 @@
 
   // ===== Hide human tab + human layer (real hide) until HANDOFF =====
   function setHumanVisible(visible){
-    tabMb.style.display = visible ? "" : "none";      // ✅ يخفي التبويب فعليًا
-    layerMb.style.display = visible ? "" : "none";    // ✅ يخفي طبقة MessageBird فعليًا
+    tabMb.style.display = visible ? "" : "none";
+    layerMb.style.display = visible ? "" : "none";
   }
   setHumanVisible(false);
 
   // Ensure AI layer is always normal/available by default
-  layerAi.style.display = ""; // visible
+  layerAi.style.display = "";
 
   // ===== History =====
   function persistAiHistory(item){
@@ -856,7 +856,6 @@
     syncUI();
     setTimeout(() => aiInput.focus(), 60);
 
-    // إذا كان بالفعل HANDOFF (نادر) افتح البشري
     if (mode === "handoff") {
       setHumanVisible(true);
       ensureMessageBirdMountedInsideModal();
@@ -893,6 +892,62 @@
     if (card && !card.contains(e.target) && e.target !== fab && !pill.contains(e.target)) closeModal();
   });
 
+  // ==========================================================
+  // ✅ MB: Start message from N8N summary
+  // - n8n should return: mbStartMessage (string) and optional handoffId/ticketId
+  // - we send it once per handoffId (fallback: session)
+  // ==========================================================
+  const MB_START_MSG_DEFAULT = "السلام عليكم ورحمة الله وبركاته، أريد موظف دعم فني.";
+  let mbStartMessageOverride = null;
+
+  // key is dynamic (per handoff/ticket). fallback per session.
+  let MB_START_SENT_KEY = "mb_start_sent_" + sessionId;
+
+  function setMbStartFromN8n(obj){
+    try{
+      if (!obj || typeof obj !== "object") return;
+
+      // If n8n provides handoffId/ticketId, make the "sent" key per ticket
+      const tid = String(obj.handoffId || obj.ticketId || "").trim();
+      if (tid) MB_START_SENT_KEY = "mb_start_sent_" + tid;
+
+      // If n8n provides a start summary message, use it
+      const summary = (typeof obj.mbStartMessage === "string") ? obj.mbStartMessage.trim() : "";
+      if (summary) {
+        mbStartMessageOverride = summary;
+
+        // If you want to always send the newest summary even within same ticket,
+        // you can uncomment next line. Default: we respect one-time send per ticket.
+        // try{ localStorage.removeItem(MB_START_SENT_KEY); }catch{}
+      }
+    }catch{}
+  }
+
+  function sendMbStartMessageOnce(){
+    try{
+      if (localStorage.getItem(MB_START_SENT_KEY)) return;
+
+      const api = window.MessageBirdChatWidget;
+      if (!api) return;
+
+      const msg = String(mbStartMessageOverride || MB_START_MSG_DEFAULT).trim();
+      if (!msg) return;
+
+      if (typeof api.startConversation === "function") {
+        api.startConversation(msg);
+        localStorage.setItem(MB_START_SENT_KEY, "1");
+        log("MB startConversation sent ✅", { key: MB_START_SENT_KEY });
+        return;
+      }
+
+      // fallback: can't inject into iframe
+      localStorage.setItem(MB_START_SENT_KEY, "1");
+      log("MB startConversation not available; skipped sending.", { key: MB_START_SENT_KEY });
+    } catch (e) {
+      log("sendMbStartMessageOnce error", e);
+    }
+  }
+
   // ===== MODE switching (ONLY n8n) =====
   function setMode(nextMode, source="n8n"){
     const m = String(nextMode || "").toLowerCase();
@@ -904,10 +959,8 @@
     log("MODE =>", mode, "source:", source);
 
     if (mode === "handoff") {
-      // ✅ أظهر تبويب الموظف + طبقة MB لأول مرة
       setHumanVisible(true);
 
-      // ✅ فعّل التبويب البشري + طبقة البشري فقط الآن
       tabMb.classList.add("active");
       tabAi.classList.remove("active");
       layerMb.classList.add("active");
@@ -915,7 +968,6 @@
 
       addAiMessage("bot", "تم تحويلكم للمهندس المناوب");
 
-      // ✅ افتح MB مباشرة
       ensureMessageBirdMountedInsideModal();
       openMessageBirdChat(null);
 
@@ -923,7 +975,6 @@
       return;
     }
 
-    // العودة إلى CONTINUE: رجّع AI طبيعي + أخفِ البشري بالكامل
     tabAi.classList.add("active");
     tabMb.classList.remove("active");
     layerAi.classList.add("active");
@@ -933,7 +984,6 @@
 
     addAiMessage("bot", "تمت العودة لوضع المساعد. كيف أقدر أساعدك؟");
 
-    // Best-effort: إغلاق MB
     try{
       const api = window.MessageBirdChatWidget;
       if (api && typeof api.toggleChat === "function") api.toggleChat();
@@ -945,26 +995,21 @@
   function syncUI(){
     const isContinue = (mode === "continue");
 
-    // AI always available; we only swap "active" when handoff happens
     if (isContinue) {
       layerAi.classList.add("active");
       tabAi.classList.add("active");
     }
 
-    // Badges
     aiBadge.textContent = isContinue ? "CONTINUE" : "موقوف";
     mbBadge.textContent = (mode === "handoff") ? "HANDOFF" : "";
 
-    // Status texts
     statusText.textContent = "وضع المساعد: " + (isContinue ? "CONTINUE" : "HANDOFF");
     modePill.textContent = "MODE: " + (isContinue ? "CONTINUE" : "HANDOFF");
     launcherSub.textContent = isContinue ? "جاهز لمساعدتك الآن" : "تم التحويل للدعم البشري";
 
-    // dot: black
     statusDot.style.background = "#111827";
     statusDot.style.boxShadow = "0 0 0 4px rgba(17,24,39,.10)";
 
-    // AI enabled only in continue
     aiInput.disabled = !isContinue;
     aiSend.disabled = !isContinue;
 
@@ -1048,7 +1093,9 @@
       if (reply) addAiMessage("bot", reply);
       else addAiMessage("bot", "تم استلام رسالتك، كيف أقدر أساعدك؟");
 
-      // Apply mode change ONLY from n8n
+      // ✅ store MB start summary from n8n BEFORE switching mode
+      setMbStartFromN8n(obj);
+
       const nextMode = getN8nMode(obj);
       if (nextMode) setMode(nextMode, "n8n");
 
@@ -1095,165 +1142,114 @@
     iframe.style.setProperty("background", "#fff", "important");
   }
 
-// ===== MB: auto start message (sent once per session) =====
-const MB_START_MSG_DEFAULT = "السلام عليكم ورحمة الله وبركاته، أريد موظف دعم فني.";
-const MB_START_SENT_KEY = "mb_start_sent_" + sessionId;
+  // ===== MB: mount iframe inside our modal container =====
+  function ensureMessageBirdMountedInsideModal(){
+    loadMessageBirdIfNeeded();
 
-// لو تحب تستخدم ملخص n8n بدل الرسالة الثابتة، نقدر نخزنها هنا
-let mbStartMessageOverride = null;
+    mbState.textContent = "جارٍ التحميل…";
+    mbFallback.style.display = "grid";
 
-// نرسل الرسالة مرة واحدة فقط لكل session
-function sendMbStartMessageOnce(){
-  try{
-    if (localStorage.getItem(MB_START_SENT_KEY)) return;
+    const start = Date.now();
+    const INTERVAL_MS = 180;
+    const TIMEOUT_MS = 12000;
 
-    const api = window.MessageBirdChatWidget;
-    if (!api) return;
+    const tryMount = setInterval(() => {
+      let mbFrame = document.getElementById("live-chat-widget-iframe");
 
-    const msg = String(mbStartMessageOverride || MB_START_MSG_DEFAULT).trim();
-    if (!msg) return;
+      if (!mbFrame) {
+        const frames = Array.from(document.querySelectorAll("iframe"));
+        mbFrame = frames.find(f => {
+          const src = (f.getAttribute("src") || "");
+          return /messagebird|livechat\.messagebird\.com/i.test(src);
+        });
+      }
 
-    // الأفضل: startConversation يرسل رسالة من الزائر ويبدأ تذكرة مباشرة
-    if (typeof api.startConversation === "function") {
-      api.startConversation(msg);
-      localStorage.setItem(MB_START_SENT_KEY, "1");
-      log("MB startConversation sent ✅");
-      return;
-    }
+      if (mbFrame) {
+        clearInterval(tryMount);
 
-    // fallback: لو الـ startConversation غير متاح
-    // (ما نقدر نكتب داخل iframe، فنسجل منع التكرار فقط)
-    localStorage.setItem(MB_START_SENT_KEY, "1");
-    log("MB startConversation not available; skipped sending.");
-  } catch (e) {
-    // لا تكسر التدفق
-    log("sendMbStartMessageOnce error", e);
-  }
-}
-
-// ===== MB: mount iframe inside our modal container =====
-function ensureMessageBirdMountedInsideModal(){
-  loadMessageBirdIfNeeded();
-
-  mbState.textContent = "جارٍ التحميل…";
-  mbFallback.style.display = "grid";
-
-  const start = Date.now();
-  const INTERVAL_MS = 180;
-  const TIMEOUT_MS = 12000;
-
-  const tryMount = setInterval(() => {
-    // 1) Prefer official ID
-    let mbFrame = document.getElementById("live-chat-widget-iframe");
-
-    // 2) Fallback: find any MB iframe
-    if (!mbFrame) {
-      const frames = Array.from(document.querySelectorAll("iframe"));
-      mbFrame = frames.find(f => {
-        const src = (f.getAttribute("src") || "");
-        return /messagebird|livechat\.messagebird\.com/i.test(src);
-      });
-    }
-
-    if (mbFrame) {
-      clearInterval(tryMount);
-
-      try{
-        // Move into our container
-        if (!mbContainer.contains(mbFrame)) mbContainer.appendChild(mbFrame);
-
-        // Force sizing (your helper)
-        forceIframeFullSize(mbFrame);
-
-        // Guard: MB may rewrite styles for a bit
-        const guardStart = Date.now();
-        const guard = setInterval(() => {
-          forceIframeFullSize(mbFrame);
-          if (Date.now() - guardStart > 6500) clearInterval(guard);
-        }, 220);
-
-        // Observe quick changes for a short time
         try{
-          const obs = new MutationObserver(() => forceIframeFullSize(mbFrame));
-          obs.observe(mbFrame, { attributes:true, attributeFilter:["style","class"] });
-          setTimeout(() => obs.disconnect(), 14000);
-        }catch{}
+          if (!mbContainer.contains(mbFrame)) mbContainer.appendChild(mbFrame);
+          forceIframeFullSize(mbFrame);
 
-        mbFallback.style.display = "none";
-        mbState.textContent = "متصل";
-        log("MB iframe mounted ✅");
+          const guardStart = Date.now();
+          const guard = setInterval(() => {
+            forceIframeFullSize(mbFrame);
+            if (Date.now() - guardStart > 6500) clearInterval(guard);
+          }, 220);
 
-      } catch(e){
-        mbState.textContent = "غير مدعوم";
-        mbFallback.style.display = "grid";
-        console.warn("[SUPPORT] Mount failed:", e);
-      }
-      return;
-    }
+          try{
+            const obs = new MutationObserver(() => forceIframeFullSize(mbFrame));
+            obs.observe(mbFrame, { attributes:true, attributeFilter:["style","class"] });
+            setTimeout(() => obs.disconnect(), 14000);
+          }catch{}
 
-    if (Date.now() - start > TIMEOUT_MS) {
-      clearInterval(tryMount);
-      mbState.textContent = "غير ظاهر";
-      mbFallback.style.display = "grid";
-      log("MB iframe not found (fallback).");
-    }
-  }, INTERVAL_MS);
-}
-
-// ===== MB: open chat + identify + send start message =====
-function openMessageBirdChat(contact){
-  loadMessageBirdIfNeeded();
-
-  const start = Date.now();
-  const INTERVAL_MS = 240;
-  const TIMEOUT_MS = 14000;
-
-  const timer = setInterval(() => {
-    const api = window.MessageBirdChatWidget;
-
-    if (api && typeof api.toggleChat === "function") {
-      clearInterval(timer);
-
-      // Identify (best-effort)
-      try{
-        if (api.identify && typeof api.identify === "function") {
-          const c = contact || {};
-          api.identify({
-            // مهم: ربط المحادثة بالـ sessionId
-            externalId: c.id || sessionId,
-            name: c.name,
-            email: c.email,
-            phone: c.phone,
-          });
+          mbFallback.style.display = "none";
+          mbState.textContent = "متصل";
+          log("MB iframe mounted ✅");
+        } catch(e){
+          mbState.textContent = "غير مدعوم";
+          mbFallback.style.display = "grid";
+          console.warn("[SUPPORT] Mount failed:", e);
         }
-      } catch (e) {
-        log("MB identify error", e);
+        return;
       }
 
-      // Open widget (may open default first)
-      try{ api.toggleChat(true); } catch { 
-        try { api.toggleChat(); } catch {}
+      if (Date.now() - start > TIMEOUT_MS) {
+        clearInterval(tryMount);
+        mbState.textContent = "غير ظاهر";
+        mbFallback.style.display = "grid";
+        log("MB iframe not found (fallback).");
+      }
+    }, INTERVAL_MS);
+  }
+
+  // ===== MB: open chat + identify + send start message =====
+  function openMessageBirdChat(contact){
+    loadMessageBirdIfNeeded();
+
+    const start = Date.now();
+    const INTERVAL_MS = 240;
+    const TIMEOUT_MS = 14000;
+
+    const timer = setInterval(() => {
+      const api = window.MessageBirdChatWidget;
+
+      if (api && typeof api.toggleChat === "function") {
+        clearInterval(timer);
+
+        try{
+          if (api.identify && typeof api.identify === "function") {
+            const c = contact || {};
+            api.identify({
+              externalId: c.id || sessionId,
+              name: c.name,
+              email: c.email,
+              phone: c.phone,
+            });
+          }
+        } catch (e) {
+          log("MB identify error", e);
+        }
+
+        try{ api.toggleChat(true); }catch{
+          try{ api.toggleChat(); }catch{}
+        }
+
+        ensureMessageBirdMountedInsideModal();
+
+        // ✅ send the N8N summary (or default) once per ticket/session
+        sendMbStartMessageOnce();
+
+        return;
       }
 
-      // Mount inside modal
-      ensureMessageBirdMountedInsideModal();
-
-      // ✅ Send start message automatically once
-      // ملاحظة: لو startConversation يفتح محادثة جديدة، ممتاز كأول رسالة/تذكرة
-      // وإذا كانت المحادثة موجودة، غالبًا يضيف الرسالة لنفس السياق أو يبدأ جديدة حسب MB
-      sendMbStartMessageOnce();
-
-      return;
-    }
-
-    if (Date.now() - start > TIMEOUT_MS) {
-      clearInterval(timer);
-      mbState.textContent = "تعذر التحميل";
-      log("MB API not ready (timeout).");
-    }
-  }, INTERVAL_MS);
-}
-
+      if (Date.now() - start > TIMEOUT_MS) {
+        clearInterval(timer);
+        mbState.textContent = "تعذر التحميل";
+        log("MB API not ready (timeout).");
+      }
+    }, INTERVAL_MS);
+  }
 
   mbOpenFallback.addEventListener("click", () => openMessageBirdChat(null));
 
@@ -1265,8 +1261,10 @@ function openMessageBirdChat(contact){
 })();
 </script>
 
+
 </body>
 </html>
+
 
 
 
