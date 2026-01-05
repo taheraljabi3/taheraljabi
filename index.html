@@ -7,58 +7,41 @@
 
 <style>
   :root{
-    /* ===== Core palette (premium dark) ===== */
-    --bg0:#05060a;
-    --bg1:#090b12;
+    /* ===== Light theme (White + Blue + Black) ===== */
+    --page:#ffffff;
+    --surface:#ffffff;
+    --surface2:#f7f9ff;
+    --panel:#ffffff;
 
-    --panel:#0f121a;
-    --panel2:#0b0e15;
+    --text:#0b1220;        /* أسود مائل للأزرق */
+    --muted:#445066;       /* رمادي غامق */
+    --muted2:#6b768f;
 
-    --glass: rgba(255,255,255,.07);
-    --glass2: rgba(255,255,255,.04);
+    --line: rgba(11,18,32,.10);
+    --line2: rgba(11,18,32,.14);
 
-    --text:#f7f8ff;
-    --muted: rgba(255,255,255,.72);
-    --muted2: rgba(255,255,255,.56);
+    --blue:#1d4ed8;        /* أزرق أساسي */
+    --blue2:#2563eb;       /* أزرق ثانوي */
+    --blueSoft: rgba(37,99,235,.10);
+    --blueSoft2: rgba(37,99,235,.16);
 
-    --line: rgba(255,255,255,.10);
-    --line2: rgba(255,255,255,.14);
-
-    --brand:#6ee7ff;
-    --brand2:#8b5cf6;
-    --brand3:#22c55e;
-
-    --danger:#ff4d4d;
-    --warn:#fbbf24;
-
-    /* ===== Shadows / Radii ===== */
-    --shadow: 0 26px 90px rgba(0,0,0,.62);
-    --shadow2: 0 14px 34px rgba(0,0,0,.52);
-    --shadow3: 0 8px 18px rgba(0,0,0,.35);
+    --shadow: 0 22px 60px rgba(11,18,32,.14);
+    --shadow2: 0 10px 26px rgba(11,18,32,.10);
 
     --r12: 12px;
     --r14: 14px;
     --r16: 16px;
     --r18: 18px;
-    --r20: 20px;
-    --r24: 24px;
+    --r22: 22px;
 
-    --ease: cubic-bezier(.2,.85,.2,1);
+    --ease: cubic-bezier(.2,.8,.2,1);
   }
 
   html, body { height: 100%; }
   body{
     margin:0;
     font-family: system-ui, -apple-system, Segoe UI, Tahoma, Arial, sans-serif;
-
-    /* Ultra-premium background */
-    background:
-      radial-gradient(1200px 760px at 15% -10%, rgba(110,231,255,.12), transparent 58%),
-      radial-gradient(1000px 760px at 115% 12%, rgba(139,92,246,.12), transparent 60%),
-      radial-gradient(900px 900px at 50% 120%, rgba(34,197,94,.08), transparent 60%),
-      radial-gradient(900px 900px at 50% 45%, rgba(255,255,255,.04), transparent 62%),
-      linear-gradient(180deg, var(--bg0), var(--bg1));
-
+    background: var(--page);
     color: var(--text);
   }
 
@@ -80,48 +63,44 @@
     gap:10px;
     padding: 10px 12px;
     border-radius: 999px;
-    border: 1px solid rgba(255,255,255,.14);
-    background:
-      linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
-    backdrop-filter: blur(12px);
-    box-shadow: var(--shadow3);
+    border: 1px solid var(--line2);
+    background: rgba(255,255,255,.92);
+    box-shadow: var(--shadow2);
     cursor:pointer;
-    transition: transform .18s var(--ease), border-color .18s var(--ease), filter .18s var(--ease);
+    transition: transform .18s var(--ease), border-color .18s var(--ease), box-shadow .18s var(--ease);
   }
   .support-pill:hover{
     transform: translateY(-2px);
-    border-color: rgba(110,231,255,.28);
-    filter: brightness(1.05);
+    border-color: rgba(37,99,235,.28);
+    box-shadow: 0 14px 34px rgba(11,18,32,.14);
   }
-  .support-pill:active{ transform: translateY(0); }
 
   .support-avatar{
     width: 34px;
     height: 34px;
     border-radius: 12px;
-    background:
-      radial-gradient(18px 18px at 25% 20%, rgba(255,255,255,.22), transparent 60%),
-      linear-gradient(135deg, rgba(110,231,255,.38), rgba(139,92,246,.34));
+    background: linear-gradient(135deg, rgba(37,99,235,.18), rgba(29,78,216,.10));
     display:grid;
     place-items:center;
     font-size: 18px;
-    box-shadow: 0 10px 24px rgba(0,0,0,.30);
-    border: 1px solid rgba(255,255,255,.16);
+    border: 1px solid rgba(37,99,235,.22);
+    color: var(--blue);
   }
 
   .support-pill .txt{
     display:flex;
     flex-direction:column;
-    line-height: 1.18;
-    min-width:0;
+    line-height: 1.15;
+    min-width: 0;
   }
   .support-pill .txt b{
-    font-size: 12.6px;
-    letter-spacing: .15px;
+    font-size: 12.5px;
+    letter-spacing: .2px;
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
-    max-width: 170px;
+    max-width: 180px;
+    color: var(--text);
   }
   .support-pill .txt span{
     font-size: 11.5px;
@@ -129,36 +108,36 @@
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
-    max-width: 170px;
+    max-width: 180px;
   }
 
   .support-fab{
-    width: 56px;
-    height: 56px;
+    width: 54px;
+    height: 54px;
     border: none;
     border-radius: 18px;
     cursor: pointer;
     box-shadow: var(--shadow2);
-    background:
-      radial-gradient(20px 20px at 28% 22%, rgba(255,255,255,.22), transparent 60%),
-      linear-gradient(135deg, var(--brand2), var(--brand));
-    color: #05060a;
+    background: linear-gradient(135deg, var(--blue2), var(--blue));
+    color: #ffffff;
     font-size: 22px;
     display:grid;
     place-items:center;
-    transition: transform .18s var(--ease), filter .18s var(--ease), opacity .18s var(--ease);
+    transition: transform .18s var(--ease), filter .18s var(--ease);
   }
-  .support-fab:hover{ transform: translateY(-2px); filter: brightness(1.06); }
+  .support-fab:hover{ transform: translateY(-2px); filter: brightness(1.03); }
   .support-fab:active{ transform: translateY(0); }
 
-  /* ===== Modal ===== */
+  /* ===== Modal (Auto-size / no fixed height) =====
+     المطلوب: "الحاوية ما تكون محددة بمساحة" -> نجعلها قابلة للتمدد
+     مع حد أعلى للارتفاع للـ UX على الشاشات الصغيرة
+  */
   .support-modal{
     position: fixed;
     bottom: 86px;
     left: 18px;
-    width: 440px;
-    max-width: calc(100vw - 36px);
-    height: 640px;
+    width: min(520px, calc(100vw - 36px));
+    height: auto;                 /* ✅ لا يوجد ارتفاع ثابت */
     max-height: calc(100vh - 120px);
     z-index: 99999;
     display:none;
@@ -166,61 +145,28 @@
   .support-modal.is-open{ display:block; }
 
   .support-card{
-    height:100%;
-    border-radius: 26px;
+    height: auto;                 /* ✅ */
+    border-radius: 22px;
     overflow:hidden;
-    border: 1px solid rgba(255,255,255,.13);
-    background:
-      radial-gradient(900px 520px at 10% 0%, rgba(110,231,255,.16), transparent 56%),
-      radial-gradient(900px 520px at 90% 0%, rgba(139,92,246,.15), transparent 58%),
-      linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
-    backdrop-filter: blur(14px);
+    border: 1px solid var(--line2);
+    background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(247,249,255,.96));
     box-shadow: var(--shadow);
     position: relative;
-    transform-origin: bottom left;
-    animation: pop .20s var(--ease);
-  }
-
-  /* Inner vignette + subtle noise feel */
-  .support-card::before{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:
-      radial-gradient(900px 520px at 50% -30%, rgba(255,255,255,.08), transparent 60%),
-      linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.45));
-    pointer-events:none;
-    z-index:0;
-  }
-
-  /* Gloss stroke */
-  .support-card::after{
-    content:"";
-    position:absolute;
-    inset:0;
-    border-radius: 26px;
-    pointer-events:none;
-    z-index:0;
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,.14),
-      inset 0 -1px 0 rgba(0,0,0,.35);
+    animation: pop .18s var(--ease);
   }
 
   @keyframes pop{
-    from{ transform: scale(.975) translateY(10px); opacity: 0; }
-    to  { transform: scale(1) translateY(0); opacity: 1; }
+    from{ transform: translateY(10px) scale(.99); opacity: 0; }
+    to  { transform: translateY(0) scale(1); opacity: 1; }
   }
 
   /* ===== Header ===== */
   .support-header{
-    position: relative;
-    z-index:1;
     padding: 12px 12px 10px;
     background:
-      radial-gradient(900px 360px at 10% 0%, rgba(110,231,255,.18), transparent 58%),
-      radial-gradient(900px 420px at 90% 0%, rgba(139,92,246,.18), transparent 62%),
-      rgba(10,12,18,.68);
-    border-bottom: 1px solid rgba(255,255,255,.10);
+      radial-gradient(900px 300px at 10% 0%, rgba(37,99,235,.12), transparent 60%),
+      linear-gradient(180deg, rgba(255,255,255,.98), rgba(247,249,255,.96));
+    border-bottom: 1px solid var(--line);
     display:flex;
     align-items:center;
     justify-content:space-between;
@@ -238,17 +184,16 @@
     display:flex;
     align-items:center;
     gap:8px;
-    padding: 7px 10px;
+    padding: 8px 10px;
     border-radius: 999px;
-    border: 1px solid rgba(255,255,255,.14);
-    background: rgba(255,255,255,.05);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.10);
+    border: 1px solid var(--line2);
+    background: rgba(255,255,255,.92);
   }
 
   .status-dot{
     width:10px; height:10px; border-radius:999px;
-    background: var(--brand3);
-    box-shadow: 0 0 0 4px rgba(34,197,94,.16);
+    background: #111827; /* ✅ أسود للنقاط */
+    box-shadow: 0 0 0 4px rgba(17,24,39,.10);
     flex:0 0 auto;
   }
   .status-text{
@@ -259,65 +204,61 @@
 
   .support-title h3{
     margin:0;
-    font-size: 13.6px;
+    font-size: 13.5px;
     font-weight: 950;
-    letter-spacing:.18px;
-    line-height:1.1;
+    letter-spacing:.2px;
+    line-height:1.2;
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
-    max-width: 210px;
+    max-width: 230px;
+    color: var(--text);
   }
   .support-title p{
     margin:2px 0 0;
-    font-size: 11.7px;
+    font-size: 12px;
     color: var(--muted);
-    opacity: .95;
   }
 
   .support-actions{
     display:flex;
     gap:8px;
-    flex:0 0 auto;
     align-items:center;
+    flex:0 0 auto;
   }
 
   .icon-btn{
-    width: 36px;
+    width: 38px;
     height: 34px;
     border-radius: 12px;
-    border: 1px solid rgba(255,255,255,.14);
-    background: rgba(255,255,255,.05);
+    border: 1px solid var(--line2);
+    background: rgba(255,255,255,.92);
     color: var(--text);
     cursor:pointer;
-    transition: transform .18s var(--ease), background .18s var(--ease), border-color .18s var(--ease), filter .18s var(--ease);
+    transition: transform .18s var(--ease), background .18s var(--ease), border-color .18s var(--ease);
   }
   .icon-btn:hover{
-    background: rgba(255,255,255,.10);
-    border-color: rgba(110,231,255,.22);
+    background: rgba(37,99,235,.06);
+    border-color: rgba(37,99,235,.22);
     transform: translateY(-1px);
-    filter: brightness(1.03);
   }
   .icon-btn:active{ transform: translateY(0); }
 
   /* ===== Tabs (locked to mode) ===== */
   .tabs{
-    position: relative;
-    z-index:1;
     display:flex;
     gap:10px;
     padding: 10px 12px;
-    background: rgba(8,10,16,.48);
-    border-bottom: 1px solid rgba(255,255,255,.10);
+    background: rgba(247,249,255,.96);
+    border-bottom: 1px solid var(--line);
   }
 
   .tab{
     flex:1;
     padding: 10px 12px;
-    border-radius: 16px;
-    border: 1px solid rgba(255,255,255,.10);
-    background:
-      linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
+    border-radius: 14px;
+    border: 1px solid var(--line2);
+    background: rgba(255,255,255,.95);
     color: var(--muted);
     cursor: not-allowed; /* locked */
     font-weight: 950;
@@ -327,15 +268,12 @@
     justify-content:center;
     gap:10px;
     user-select:none;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+    transition: background .18s var(--ease), border-color .18s var(--ease), color .18s var(--ease);
   }
 
   .tab.active{
-    background:
-      radial-gradient(260px 120px at 30% 10%, rgba(110,231,255,.18), transparent 60%),
-      linear-gradient(135deg, rgba(110,231,255,.12), rgba(139,92,246,.12)),
-      rgba(255,255,255,.04);
-    border-color: rgba(110,231,255,.24);
+    background: linear-gradient(180deg, rgba(37,99,235,.10), rgba(37,99,235,.06));
+    border-color: rgba(37,99,235,.28);
     color: var(--text);
   }
 
@@ -343,43 +281,46 @@
     font-size: 11px;
     padding: 4px 10px;
     border-radius: 999px;
-    border: 1px solid rgba(255,255,255,.12);
-    background: rgba(0,0,0,.18);
-    color: var(--muted);
+    border: 1px solid rgba(37,99,235,.20);
+    background: rgba(37,99,235,.08);
+    color: var(--blue);
+    font-weight: 900;
   }
 
-  /* ===== Body ===== */
+  /* ===== Body =====
+     الآن بدون حساب ارتفاع ثابت: نجعلها مرنة وتستخدم max-height من المودال
+  */
   .support-body{
-    position: relative;
-    z-index:1;
-    height: calc(100% - 62px - 56px);
-    background:
-      radial-gradient(900px 520px at 50% 0%, rgba(255,255,255,.05), transparent 58%),
-      rgba(8,10,16,.32);
+    background: rgba(255,255,255,.98);
+    display:flex;
+    flex-direction:column;
+    min-height: 420px;            /* حد أدنى لطيف */
+    max-height: calc(100vh - 260px); /* ✅ تمنع التمدد اللانهائي */
   }
 
   .layer{
-    position:absolute;
-    inset:0;
     display:none;
+    flex:1;
+    min-height: 0;
   }
-  .layer.active{ display:block; }
+  .layer.active{
+    display:flex;
+    flex-direction:column;
+    flex:1;
+    min-height: 0;
+  }
 
   /* ===== AI ===== */
   .ai-messages{
-    height: calc(100% - 104px);
+    flex:1;
     overflow:auto;
     padding: 14px;
-    scroll-behavior: smooth;
-  }
-
-  /* nicer scrollbars (webkit only) */
-  .ai-messages::-webkit-scrollbar{ width: 10px; }
-  .ai-messages::-webkit-scrollbar-track{ background: rgba(255,255,255,.03); border-radius: 999px; }
-  .ai-messages::-webkit-scrollbar-thumb{
-    background: rgba(255,255,255,.12);
-    border-radius: 999px;
-    border: 2px solid rgba(0,0,0,.20);
+    background:
+      radial-gradient(900px 350px at 10% 0%, rgba(37,99,235,.07), transparent 60%),
+      linear-gradient(180deg, rgba(255,255,255,1), rgba(247,249,255,.70));
+    border-bottom: 1px solid var(--line);
+    min-height: 0;
+    scroll-behavior:smooth;
   }
 
   .msg{ display:flex; margin: 10px 0; }
@@ -387,44 +328,34 @@
   .msg.bot{ justify-content: flex-start; }
 
   .bubble{
-    max-width: 84%;
-    padding: 11px 12px;
+    max-width: 86%;
+    padding: 10px 12px;
     border-radius: 16px;
     line-height: 1.75;
     font-size: 13px;
     white-space: pre-wrap;
     word-break: break-word;
-    border: 1px solid rgba(255,255,255,.10);
-    background:
-      radial-gradient(200px 120px at 18% 10%, rgba(255,255,255,.08), transparent 60%),
-      rgba(255,255,255,.05);
+    border: 1px solid var(--line2);
+    background: rgba(255,255,255,.98);
     color: var(--text);
-    box-shadow: 0 12px 26px rgba(0,0,0,.22);
+    box-shadow: 0 10px 20px rgba(11,18,32,.06);
   }
 
   .msg.user .bubble{
-    background:
-      radial-gradient(220px 130px at 22% 10%, rgba(110,231,255,.16), transparent 62%),
-      linear-gradient(135deg, rgba(110,231,255,.12), rgba(139,92,246,.12)),
-      rgba(255,255,255,.03);
-    border-color: rgba(110,231,255,.18);
+    background: rgba(37,99,235,.08);
+    border-color: rgba(37,99,235,.18);
+    color: var(--text);
   }
 
   .meta{
     margin-top: 6px;
     font-size: 11px;
     color: var(--muted2);
-    opacity: .95;
   }
 
   .ai-footer{
-    height: 104px;
-    border-top: 1px solid rgba(255,255,255,.10);
-    background:
-      radial-gradient(800px 220px at 50% 0%, rgba(255,255,255,.06), transparent 60%),
-      rgba(10,12,18,.58);
-    padding: 12px 14px;
-    box-sizing:border-box;
+    padding: 12px;
+    background: rgba(255,255,255,.98);
   }
 
   .hint{
@@ -439,13 +370,12 @@
   .hint .pill{
     padding: 6px 10px;
     border-radius: 999px;
-    border: 1px solid rgba(255,255,255,.12);
-    background: rgba(0,0,0,.20);
-    color: var(--muted);
+    border: 1px solid rgba(37,99,235,.22);
+    background: rgba(37,99,235,.08);
+    color: var(--blue);
     white-space:nowrap;
-    font-weight: 900;
+    font-weight: 950;
     font-size: 11.5px;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
   }
 
   .form-row{
@@ -456,57 +386,51 @@
 
   .input{
     flex:1;
-    border-radius: 16px;
-    border: 1px solid rgba(255,255,255,.14);
-    background:
-      radial-gradient(160px 90px at 18% 10%, rgba(255,255,255,.08), transparent 65%),
-      rgba(0,0,0,.22);
+    border-radius: 14px;
+    border: 1px solid var(--line2);
+    background: rgba(247,249,255,.85);
     color: var(--text);
     padding: 11px 12px;
     outline:none;
     font-size: 13px;
-    transition: box-shadow .18s var(--ease), border-color .18s var(--ease), filter .18s var(--ease);
+    transition: box-shadow .18s var(--ease), border-color .18s var(--ease), background .18s var(--ease);
   }
   .input:focus{
-    border-color: rgba(110,231,255,.34);
-    box-shadow: 0 0 0 4px rgba(110,231,255,.10);
-    filter: brightness(1.02);
+    border-color: rgba(37,99,235,.35);
+    background: rgba(255,255,255,1);
+    box-shadow: 0 0 0 4px rgba(37,99,235,.12);
   }
 
   .send{
     border:none;
-    border-radius: 16px;
+    border-radius: 14px;
     padding: 11px 14px;
     cursor:pointer;
     font-weight: 950;
-    background:
-      radial-gradient(20px 20px at 26% 22%, rgba(255,255,255,.22), transparent 62%),
-      linear-gradient(135deg, var(--brand), var(--brand2));
-    color: #05060a;
-    transition: transform .18s var(--ease), opacity .18s var(--ease), filter .18s var(--ease);
+    background: linear-gradient(135deg, var(--blue2), var(--blue));
+    color: #fff;
+    transition: transform .18s var(--ease), filter .18s var(--ease), opacity .18s var(--ease);
     user-select:none;
     min-width: 92px;
-    box-shadow: 0 14px 28px rgba(0,0,0,.30);
   }
-  .send:hover{ transform: translateY(-1px); filter: brightness(1.06); }
+  .send:hover{ transform: translateY(-1px); filter: brightness(1.03); }
   .send:active{ transform: translateY(0); }
-  .send:disabled{ opacity:.6; cursor:not-allowed; transform:none; filter:none; box-shadow:none; }
+  .send:disabled{ opacity:.6; cursor:not-allowed; transform:none; filter:none; }
 
   /* ===== Human (MessageBird) ===== */
   .mb-wrap{
-    height:100%;
+    flex:1;
     display:flex;
     flex-direction:column;
+    min-height: 0;
   }
 
   .mb-top{
-    padding: 12px 14px;
+    padding: 12px;
     color: var(--muted);
     font-size: 12.5px;
-    border-bottom: 1px solid rgba(255,255,255,.10);
-    background:
-      radial-gradient(700px 240px at 20% 0%, rgba(110,231,255,.10), transparent 62%),
-      rgba(10,12,18,.60);
+    border-bottom: 1px solid var(--line);
+    background: rgba(247,249,255,.96);
     display:flex;
     align-items:center;
     justify-content:space-between;
@@ -527,12 +451,12 @@
   }
   .mb-top .title b{
     color: var(--text);
-    font-size: 12.6px;
-    font-weight: 950;
+    font-size: 12.5px;
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
-    max-width: 260px;
+    max-width: 280px;
+    font-weight: 950;
   }
   .mb-top .title span{
     color: var(--muted);
@@ -547,92 +471,84 @@
   }
 
   .btn-soft{
-    border: 1px solid rgba(255,255,255,.14);
-    background:
-      linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-    color: var(--text);
-    padding: 9px 12px;
-    border-radius: 14px;
+    border: 1px solid rgba(37,99,235,.22);
+    background: rgba(37,99,235,.08);
+    color: var(--blue);
+    padding: 9px 10px;
+    border-radius: 12px;
     cursor:pointer;
     font-weight: 950;
     font-size: 12px;
-    transition: transform .18s var(--ease), background .18s var(--ease), border-color .18s var(--ease), filter .18s var(--ease);
+    transition: transform .18s var(--ease), background .18s var(--ease), border-color .18s var(--ease);
     white-space:nowrap;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
   }
   .btn-soft:hover{
-    background: rgba(255,255,255,.10);
-    border-color: rgba(110,231,255,.22);
+    background: rgba(37,99,235,.12);
+    border-color: rgba(37,99,235,.30);
     transform: translateY(-1px);
-    filter: brightness(1.03);
   }
   .btn-soft:active{ transform: translateY(0); }
 
+  /* ===== Key change: container not constrained / full layout correct =====
+     نضيف padding + إطار دائري + قص overflow
+     ونترك iframe يتمدّد داخل الحاوية بالكامل
+  */
   #mbContainer{
     flex:1;
     position:relative;
     overflow:hidden;
     min-height: 0;
-
-    /* Dark surround so the white iframe feels embedded */
-    background: rgba(0,0,0,.14);
+    background: rgba(247,249,255,.70);
     padding: 10px;
-    box-sizing: border-box;
+    box-sizing:border-box;
   }
 
-  /* Inner frame (visual shell) */
   #mbContainer::before{
     content:"";
     position:absolute;
     inset:10px;
     border-radius: 18px;
-    border: 1px solid rgba(255,255,255,.12);
-    background:
-      radial-gradient(260px 140px at 22% 12%, rgba(255,255,255,.07), transparent 62%),
-      linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,.10),
-      0 18px 38px rgba(0,0,0,.28);
+    border: 1px solid var(--line2);
+    background: rgba(255,255,255,.98);
+    box-shadow: 0 10px 24px rgba(11,18,32,.06);
     pointer-events:none;
-    z-index: 0;
   }
 
-  /* Keep iframe inside the shell */
+  /* inner frame holder effect */
   #mbContainer iframe,
   #mbContainer #live-chat-widget-iframe{
     position:absolute !important;
-    inset:10px !important;
+    top:10px !important;
+    left:10px !important;
+    right:10px !important;
+    bottom:10px !important;
     width: calc(100% - 20px) !important;
     height: calc(100% - 20px) !important;
     border:0 !important;
     margin:0 !important;
     padding:0 !important;
     overflow:hidden !important;
+    border-radius: 18px !important;
     z-index: 1 !important;
-    border-radius: 16px !important;
-    background: transparent !important;
+    background: #fff !important;
   }
 
   .mb-fallback{
     position:absolute;
-    inset:10px;
+    inset:0;
     display:grid;
     place-items:center;
     padding: 16px;
     text-align:center;
-    border-radius: 18px;
-    background: rgba(0,0,0,.10);
+    background: rgba(255,255,255,.70);
     z-index: 2;
   }
-
   .mb-card{
     width: 100%;
-    max-width: 320px;
+    max-width: 360px;
     border-radius: 18px;
-    border: 1px solid rgba(255,255,255,.12);
-    background:
-      radial-gradient(220px 130px at 22% 12%, rgba(255,255,255,.09), transparent 62%),
-      linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
+    border: 1px solid var(--line2);
+    background: rgba(255,255,255,.98);
     box-shadow: var(--shadow2);
     padding: 14px;
     color: var(--text);
@@ -644,18 +560,15 @@
     margin-top: 12px;
     width:100%;
     border:none;
-    border-radius: 16px;
+    border-radius: 14px;
     padding: 11px 14px;
     font-weight: 950;
     cursor:pointer;
-    background:
-      radial-gradient(20px 20px at 26% 22%, rgba(255,255,255,.22), transparent 62%),
-      linear-gradient(135deg, var(--brand), var(--brand2));
-    color: #05060a;
-    transition: transform .18s var(--ease), opacity .18s var(--ease), filter .18s var(--ease);
-    box-shadow: 0 14px 28px rgba(0,0,0,.30);
+    background: linear-gradient(135deg, var(--blue2), var(--blue));
+    color: #fff;
+    transition: transform .18s var(--ease), opacity .18s var(--ease);
   }
-  .mb-card .btn:hover{ transform: translateY(-1px); filter: brightness(1.06); }
+  .mb-card .btn:hover{ transform: translateY(-1px); }
   .mb-card .btn:active{ transform: translateY(0); }
 
   /* Hide MB launcher if appears */
@@ -666,16 +579,22 @@
     pointer-events: none !important;
   }
 
-  @media (max-width: 420px){
-    .support-modal{ height: 610px; width: 420px; }
-    .support-pill .txt b, .support-pill .txt span{ max-width: 132px; }
-    .support-title h3{ max-width: 185px; }
+  /* Responsive */
+  @media (max-width: 480px){
+    .support-modal{
+      left: 12px;
+      width: calc(100vw - 24px);
+      bottom: 78px;
+    }
+    .support-pill .txt b, .support-pill .txt span{ max-width: 140px; }
+    .support-body{ max-height: calc(100vh - 240px); }
   }
 
   @media (prefers-reduced-motion: reduce){
     *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
   }
 </style>
+
 
 </head>
 
@@ -787,25 +706,36 @@
   };
 
   const STORAGE = {
-    SESSION_KEY: "support_session_id_v3",
-    AI_HISTORY_KEY: "support_ai_history_v3",
-    MODE_KEY: "support_mode_v3", // "continue" | "handoff"
+    SESSION_KEY: "support_session_id_v5",
+    AI_HISTORY_KEY: "support_ai_history_v5",
+    MODE_KEY: "support_mode_v5", // "continue" | "handoff"
   };
 
-  // Session
-  const sessionId =
-    localStorage.getItem(STORAGE.SESSION_KEY) ||
-    (crypto.randomUUID ? crypto.randomUUID() : (Date.now() + "-" + Math.random().toString(16).slice(2)));
-  localStorage.setItem(STORAGE.SESSION_KEY, sessionId);
-
-  // Mode: locked by n8n (default CONTINUE)
-  let mode = (localStorage.getItem(STORAGE.MODE_KEY) || "continue").toLowerCase();
-  if (mode !== "handoff") mode = "continue";
-  localStorage.setItem(STORAGE.MODE_KEY, mode);
-
+  // ===== Helpers =====
   const $ = (id) => document.getElementById(id);
   const log = (...a) => CONFIG.DEBUG && console.log("[SUPPORT]", ...a);
 
+  function newRandomId(){
+    if (crypto.randomUUID) return crypto.randomUUID();
+    const buf = new Uint8Array(16);
+    if (crypto.getRandomValues) crypto.getRandomValues(buf);
+    const hex = [...buf].map(b => b.toString(16).padStart(2,"0")).join("");
+    return `${Date.now().toString(16)}-${hex}`;
+  }
+
+  function normalizeText(t){
+    return String(t ?? "").replace(/\s+/g, " ").trim();
+  }
+
+  // ===== Session: random each page load =====
+  const sessionId = newRandomId();
+  localStorage.setItem(STORAGE.SESSION_KEY, sessionId);
+
+  // ===== Mode: default CONTINUE (AI always available) =====
+  let mode = "continue";
+  localStorage.setItem(STORAGE.MODE_KEY, mode);
+
+  // ===== DOM =====
   const modal = $("supportModal");
   const fab = $("supportFab");
   const pill = $("supportPill");
@@ -837,7 +767,6 @@
   const mbState = $("mbState");
   const mbEnd = $("mbEnd");
 
-  // Guards
   const required = [
     modal,fab,pill,launcherSub,btnClose,btnMin,
     tabAi,tabMb,layerAi,layerMb,aiBadge,mbBadge,statusDot,statusText,modePill,
@@ -849,125 +778,17 @@
     return;
   }
 
-  let greeted = false;
-
-  function openModal(){
-    modal.classList.add("is-open");
-    modal.setAttribute("aria-hidden", "false");
-    renderAiHistory();
-    greetOnce();
-    syncUI();
-    setTimeout(() => {
-      if (mode === "continue") aiInput.focus();
-    }, 60);
-
-    if (mode === "handoff") {
-      ensureMessageBirdMountedInsideModal();
-      openMessageBirdChat(null);
-    }
+  // ===== Hide human tab + human layer (real hide) until HANDOFF =====
+  function setHumanVisible(visible){
+    tabMb.style.display = visible ? "" : "none";      // ✅ يخفي التبويب فعليًا
+    layerMb.style.display = visible ? "" : "none";    // ✅ يخفي طبقة MessageBird فعليًا
   }
+  setHumanVisible(false);
 
-  function closeModal(){
-    modal.classList.remove("is-open");
-    modal.setAttribute("aria-hidden", "true");
-  }
+  // Ensure AI layer is always normal/available by default
+  layerAi.style.display = ""; // visible
 
-  function toggleModal(){
-    if (modal.classList.contains("is-open")) closeModal();
-    else openModal();
-  }
-
-  // Open triggers
-  fab.addEventListener("click", toggleModal);
-  pill.addEventListener("click", toggleModal);
-  pill.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") toggleModal();
-  });
-
-  btnClose.addEventListener("click", closeModal);
-  btnMin.addEventListener("click", closeModal);
-
-  // Close on ESC
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modal.classList.contains("is-open")) closeModal();
-  });
-
-  // Click outside to close
-  document.addEventListener("mousedown", (e) => {
-    if (!modal.classList.contains("is-open")) return;
-    const card = modal.querySelector(".support-card");
-    if (card && !card.contains(e.target) && e.target !== fab && !pill.contains(e.target)) closeModal();
-  });
-
-  function setMode(nextMode, source = "local"){
-    const m = String(nextMode || "").toLowerCase();
-    const normalized = (m === "handoff") ? "handoff" : "continue";
-    if (normalized === mode) return;
-
-    mode = normalized;
-    localStorage.setItem(STORAGE.MODE_KEY, mode);
-
-    log("MODE =>", mode, "source:", source);
-    syncUI();
-
-    if (mode === "handoff") {
-      // show human tab immediately
-      addAiMessage("bot", "تم تحويلك الآن للدعم البشري (HANDOFF).");
-      ensureMessageBirdMountedInsideModal();
-      openMessageBirdChat(null);
-    } else {
-      // back to AI
-      addAiMessage("bot", "تمت العودة لوضع المساعد (CONTINUE). كيف أقدر أساعدك؟");
-      // Try closing MB widget (best-effort)
-      try{
-        const api = window.MessageBirdChatWidget;
-        if (api && typeof api.toggleChat === "function") {
-          // toggle could close if open; harmless if not
-          api.toggleChat();
-        }
-      }catch{}
-    }
-  }
-
-  function syncUI(){
-    const isContinue = (mode === "continue");
-
-    // Layers follow MODE only (locked as requested)
-    layerAi.classList.toggle("active", isContinue);
-    layerMb.classList.toggle("active", !isContinue);
-
-    tabAi.classList.toggle("active", isContinue);
-    tabMb.classList.toggle("active", !isContinue);
-
-    aiBadge.textContent = isContinue ? "CONTINUE" : "موقوف";
-    mbBadge.textContent = isContinue ? "مخفي" : "HANDOFF";
-
-    // Status
-    statusText.textContent = "وضع المساعد: " + (isContinue ? "CONTINUE" : "HANDOFF");
-    modePill.textContent = "MODE: " + (isContinue ? "CONTINUE" : "HANDOFF");
-    launcherSub.textContent = isContinue ? "جاهز لمساعدتك الآن" : "تم التحويل للدعم البشري";
-
-    statusDot.style.background = isContinue ? "var(--brand3)" : "var(--brand)";
-    statusDot.style.boxShadow = isContinue
-      ? "0 0 0 4px rgba(34,197,94,.18)"
-      : "0 0 0 4px rgba(110,231,255,.16)";
-
-    // AI input locked during HANDOFF
-    aiInput.disabled = !isContinue;
-    aiSend.disabled = !isContinue;
-
-    aiHint.textContent = isContinue
-      ? "اكتب سؤالك… وسيبقى الوضع CONTINUE تلقائيًا."
-      : "أنت في وضع HANDOFF — العودة تتم تلقائيًا عند إنهاء المحادثة.";
-
-    // MB state
-    mbState.textContent = isContinue ? "غير نشط" : "جارٍ التحميل…";
-  }
-
-  function normalizeText(t){
-    return String(t ?? "").replace(/\s+/g, " ").trim();
-  }
-
+  // ===== History =====
   function persistAiHistory(item){
     try{
       const raw = localStorage.getItem(STORAGE.AI_HISTORY_KEY);
@@ -978,9 +799,7 @@
     }catch{}
   }
 
-  function scrollAiBottom(){
-    aiMessages.scrollTop = aiMessages.scrollHeight;
-  }
+  function scrollAiBottom(){ aiMessages.scrollTop = aiMessages.scrollHeight; }
 
   function addAiMessage(from, text, t = Date.now(), persist = true){
     const wrap = document.createElement("div");
@@ -1016,21 +835,142 @@
     }catch{}
   }
 
+  let greeted = false;
   function greetOnce(){
     if (greeted) return;
-    // If there is history, don't greet again
     try{
       const raw = localStorage.getItem(STORAGE.AI_HISTORY_KEY);
       const arr = raw ? JSON.parse(raw) : [];
-      if (Array.isArray(arr) && arr.length) {
-        greeted = true;
-        return;
-      }
+      if (Array.isArray(arr) && arr.length) { greeted = true; return; }
     }catch{}
     greeted = true;
-    addAiMessage("bot",
-      "هلا! أنا مساعد الدعم 💎\nاكتب سؤالك — و(لو n8n قرر HANDOFF) بنحوّلك للموظف مباشرة."
-    );
+    addAiMessage("bot","هلا! أنا مساعد الدعم 🤝\nاكتب سؤالك، وإذا احتجت دعم مباشر بحوّلك فورًا.");
+  }
+
+  // ===== Modal open/close =====
+  function openModal(){
+    modal.classList.add("is-open");
+    modal.setAttribute("aria-hidden", "false");
+    renderAiHistory();
+    greetOnce();
+    syncUI();
+    setTimeout(() => aiInput.focus(), 60);
+
+    // إذا كان بالفعل HANDOFF (نادر) افتح البشري
+    if (mode === "handoff") {
+      setHumanVisible(true);
+      ensureMessageBirdMountedInsideModal();
+      openMessageBirdChat(null);
+    }
+  }
+
+  function closeModal(){
+    modal.classList.remove("is-open");
+    modal.setAttribute("aria-hidden", "true");
+  }
+
+  function toggleModal(){
+    if (modal.classList.contains("is-open")) closeModal();
+    else openModal();
+  }
+
+  fab.addEventListener("click", toggleModal);
+  pill.addEventListener("click", toggleModal);
+  pill.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") toggleModal();
+  });
+
+  btnClose.addEventListener("click", closeModal);
+  btnMin.addEventListener("click", closeModal);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal.classList.contains("is-open")) closeModal();
+  });
+
+  document.addEventListener("mousedown", (e) => {
+    if (!modal.classList.contains("is-open")) return;
+    const card = modal.querySelector(".support-card");
+    if (card && !card.contains(e.target) && e.target !== fab && !pill.contains(e.target)) closeModal();
+  });
+
+  // ===== MODE switching (ONLY n8n) =====
+  function setMode(nextMode, source="n8n"){
+    const m = String(nextMode || "").toLowerCase();
+    const normalized = (m === "handoff") ? "handoff" : "continue";
+    if (normalized === mode) return;
+
+    mode = normalized;
+    localStorage.setItem(STORAGE.MODE_KEY, mode);
+    log("MODE =>", mode, "source:", source);
+
+    if (mode === "handoff") {
+      // ✅ أظهر تبويب الموظف + طبقة MB لأول مرة
+      setHumanVisible(true);
+
+      // ✅ فعّل التبويب البشري + طبقة البشري فقط الآن
+      tabMb.classList.add("active");
+      tabAi.classList.remove("active");
+      layerMb.classList.add("active");
+      layerAi.classList.remove("active");
+
+      addAiMessage("bot", "تم تحويلكم للمهندس المناوب");
+
+      // ✅ افتح MB مباشرة
+      ensureMessageBirdMountedInsideModal();
+      openMessageBirdChat(null);
+
+      syncUI();
+      return;
+    }
+
+    // العودة إلى CONTINUE: رجّع AI طبيعي + أخفِ البشري بالكامل
+    tabAi.classList.add("active");
+    tabMb.classList.remove("active");
+    layerAi.classList.add("active");
+    layerMb.classList.remove("active");
+
+    setHumanVisible(false);
+
+    addAiMessage("bot", "تمت العودة لوضع المساعد. كيف أقدر أساعدك؟");
+
+    // Best-effort: إغلاق MB
+    try{
+      const api = window.MessageBirdChatWidget;
+      if (api && typeof api.toggleChat === "function") api.toggleChat();
+    }catch{}
+
+    syncUI();
+  }
+
+  function syncUI(){
+    const isContinue = (mode === "continue");
+
+    // AI always available; we only swap "active" when handoff happens
+    if (isContinue) {
+      layerAi.classList.add("active");
+      tabAi.classList.add("active");
+    }
+
+    // Badges
+    aiBadge.textContent = isContinue ? "CONTINUE" : "موقوف";
+    mbBadge.textContent = (mode === "handoff") ? "HANDOFF" : "";
+
+    // Status texts
+    statusText.textContent = "وضع المساعد: " + (isContinue ? "CONTINUE" : "HANDOFF");
+    modePill.textContent = "MODE: " + (isContinue ? "CONTINUE" : "HANDOFF");
+    launcherSub.textContent = isContinue ? "جاهز لمساعدتك الآن" : "تم التحويل للدعم البشري";
+
+    // dot: black
+    statusDot.style.background = "#111827";
+    statusDot.style.boxShadow = "0 0 0 4px rgba(17,24,39,.10)";
+
+    // AI enabled only in continue
+    aiInput.disabled = !isContinue;
+    aiSend.disabled = !isContinue;
+
+    aiHint.textContent = isContinue
+      ? "اكتب سؤالك… وسيبقى الوضع CONTINUE تلقائيًا."
+      : "أنت الآن في HANDOFF — تم فتح الدعم المباشر.";
   }
 
   function setAiBusy(b){
@@ -1039,17 +979,13 @@
     aiInput.disabled = b || !isContinue;
   }
 
-  // ===== n8n contract helpers =====
+  // ===== n8n helpers =====
   function getN8nMode(obj){
-    // Accept: obj.mode = "continue"|"handoff"
-    // Accept: obj.handoff === true (handoff)
-    // Accept: obj.mode can be uppercase
     if (!obj || typeof obj !== "object") return null;
     if (obj.handoff === true) return "handoff";
     const m = (typeof obj.mode === "string") ? obj.mode.toLowerCase().trim() : null;
     if (m === "handoff") return "handoff";
     if (m === "continue") return "continue";
-    // Optional: support end -> return continue
     if (m === "end" || m === "ended" || m === "close") return "continue";
     return null;
   }
@@ -1064,12 +1000,7 @@
   }
 
   async function sendToN8n(userText){
-    const body = {
-      sessionId,
-      page: location.href,
-      message: userText,
-      locale: "ar"
-    };
+    const body = { sessionId, page: location.href, message: userText, locale: "ar" };
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), CONFIG.REQUEST_TIMEOUT_MS);
@@ -1077,10 +1008,7 @@
     try{
       const res = await fetch(CONFIG.N8N_WEBHOOK_URL, {
         method: "POST",
-        headers: {
-          "Content-Type":"application/json",
-          "Accept":"application/json, text/plain, */*"
-        },
+        headers: { "Content-Type":"application/json", "Accept":"application/json, text/plain, */*" },
         body: JSON.stringify(body),
         signal: controller.signal
       });
@@ -1090,7 +1018,6 @@
       const txt = await res.text();
       log("N8N (head):", txt.slice(0, 240));
 
-      // supports: JSON object, JSON array, or plain text
       try{
         const parsed = JSON.parse(txt);
         if (Array.isArray(parsed)) return parsed[0] || { reply: "تم الاستلام", mode: "continue" };
@@ -1105,7 +1032,6 @@
   // ===== AI send =====
   aiForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-
     if (mode !== "continue") return;
 
     const text = normalizeText(aiInput.value);
@@ -1118,16 +1044,14 @@
     try{
       const obj = await sendToN8n(text);
 
-      // MODE is controlled ONLY by n8n
-      const nextMode = getN8nMode(obj);
-      if (nextMode) setMode(nextMode, "n8n");
-
       const reply = extractReply(obj);
       if (reply) addAiMessage("bot", reply);
       else addAiMessage("bot", "تم استلام رسالتك، كيف أقدر أساعدك؟");
 
-      // If n8n flips back to CONTINUE, UI returns automatically (per spec)
-      // Already handled by setMode("continue")
+      // Apply mode change ONLY from n8n
+      const nextMode = getN8nMode(obj);
+      if (nextMode) setMode(nextMode, "n8n");
+
     } catch(err){
       const msg = (err && err.name === "AbortError") ? "انتهت مهلة الاتصال." : "صار خطأ في الاتصال.";
       addAiMessage("bot", msg);
@@ -1156,14 +1080,19 @@
   function forceIframeFullSize(iframe){
     if (!iframe) return;
     iframe.style.setProperty("position", "absolute", "important");
-    iframe.style.setProperty("inset", "0", "important");
-    iframe.style.setProperty("width", "100%", "important");
-    iframe.style.setProperty("height", "100%", "important");
+    iframe.style.setProperty("top", "10px", "important");
+    iframe.style.setProperty("left", "10px", "important");
+    iframe.style.setProperty("right", "10px", "important");
+    iframe.style.setProperty("bottom", "10px", "important");
+    iframe.style.setProperty("width", "calc(100% - 20px)", "important");
+    iframe.style.setProperty("height", "calc(100% - 20px)", "important");
     iframe.style.setProperty("border", "0", "important");
     iframe.style.setProperty("margin", "0", "important");
     iframe.style.setProperty("padding", "0", "important");
     iframe.style.setProperty("overflow", "hidden", "important");
     iframe.style.setProperty("z-index", "1", "important");
+    iframe.style.setProperty("border-radius", "18px", "important");
+    iframe.style.setProperty("background", "#fff", "important");
   }
 
   function ensureMessageBirdMountedInsideModal(){
@@ -1191,14 +1120,12 @@
           if (!mbContainer.contains(mbFrame)) mbContainer.appendChild(mbFrame);
           forceIframeFullSize(mbFrame);
 
-          // Guard for 5s (MB sometimes rewrites inline styles)
           const guardStart = Date.now();
           const guard = setInterval(() => {
             forceIframeFullSize(mbFrame);
-            if (Date.now() - guardStart > 5000) clearInterval(guard);
+            if (Date.now() - guardStart > 6000) clearInterval(guard);
           }, 250);
 
-          // Observe future changes briefly
           try{
             const obs = new MutationObserver(() => forceIframeFullSize(mbFrame));
             obs.observe(mbFrame, { attributes:true, attributeFilter:["style","class"] });
@@ -1235,7 +1162,6 @@
       if (api && typeof api.toggleChat === "function") {
         clearInterval(timer);
 
-        // Identify (optional)
         try{
           if (api.identify && typeof api.identify === "function") {
             const c = contact || {};
@@ -1248,7 +1174,6 @@
           }
         }catch{}
 
-        // Open (may open default UI first), then mount iframe into our modal
         try{ api.toggleChat(); }catch{}
         ensureMessageBirdMountedInsideModal();
       }
@@ -1262,27 +1187,16 @@
 
   mbOpenFallback.addEventListener("click", () => openMessageBirdChat(null));
 
-  // ===== End handoff: return to CONTINUE automatically =====
-  // (We can’t reliably detect “chat ended” inside the iframe, so we provide a clear end button.)
-  mbEnd.addEventListener("click", () => {
-    // End handoff locally -> CONTINUE (per your spec)
-    setMode("continue", "user_end");
-  });
+  // ===== End handoff: back to CONTINUE =====
+  mbEnd.addEventListener("click", () => setMode("continue", "user_end"));
 
-  // Initial UI state
+  // Initial state
   syncUI();
-
-  // If modal opens while already in HANDOFF, mount immediately
-  const modalObs = new MutationObserver(() => {
-    if (modal.classList.contains("is-open") && mode === "handoff") {
-      ensureMessageBirdMountedInsideModal();
-      openMessageBirdChat(null);
-    }
-  });
-  modalObs.observe(modal, { attributes:true, attributeFilter:["class"] });
-
 })();
 </script>
 
 </body>
 </html>
+
+
+
