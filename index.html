@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>مركز الدعم</title>
 
+  <!-- ✅ Bootstrap RTL -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+
 <style>
   :root{
     /* ===== Light theme (White + Blue + Black) ===== */
@@ -128,16 +131,13 @@
   .support-fab:hover{ transform: translateY(-2px); filter: brightness(1.03); }
   .support-fab:active{ transform: translateY(0); }
 
-  /* ===== Modal (Auto-size / no fixed height) =====
-     المطلوب: "الحاوية ما تكون محددة بمساحة" -> نجعلها قابلة للتمدد
-     مع حد أعلى للارتفاع للـ UX على الشاشات الصغيرة
-  */
+  /* ===== Modal ===== */
   .support-modal{
     position: fixed;
     bottom: 86px;
     left: 18px;
     width: min(520px, calc(100vw - 36px));
-    height: auto;                 /* ✅ لا يوجد ارتفاع ثابت */
+    height: auto;
     max-height: calc(100vh - 120px);
     z-index: 99999;
     display:none;
@@ -145,7 +145,7 @@
   .support-modal.is-open{ display:block; }
 
   .support-card{
-    height: auto;                 /* ✅ */
+    height: auto;
     border-radius: 22px;
     overflow:hidden;
     border: 1px solid var(--line2);
@@ -192,7 +192,7 @@
 
   .status-dot{
     width:10px; height:10px; border-radius:999px;
-    background: #111827; /* ✅ أسود للنقاط */
+    background: #111827;
     box-shadow: 0 0 0 4px rgba(17,24,39,.10);
     flex:0 0 auto;
   }
@@ -260,7 +260,7 @@
     border: 1px solid var(--line2);
     background: rgba(255,255,255,.95);
     color: var(--muted);
-    cursor: not-allowed; /* locked */
+    cursor: not-allowed;
     font-weight: 950;
     font-size: 12.5px;
     display:flex;
@@ -287,15 +287,13 @@
     font-weight: 900;
   }
 
-  /* ===== Body =====
-     الآن بدون حساب ارتفاع ثابت: نجعلها مرنة وتستخدم max-height من المودال
-  */
+  /* ===== Body ===== */
   .support-body{
     background: rgba(255,255,255,.98);
     display:flex;
     flex-direction:column;
-    min-height: 420px;            /* حد أدنى لطيف */
-    max-height: calc(100vh - 260px); /* ✅ تمنع التمدد اللانهائي */
+    min-height: 420px;
+    max-height: calc(100vh - 260px);
   }
 
   .layer{
@@ -417,120 +415,32 @@
   .send:active{ transform: translateY(0); }
   .send:disabled{ opacity:.6; cursor:not-allowed; transform:none; filter:none; }
 
-  /* ===== Human (MessageBird) ===== */
-  .mb-wrap{
-    flex:1;
-    display:flex;
-    flex-direction:column;
-    min-height: 0;
-  }
-
-  .mb-top{
-    padding: 12px;
-    color: var(--muted);
-    font-size: 12.5px;
-    border-bottom: 1px solid var(--line);
-    background: rgba(247,249,255,.96);
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-  }
-
-  .mb-top .left{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    min-width:0;
-  }
-
-  .mb-top .title{
-    display:flex;
-    flex-direction:column;
-    min-width:0;
-  }
-  .mb-top .title b{
-    color: var(--text);
-    font-size: 12.5px;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    max-width: 280px;
-    font-weight: 950;
-  }
-  .mb-top .title span{
-    color: var(--muted);
-    font-size: 11.5px;
-  }
-
-  .mb-controls{
-    display:flex;
-    gap:8px;
-    align-items:center;
-    flex:0 0 auto;
-  }
-
-  .btn-soft{
-    border: 1px solid rgba(37,99,235,.22);
-    background: rgba(37,99,235,.08);
-    color: var(--blue);
-    padding: 9px 10px;
-    border-radius: 12px;
-    cursor:pointer;
-    font-weight: 950;
-    font-size: 12px;
-    transition: transform .18s var(--ease), background .18s var(--ease), border-color .18s var(--ease);
-    white-space:nowrap;
-  }
-  .btn-soft:hover{
-    background: rgba(37,99,235,.12);
-    border-color: rgba(37,99,235,.30);
-    transform: translateY(-1px);
-  }
-  .btn-soft:active{ transform: translateY(0); }
-
-  /* ===== Key change: container not constrained / full layout correct =====
-     نضيف padding + إطار دائري + قص overflow
-     ونترك iframe يتمدّد داخل الحاوية بالكامل
-  */
-  #mbContainer{
-    flex:1;
-    position:relative;
-    overflow:hidden;
-    min-height: 0;
-    background: rgba(247,249,255,.70);
-    padding: 10px;
-    box-sizing:border-box;
-  }
-
-  #mbContainer::before{
-    content:"";
-    position:absolute;
-    inset:10px;
+  /* ===== MessageBird Pro Container (Bootstrap-friendly) ===== */
+  .mb-shell{
+    position: relative;
+    width: 100%;
+    height: 520px;                 /* ✅ ارتفاع محترم */
+    max-height: 60vh;              /* ✅ مرن للشاشات الصغيرة */
     border-radius: 18px;
     border: 1px solid var(--line2);
-    background: rgba(255,255,255,.98);
+    background: #fff;
+    overflow: hidden;
     box-shadow: 0 10px 24px rgba(11,18,32,.06);
-    pointer-events:none;
   }
 
-  /* inner frame holder effect */
-  #mbContainer iframe,
-  #mbContainer #live-chat-widget-iframe{
-    position:absolute !important;
-    top:10px !important;
-    left:10px !important;
-    right:10px !important;
-    bottom:10px !important;
-    width: calc(100% - 20px) !important;
-    height: calc(100% - 20px) !important;
-    border:0 !important;
-    margin:0 !important;
-    padding:0 !important;
-    overflow:hidden !important;
+  .mb-shell iframe,
+  .mb-shell #live-chat-widget-iframe{
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    border: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
     border-radius: 18px !important;
-    z-index: 1 !important;
     background: #fff !important;
+    z-index: 1 !important;
   }
 
   .mb-fallback{
@@ -540,7 +450,8 @@
     place-items:center;
     padding: 16px;
     text-align:center;
-    background: rgba(255,255,255,.70);
+    background: rgba(255,255,255,.78);
+    backdrop-filter: blur(6px);
     z-index: 2;
   }
   .mb-card{
@@ -595,7 +506,6 @@
   }
 </style>
 
-
 </head>
 
 <body>
@@ -615,6 +525,7 @@
   <!-- ===== Modal ===== -->
   <div id="supportModal" class="support-modal" aria-hidden="true">
     <div class="support-card" role="dialog" aria-label="دعم العملاء">
+
       <div class="support-header">
         <div class="support-title">
           <div class="status">
@@ -622,7 +533,7 @@
             <span class="status-text" id="statusText">وضع المساعد: CONTINUE</span>
           </div>
           <div style="min-width:0">
-            <h3 id="supportTitle">مركز الدعم </h3>
+            <h3 id="supportTitle">مركز الدعم</h3>
             <p id="supportSub">مساعد ذكي — ويتحوّل مباشرة لموظف عند الحاجة</p>
           </div>
         </div>
@@ -660,32 +571,47 @@
           </div>
         </div>
 
-        <!-- ===== MessageBird Layer ===== -->
+        <!-- ===== MessageBird Layer (Bootstrap Pro UI) ===== -->
         <div id="layerMb" class="layer">
-          <div class="mb-wrap">
-            <div class="mb-top">
-              <div class="left">
-                <div class="support-avatar" style="width:32px;height:32px;border-radius:12px;">👩‍💻</div>
-                <div class="title">
-                  <b>الدعم البشري (HANDOFF)</b>
-                  <span>يمكنك إنهاء المحادثة للعودة تلقائيًا إلى CONTINUE</span>
+          <div class="p-3">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+
+              <!-- Header -->
+              <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex align-items-center justify-content-between gap-2">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="rounded-3 d-grid place-items-center"
+                         style="width:38px;height:38px;background: rgba(37,99,235,.10);border:1px solid rgba(37,99,235,.18);">
+                      👩‍💻
+                    </div>
+                    <div class="lh-sm">
+                      <div class="fw-bold" style="font-size:13px;">الدعم البشري (HANDOFF)</div>
+                      <div class="text-secondary" style="font-size:12px;">يمكنك إنهاء المحادثة للعودة للمساعد</div>
+                    </div>
+                  </div>
+
+                  <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                    <span class="badge rounded-pill text-bg-light border" id="mbState">جارٍ التحميل…</span>
+                    <button id="mbEnd" class="btn btn-primary btn-sm rounded-3 px-3" type="button">
+                      إنهاء
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              <div class="mb-controls">
-                <span class="badge" id="mbState">جارٍ التحميل…</span>
-                <button id="mbEnd" class="btn-soft" type="button" title="إنهاء المحادثة والعودة للمساعد">إنهاء</button>
-              </div>
-            </div>
-
-            <div id="mbContainer" class="mb-container">
-              <div id="mbFallback" class="mb-fallback">
-                <div class="mb-card">
-                  <b>جارٍ فتح محادثة الموظف…</b>
-                  <p>إذا لم تظهر داخل هذا المودال، اضغط الزر لفتحها بالطريقة الافتراضية.</p>
-                  <button id="mbOpenFallback" class="btn" type="button">فتح الدعم الآن</button>
+              <!-- Body -->
+              <div class="card-body p-3">
+                <div id="mbContainer" class="mb-shell">
+                  <div id="mbFallback" class="mb-fallback">
+                    <div class="mb-card">
+                      <b>جارٍ فتح محادثة الموظف…</b>
+                      <p>إذا لم تظهر داخل هذه النافذة، اضغط الزر لفتحها بالطريقة الافتراضية.</p>
+                      <button id="mbOpenFallback" class="btn" type="button">فتح الدعم الآن</button>
+                    </div>
+                  </div>
                 </div>
               </div>
+
             </div>
           </div>
         </div>
@@ -731,13 +657,11 @@
     return x && typeof x === "object" && !Array.isArray(x);
   }
 
-  // ✅ فكّ رد n8n المتداخل: {output:{...}} أو {output:{output:{...}}} أو Array
+  // ✅ فكّ رد n8n المتداخل
   function unwrapN8nPayload(raw){
     let o = raw;
-
     if (Array.isArray(o)) o = o[0];
     if (!isObj(o)) return {};
-
     for (let i = 0; i < 3; i++){
       if (isObj(o.output)) o = o.output;
       else break;
@@ -749,7 +673,7 @@
   const sessionId = newRandomId();
   localStorage.setItem(STORAGE.SESSION_KEY, sessionId);
 
-  // ===== Mode: default CONTINUE (AI always available) =====
+  // ===== Mode: default CONTINUE =====
   let mode = "continue";
   localStorage.setItem(STORAGE.MODE_KEY, mode);
 
@@ -796,15 +720,12 @@
     return;
   }
 
-  // ===== Hide human tab + human layer (real hide) until HANDOFF =====
+  // ===== Hide human tab + human layer until HANDOFF =====
   function setHumanVisible(visible){
     tabMb.style.display = visible ? "" : "none";
     layerMb.style.display = visible ? "" : "none";
   }
   setHumanVisible(false);
-
-  // Ensure AI layer is always normal/available by default
-  layerAi.style.display = "";
 
   // ===== History =====
   function persistAiHistory(item){
@@ -910,66 +831,58 @@
     if (card && !card.contains(e.target) && e.target !== fab && !pill.contains(e.target)) closeModal();
   });
 
-// ==========================================================
-// ✅ MB: Start message from N8N summary
-// - send once per (handoffId + message)
-// ==========================================================
-const MB_START_MSG_DEFAULT = "السلام عليكم ورحمة الله وبركاته، أريد موظف دعم فني.";
-let mbStartMessageOverride = null;
+  // ==========================================================
+  // ✅ MB: Start message from N8N summary
+  // ==========================================================
+  const MB_START_MSG_DEFAULT = "السلام عليكم ورحمة الله وبركاته، أريد موظف دعم فني.";
+  let mbStartMessageOverride = null;
 
-// key per ticket/session
-let MB_START_SENT_KEY = "mb_start_sent_" + sessionId;
+  let MB_START_SENT_KEY = "mb_start_sent_" + sessionId;
 
-// store last sent message fingerprint (per key)
-function fingerprint(s){
-  return String(s || "").trim().slice(0, 500); // كفاية للمقارنة بدون تعقيد
-}
-
-function setMbStartFromN8n(raw){
-  try{
-    const obj = unwrapN8nPayload(raw);
-
-    // IMPORTANT: لو handoffId فاضي، استخدم sessionId
-    const tid = String(obj.handoffId || obj.ticketId || sessionId).trim();
-    MB_START_SENT_KEY = "mb_start_sent_" + tid;
-
-    const summary = (typeof obj.mbStartMessage === "string") ? obj.mbStartMessage.trim() : "";
-    if (summary) mbStartMessageOverride = summary;
-
-  }catch{}
-}
-
-function sendMbStartMessageOnce(){
-  try{
-    const api = window.MessageBirdChatWidget;
-    if (!api) return;
-
-    const msg = String(mbStartMessageOverride || MB_START_MSG_DEFAULT).trim();
-    if (!msg) return;
-
-    // ✅ لا تمنع إلا إذا نفس الرسالة انرسلت لنفس المفتاح
-    const last = localStorage.getItem(MB_START_SENT_KEY);
-    const fp = fingerprint(msg);
-    if (last === fp) {
-      log("MB start msg already sent (same msg).", { key: MB_START_SENT_KEY });
-      return;
-    }
-
-    if (typeof api.startConversation === "function") {
-      api.startConversation(msg);
-      localStorage.setItem(MB_START_SENT_KEY, fp);
-      log("MB startConversation sent ✅", { key: MB_START_SENT_KEY });
-      return;
-    }
-
-    // fallback (ما نقدر نكتب داخل iframe)
-    localStorage.setItem(MB_START_SENT_KEY, fp);
-    log("MB startConversation not available; skipped sending.", { key: MB_START_SENT_KEY });
-
-  } catch (e) {
-    log("sendMbStartMessageOnce error", e);
+  function fingerprint(s){
+    return String(s || "").trim().slice(0, 500);
   }
-}
+
+  function setMbStartFromN8n(raw){
+    try{
+      const obj = unwrapN8nPayload(raw);
+      const tid = String(obj.handoffId || obj.ticketId || sessionId).trim();
+      MB_START_SENT_KEY = "mb_start_sent_" + tid;
+
+      const summary = (typeof obj.mbStartMessage === "string") ? obj.mbStartMessage.trim() : "";
+      if (summary) mbStartMessageOverride = summary;
+    }catch{}
+  }
+
+  function sendMbStartMessageOnce(){
+    try{
+      const api = window.MessageBirdChatWidget;
+      if (!api) return;
+
+      const msg = String(mbStartMessageOverride || MB_START_MSG_DEFAULT).trim();
+      if (!msg) return;
+
+      const last = localStorage.getItem(MB_START_SENT_KEY);
+      const fp = fingerprint(msg);
+      if (last === fp) {
+        log("MB start msg already sent (same msg).", { key: MB_START_SENT_KEY });
+        return;
+      }
+
+      if (typeof api.startConversation === "function") {
+        api.startConversation(msg);
+        localStorage.setItem(MB_START_SENT_KEY, fp);
+        log("MB startConversation sent ✅", { key: MB_START_SENT_KEY });
+        return;
+      }
+
+      localStorage.setItem(MB_START_SENT_KEY, fp);
+      log("MB startConversation not available; skipped sending.", { key: MB_START_SENT_KEY });
+
+    } catch (e) {
+      log("sendMbStartMessageOnce error", e);
+    }
+  }
 
   // ===== MODE switching (ONLY n8n) =====
   function setMode(nextMode, source="n8n"){
@@ -1047,16 +960,16 @@ function sendMbStartMessageOnce(){
     aiInput.disabled = b || !isContinue;
   }
 
-  // ===== n8n helpers (supports nested output) =====
+  // ===== n8n helpers =====
   function getN8nMode(raw){
     const obj = unwrapN8nPayload(raw);
     if (!obj) return null;
 
     if (obj.handoff === true) return "handoff";
-    const m = (typeof obj.mode === "string") ? obj.mode.toLowerCase().trim() : null;
-    if (m === "handoff") return "handoff";
-    if (m === "continue") return "continue";
-    if (m === "end" || m === "ended" || m === "close") return "continue";
+    const mm = (typeof obj.mode === "string") ? obj.mode.toLowerCase().trim() : null;
+    if (mm === "handoff") return "handoff";
+    if (mm === "continue") return "continue";
+    if (mm === "end" || mm === "ended" || mm === "close") return "continue";
     return null;
   }
 
@@ -1064,7 +977,6 @@ function sendMbStartMessageOnce(){
     const obj = unwrapN8nPayload(raw);
     if (!obj) return null;
 
-    // from your format: output.output is the reply text
     const r =
       (typeof obj.reply === "string" && obj.reply.trim()) ? obj.reply.trim() :
       (typeof obj.output === "string" && obj.output.trim()) ? obj.output.trim() :
@@ -1098,7 +1010,6 @@ function sendMbStartMessageOnce(){
         if (parsed && typeof parsed === "object") return parsed;
       }catch{}
 
-      // fallback: treat plain text as reply
       return { output: { output: txt, mode: "continue" } };
     } finally {
       clearTimeout(timeoutId);
@@ -1124,7 +1035,6 @@ function sendMbStartMessageOnce(){
       if (reply) addAiMessage("bot", reply);
       else addAiMessage("bot", "تم استلام رسالتك، كيف أقدر أساعدك؟");
 
-      // ✅ read mbStartMessage + handoffId from nested output BEFORE switching mode
       setMbStartFromN8n(raw);
 
       const nextMode = getN8nMode(raw);
@@ -1155,15 +1065,13 @@ function sendMbStartMessageOnce(){
     document.head.appendChild(s);
   }
 
+  // ✅ تحديث: inset:0 (لأن الحاوية mb-shell بدون padding داخلي)
   function forceIframeFullSize(iframe){
     if (!iframe) return;
     iframe.style.setProperty("position", "absolute", "important");
-    iframe.style.setProperty("top", "10px", "important");
-    iframe.style.setProperty("left", "10px", "important");
-    iframe.style.setProperty("right", "10px", "important");
-    iframe.style.setProperty("bottom", "10px", "important");
-    iframe.style.setProperty("width", "calc(100% - 20px)", "important");
-    iframe.style.setProperty("height", "calc(100% - 20px)", "important");
+    iframe.style.setProperty("inset", "0", "important");
+    iframe.style.setProperty("width", "100%", "important");
+    iframe.style.setProperty("height", "100%", "important");
     iframe.style.setProperty("border", "0", "important");
     iframe.style.setProperty("margin", "0", "important");
     iframe.style.setProperty("padding", "0", "important");
@@ -1173,7 +1081,6 @@ function sendMbStartMessageOnce(){
     iframe.style.setProperty("background", "#fff", "important");
   }
 
-  // ===== MB: mount iframe inside our modal container =====
   function ensureMessageBirdMountedInsideModal(){
     loadMessageBirdIfNeeded();
 
@@ -1231,7 +1138,6 @@ function sendMbStartMessageOnce(){
     }, INTERVAL_MS);
   }
 
-  // ===== MB: open chat + identify + send start message =====
   function openMessageBirdChat(contact){
     loadMessageBirdIfNeeded();
 
@@ -1262,10 +1168,7 @@ function sendMbStartMessageOnce(){
         try{ api.toggleChat(true); }catch{ try{ api.toggleChat(); }catch{} }
 
         ensureMessageBirdMountedInsideModal();
-
-        // ✅ send summary once per ticket/session
         sendMbStartMessageOnce();
-
         return;
       }
 
@@ -1287,11 +1190,3 @@ function sendMbStartMessageOnce(){
 
 </body>
 </html>
-
-
-
-
-
-
-
-
