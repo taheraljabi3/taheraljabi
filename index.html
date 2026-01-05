@@ -412,9 +412,6 @@
 
   /* ==========================================================
      ✅ MessageBird: Container (Clean + Pro)
-     - no frame inside frame
-     - no extra padding
-     - strong overrides without breaking the widget
      ========================================================== */
 
   /* your container */
@@ -431,9 +428,8 @@
     box-shadow: none !important;
   }
 
-  /* IMPORTANT: DO NOT hide #live-chat-widget (this was your bug) */
+  /* IMPORTANT: DO NOT hide #live-chat-widget */
   #live-chat-widget{
-    /* cancel their fixed positioning */
     position: static !important;
     inset: auto !important;
     right: auto !important;
@@ -453,18 +449,18 @@
   }
 
   /* iframe always fills our container */
-  #live-chat-widget-iframe,
-  .mb-shell iframe,
-  .mb-shell #live-chat-widget-iframe{
+  #live-chat-widget-iframe{
     position: absolute !important;
     inset: 0 !important;
     width: 100% !important;
     height: 100% !important;
     max-width: 100% !important;
+
     border: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
     overflow: hidden !important;
+
     border-radius: var(--mbR) !important;
     background: #fff !important;
     z-index: 1 !important;
@@ -476,6 +472,7 @@
     inset: 0 !important;
     width: 100% !important;
     height: 100% !important;
+
     top: auto !important;
     left: auto !important;
     right: auto !important;
@@ -548,9 +545,7 @@
       max-height: 72vh;
       border-radius: var(--mbRsm);
     }
-    #live-chat-widget-iframe,
-    .mb-shell iframe,
-    .mb-shell #live-chat-widget-iframe{
+    #live-chat-widget-iframe{
       border-radius: var(--mbRsm) !important;
     }
   }
@@ -559,6 +554,7 @@
     *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
   }
 </style>
+
 
 
 </head>
@@ -1144,13 +1140,10 @@ function ensureMessageBirdMountedInsideModal(){
 
   const start = Date.now();
   const INTERVAL_MS = 180;
-  const TIMEOUT_MS = 12000;
+  const TIMEOUT_MS  = 15000;
 
   const tryMount = setInterval(() => {
-    // ✅ الأفضل: نمسك الـ Root حق MessageBird
     const widgetRoot = document.getElementById("live-chat-widget");
-
-    // ✅ ثم نمسك الـ iframe
     let mbFrame = document.getElementById("live-chat-widget-iframe");
 
     if (!mbFrame) {
@@ -1158,71 +1151,64 @@ function ensureMessageBirdMountedInsideModal(){
       mbFrame = frames.find(f => /messagebird|livechat\.messagebird\.com/i.test(f.getAttribute("src") || ""));
     }
 
-    // لازم الاثنين موجودين
     if (widgetRoot && mbFrame) {
       clearInterval(tryMount);
 
       try{
-        // ✅ انقل الـ Root كامل داخل المودال (بدل iframe فقط)
-        if (!mbContainer.contains(widgetRoot)) {
-          mbContainer.appendChild(widgetRoot);
-        }
+        // ✅ لازم ننقل الـ ROOT والـ IFRAME داخل الحاوية
+        if (!mbContainer.contains(widgetRoot)) mbContainer.appendChild(widgetRoot);
+        if (!mbContainer.contains(mbFrame)) mbContainer.appendChild(mbFrame);
 
-        // ✅ اجبر iframe يملأ الحاوية
-        forceIframeFullSize(mbFrame);
-
-        // ✅ كسر أي ستايل يحاول يرجع fixed/right/bottom
+        // ✅ ثبت root (يلغي fixed)
         widgetRoot.style.setProperty("position", "static", "important");
+        widgetRoot.style.setProperty("inset", "auto", "important");
         widgetRoot.style.setProperty("right", "auto", "important");
         widgetRoot.style.setProperty("bottom", "auto", "important");
         widgetRoot.style.setProperty("left", "auto", "important");
         widgetRoot.style.setProperty("top", "auto", "important");
-        widgetRoot.style.setProperty("z-index", "1", "important");
+        widgetRoot.style.setProperty("width", "100%", "important");
+        widgetRoot.style.setProperty("height", "100%", "important");
         widgetRoot.style.setProperty("display", "block", "important");
+        widgetRoot.style.setProperty("z-index", "1", "important");
 
-        // ✅ Guard: MessageBird أحيانًا يعدل الستايل بعد ثانية
+        // ✅ ثبت iframe (يملى mb-shell)
+        forceIframeFullSize(mbFrame);
+
+        // ✅ Guard لأن MB يغير style بعد التحميل
         const guardStart = Date.now();
         const guard = setInterval(() => {
           forceIframeFullSize(mbFrame);
-
-          // تثبيت root كذلك
           widgetRoot.style.setProperty("position", "static", "important");
           widgetRoot.style.setProperty("right", "auto", "important");
           widgetRoot.style.setProperty("bottom", "auto", "important");
-
-          if (Date.now() - guardStart > 6500) clearInterval(guard);
+          if (Date.now() - guardStart > 8000) clearInterval(guard);
         }, 220);
 
-        // ✅ Observer: لو iframe تغيّر class/style (مثل opened)
+        // ✅ Observer لأي تغييرات style/class
         try{
           const obs = new MutationObserver(() => {
             forceIframeFullSize(mbFrame);
-
-            // إذا أخذ opened وخرب الوضع بالجوال، نعيده
-            if (mbFrame.classList && mbFrame.classList.contains("opened")) {
-              // ما نشيل opened (قد يحتاجه منطقهم)
-              // لكن نثبت الـ style بالقوة عبر forceIframeFullSize
-              forceIframeFullSize(mbFrame);
-            }
+            widgetRoot.style.setProperty("position", "static", "important");
+            widgetRoot.style.setProperty("right", "auto", "important");
+            widgetRoot.style.setProperty("bottom", "auto", "important");
           });
 
           obs.observe(mbFrame, { attributes:true, attributeFilter:["style","class"] });
-
-          // كمان نراقب root لأن MB يحط ستايلات عليه
           obs.observe(widgetRoot, { attributes:true, attributeFilter:["style","class"] });
 
-          setTimeout(() => obs.disconnect(), 14000);
+          setTimeout(() => obs.disconnect(), 20000);
         }catch{}
 
         mbFallback.style.display = "none";
         mbState.textContent = "متصل";
-        log("MB widget mounted ✅ (root + iframe)");
+        log("MB mounted ✅ (root + iframe moved inside container)");
 
       } catch(e){
         mbState.textContent = "غير مدعوم";
         mbFallback.style.display = "grid";
         console.warn("[SUPPORT] Mount failed:", e);
       }
+
       return;
     }
 
@@ -1230,11 +1216,10 @@ function ensureMessageBirdMountedInsideModal(){
       clearInterval(tryMount);
       mbState.textContent = "غير ظاهر";
       mbFallback.style.display = "grid";
-      log("MB widget not found (fallback).", { widgetRoot: !!widgetRoot, mbFrame: !!mbFrame });
+      log("MB not found (timeout).", { widgetRoot: !!widgetRoot, mbFrame: !!mbFrame });
     }
   }, INTERVAL_MS);
 }
-
 
   function openMessageBirdChat(contact){
     loadMessageBirdIfNeeded();
@@ -1288,6 +1273,7 @@ function ensureMessageBirdMountedInsideModal(){
 
 </body>
 </html>
+
 
 
 
