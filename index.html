@@ -293,169 +293,56 @@
   }
 
   /* ==========================================================
-     ✅ AI UI (MessageBird-like layout)
-     - Header + Messages + Footer + Textarea + Buttons
+     ✅ AI PRO (Premium + Emoji + No big header)
+     - Mini bar + Messages + Composer + Emoji popover + typing dots
      ========================================================== */
 
-  .ai-shell{
+  .ai-pro{
     display:flex;
     flex-direction:column;
     flex:1;
     min-height: 460px;
     max-height: calc(100vh - 250px);
-    background:#fff;
+    background:
+      radial-gradient(1200px 420px at 10% 0%, rgba(37,99,235,.08), transparent 55%),
+      radial-gradient(900px 420px at 90% 10%, rgba(29,78,216,.06), transparent 55%),
+      linear-gradient(180deg, rgba(255,255,255,1), rgba(247,249,255,.9));
   }
 
-  .ai-mb-header{
+  .ai-topbar{
     display:flex;
     align-items:center;
     justify-content:space-between;
     gap:10px;
-    padding: 12px 12px;
-    border-bottom: 1px solid var(--line);
-    background:#fff;
-  }
-
-  .ai-agent{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    min-width:0;
-  }
-
-  .ai-avatar{
-    width:40px;
-    height:40px;
-    border-radius: 14px;
-    background: rgba(37,99,235,.10);
-    border: 1px solid rgba(37,99,235,.18);
-    display:grid;
-    place-items:center;
-    flex:0 0 auto;
-    color: var(--text);
-    font-size: 18px;
-  }
-
-  .ai-agent-meta{ min-width:0; }
-  .ai-agent-name{
-    margin:0;
-    font-size: 13px;
-    font-weight: 900;
-    color: var(--text);
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    max-width: 320px;
-  }
-  .ai-agent-sub{
-    margin:2px 0 0;
-    font-size: 12px;
-    color: var(--muted);
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    max-width: 320px;
-  }
-
-  .ai-close{
-    border:none;
-    background: transparent;
-    width:36px;
-    height:36px;
-    border-radius: 12px;
-    cursor:pointer;
-    color: var(--text);
-    font-size: 18px;
-  }
-  .ai-close:hover{ background: rgba(37,99,235,.06); }
-
-  .ai-messages{
-    flex:1;
-    min-height:0;
-    overflow:auto;
-    background: #f7f9ff;
-    padding: 10px 10px 14px;
-  }
-
-  .ai-messages-list{
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-  }
-
-  .ai-date{
-    align-self:center;
-    font-size: 12px;
-    color: var(--muted2);
-    padding: 6px 10px;
-    border-radius: 999px;
-    background: rgba(255,255,255,.85);
-    border: 1px solid rgba(11,18,32,.10);
-  }
-
-  .ai-msg{
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-    max-width: 92%;
-  }
-  .ai-msg.incoming{ align-self:flex-start; }
-  .ai-msg.outgoing{ align-self:flex-end; }
-
-  .ai-bubble{
-    border-radius: 14px;
     padding: 10px 12px;
-    font-size: 13px;
-    line-height: 1.7;
-    border: 1px solid rgba(11,18,32,.10);
-    background: #fff;
-    color: var(--text);
-    word-break: break-word;
-    white-space: pre-wrap;
-    box-shadow: 0 8px 18px rgba(11,18,32,.06);
-  }
-  .ai-msg.outgoing .ai-bubble{
-    background: rgba(37,99,235,.10);
-    border-color: rgba(37,99,235,.22);
+    border-bottom: 1px solid rgba(11,18,32,.08);
+    background: rgba(255,255,255,.72);
+    backdrop-filter: blur(10px);
   }
 
-  .ai-time{
-    font-size: 11px;
-    color: var(--muted2);
-  }
-
-  .ai-footer{
-    border-top: 1px solid var(--line);
-    background:#fff;
-  }
-
-  .ai-footer-bar{
+  .ai-title{
     display:flex;
     align-items:center;
-    justify-content:space-between;
-    gap:10px;
-    padding: 8px 12px;
-  }
-
-  .ai-footer-left{
-    display:flex;
-    gap:10px;
-    align-items:center;
+    gap:8px;
     min-width:0;
+    color: var(--text);
   }
 
-  .ai-mode{
-    font-size: 11px;
-    padding: 5px 10px;
-    border-radius: 999px;
-    border: 1px solid rgba(37,99,235,.20);
-    background: rgba(37,99,235,.08);
-    color: var(--blue);
-    font-weight: 900;
-    white-space:nowrap;
+  .ai-dot{
+    width:10px; height:10px; border-radius:999px;
+    background: #10b981;
+    box-shadow: 0 0 0 4px rgba(16,185,129,.16);
   }
 
-  .ai-hint{
+  .ai-name{
+    font-weight: 950;
+    font-size: 12.8px;
+    letter-spacing:.2px;
+  }
+
+  .ai-sep{ color: rgba(11,18,32,.35); }
+
+  .ai-sub{
     font-size: 12px;
     color: var(--muted);
     white-space:nowrap;
@@ -464,74 +351,263 @@
     max-width: 260px;
   }
 
-  .ai-powered{
-    text-decoration:none;
-    color: var(--muted2);
+  .ai-mini{ display:flex; gap:8px; align-items:center; }
+  .ai-pill{
+    font-size: 11px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(37,99,235,.18);
+    background: rgba(37,99,235,.08);
+    color: var(--blue);
+    font-weight: 950;
+    white-space:nowrap;
+  }
+
+  .ai-messages-pro{
+    flex:1;
+    min-height:0;
+    overflow:auto;
+    padding: 12px;
+    scroll-behavior:smooth;
+  }
+
+  .ai-date{
+    margin: 6px auto 12px;
+    width: fit-content;
     font-size: 12px;
+    color: var(--muted2);
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.78);
+    border: 1px solid rgba(11,18,32,.10);
   }
-  .ai-powered p{ margin:0; }
 
-  .ai-form{
+  .ai-msg{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    max-width: 92%;
+    margin: 10px 0;
+  }
+
+  .ai-msg.incoming{ align-self:flex-start; }
+  .ai-msg.outgoing{ align-self:flex-end; }
+
+  .ai-bubble{
+    position: relative;
+    border-radius: 16px;
+    padding: 10px 12px;
+    font-size: 13px;
+    line-height: 1.75;
+    border: 1px solid rgba(11,18,32,.10);
+    background: rgba(255,255,255,.95);
+    color: var(--text);
+    word-break: break-word;
+    white-space: pre-wrap;
+    box-shadow: 0 10px 26px rgba(11,18,32,.08);
+  }
+
+  .ai-msg.outgoing .ai-bubble{
+    background: linear-gradient(180deg, rgba(37,99,235,.14), rgba(37,99,235,.08));
+    border-color: rgba(37,99,235,.20);
+  }
+
+  .ai-meta{
+    font-size: 11px;
+    color: var(--muted2);
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+  }
+  .ai-msg.incoming .ai-meta{ justify-content:flex-start; }
+
+  /* typing indicator */
+  .ai-typing{
+    display:inline-flex;
+    gap:6px;
+    align-items:center;
+  }
+  .ai-typing span{
+    width:6px; height:6px; border-radius:999px;
+    background: rgba(11,18,32,.35);
+    animation: dot 1.1s infinite ease-in-out;
+  }
+  .ai-typing span:nth-child(2){ animation-delay: .15s; }
+  .ai-typing span:nth-child(3){ animation-delay: .30s; }
+  @keyframes dot{
+    0%, 100% { transform: translateY(0); opacity:.5; }
+    50%      { transform: translateY(-3px); opacity:1; }
+  }
+
+  .ai-composer{
+    position: relative;
     padding: 10px 12px 12px;
+    border-top: 1px solid rgba(11,18,32,.08);
+    background: rgba(255,255,255,.78);
+    backdrop-filter: blur(10px);
   }
 
-  .ai-form-inner{
+  .ai-form-pro{
     display:flex;
     gap:10px;
     align-items:flex-end;
-    border: 1px solid rgba(11,18,32,.12);
-    background: #fff;
-    border-radius: 14px;
     padding: 8px 10px;
+    border-radius: 16px;
+    border: 1px solid rgba(11,18,32,.12);
+    background: rgba(255,255,255,.92);
+    box-shadow: 0 10px 24px rgba(11,18,32,.08);
   }
 
-  .ai-textarea{
+  .ai-icon-btn{
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+    border: 1px solid rgba(11,18,32,.12);
+    background: rgba(255,255,255,.95);
+    cursor:pointer;
+    display:grid;
+    place-items:center;
+    font-size: 16px;
+  }
+  .ai-icon-btn:hover{
+    background: rgba(37,99,235,.06);
+    border-color: rgba(37,99,235,.22);
+  }
+
+  .ai-input-pro{
     flex:1;
     border:none;
     outline:none;
     resize:none;
     font-size: 13px;
-    line-height: 1.6;
-    padding: 4px 0;
+    line-height: 1.65;
+    padding: 8px 0;
     background: transparent;
     color: var(--text);
     max-height: 140px;
   }
 
-  .ai-buttons{
-    display:flex;
-    gap:8px;
-    align-items:center;
-  }
-
-  .ai-btn{
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
-    border: 1px solid rgba(11,18,32,.12);
+  .ai-send-pro{
+    width: 44px;
+    height: 44px;
+    border:none;
+    border-radius: 16px;
     cursor:pointer;
-    background: #fff;
-    color: var(--text);
+    background: linear-gradient(135deg, var(--blue2), var(--blue));
+    color:#fff;
     display:grid;
     place-items:center;
-    font-size: 14px;
+    box-shadow: 0 12px 28px rgba(37,99,235,.25);
+    transition: transform .18s var(--ease), filter .18s var(--ease), opacity .18s var(--ease);
   }
-  .ai-btn:hover{
+  .ai-send-pro:hover{ transform: translateY(-1px); filter: brightness(1.03); }
+  .ai-send-pro:active{ transform: translateY(0); }
+  .ai-send-pro:disabled{ opacity:.55; cursor:not-allowed; transform:none; filter:none; }
+
+  .ai-send-ic{ font-size: 16px; }
+
+  .ai-tip{
+    margin-top: 8px;
+    font-size: 11.5px;
+    color: rgba(11,18,32,.55);
+    padding: 0 2px;
+  }
+
+  /* Emoji popover */
+  .emoji-popover{
+    position:absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 78px;
+    border-radius: 18px;
+    border: 1px solid rgba(11,18,32,.12);
+    background: rgba(255,255,255,.92);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 22px 60px rgba(11,18,32,.16);
+    overflow:hidden;
+    display:none;
+    z-index: 5;
+  }
+  .emoji-popover.open{ display:block; }
+
+  .emoji-head{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    padding: 10px 10px;
+    border-bottom: 1px solid rgba(11,18,32,.08);
+  }
+  .emoji-search{
+    flex:1;
+    border-radius: 14px;
+    border: 1px solid rgba(11,18,32,.12);
+    background: rgba(247,249,255,.75);
+    padding: 10px 12px;
+    outline:none;
+    font-size: 12.5px;
+  }
+  .emoji-search:focus{
+    border-color: rgba(37,99,235,.28);
+    box-shadow: 0 0 0 4px rgba(37,99,235,.12);
+    background: #fff;
+  }
+  .emoji-close{
+    width: 38px;
+    height: 38px;
+    border-radius: 14px;
+    border: 1px solid rgba(11,18,32,.12);
+    background: rgba(255,255,255,.95);
+    cursor:pointer;
+  }
+  .emoji-close:hover{
     background: rgba(37,99,235,.06);
     border-color: rgba(37,99,235,.22);
   }
 
-  .ai-send{
-    border:none;
-    background: linear-gradient(135deg, var(--blue2), var(--blue));
-    color:#fff;
-    font-weight: 900;
+  .emoji-grid{
+    padding: 10px;
+    display:grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 6px;
+    max-height: 230px;
+    overflow:auto;
   }
-  .ai-send:hover{ filter: brightness(1.03); }
+  .emoji-item{
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 14px;
+    border: 1px solid rgba(11,18,32,.08);
+    background: rgba(255,255,255,.95);
+    cursor:pointer;
+    display:grid;
+    place-items:center;
+    font-size: 18px;
+    transition: transform .12s var(--ease), border-color .12s var(--ease), background .12s var(--ease);
+  }
+  .emoji-item:hover{
+    transform: translateY(-1px);
+    background: rgba(37,99,235,.06);
+    border-color: rgba(37,99,235,.22);
+  }
 
-  .ai-btn:disabled{
-    opacity:.5;
-    cursor:not-allowed;
+  .emoji-foot{
+    display:flex;
+    gap:8px;
+    padding: 10px;
+    border-top: 1px solid rgba(11,18,32,.08);
+    overflow:auto;
+  }
+  .emoji-chip{
+    border-radius: 999px;
+    border: 1px solid rgba(11,18,32,.10);
+    background: rgba(255,255,255,.95);
+    padding: 8px 10px;
+    cursor:pointer;
+    font-size: 14px;
+  }
+  .emoji-chip:hover{
+    background: rgba(37,99,235,.06);
+    border-color: rgba(37,99,235,.22);
   }
 
   @media (max-width: 480px){
@@ -542,8 +618,8 @@
     }
     .support-pill .txt b, .support-pill .txt span{ max-width: 140px; }
     .support-body{ max-height: calc(100vh - 220px); }
-    .ai-agent-name,.ai-agent-sub{ max-width: 220px; }
-    .ai-hint{ max-width: 180px; }
+    .ai-sub{ max-width: 180px; }
+    .emoji-grid{ grid-template-columns: repeat(8, 1fr); }
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -604,48 +680,65 @@
 
       <div class="support-body">
 
-        <!-- ✅ AI (MessageBird-like) -->
-        <div id="aiShell" class="ai-shell">
+        <!-- ✅ AI CHAT (PRO) -->
+        <div id="aiChat" class="ai-pro">
 
-          <div class="ai-mb-header">
-            <div class="ai-agent">
-              <div class="ai-avatar">💬</div>
-              <div class="ai-agent-meta">
-                <p class="ai-agent-name">المساعد الذكي</p>
-                <p class="ai-agent-sub">يرد تلقائيًا — ويحوّل لموظف عند الحاجة</p>
-              </div>
+          <div class="ai-topbar">
+            <div class="ai-title">
+              <span class="ai-dot" id="aiDot"></span>
+              <span class="ai-name">المساعد الذكي</span>
+              <span class="ai-sep">•</span>
+              <span class="ai-sub" id="aiHint">اكتب سؤالك</span>
             </div>
 
-            <button id="aiCloseX" class="ai-close" type="button" title="إغلاق">✕</button>
-          </div>
-
-          <div id="aiMessages" class="ai-messages" aria-live="polite">
-            <div id="aiMessagesList" class="ai-messages-list">
-              <div class="ai-date">اليوم</div>
-              <!-- messages append هنا -->
+            <div class="ai-mini">
+              <span class="ai-pill" id="modePill">MODE: CONTINUE</span>
             </div>
           </div>
 
-          <div class="ai-footer">
-            <div class="ai-footer-bar">
-              <div class="ai-footer-left">
-                <span class="ai-mode" id="modePill">MODE: CONTINUE</span>
-                <span class="ai-hint" id="aiHint">اكتب رسالتك</span>
+          <div id="aiMessages" class="ai-messages-pro" aria-live="polite">
+            <div class="ai-date">اليوم</div>
+            <!-- messages append here -->
+          </div>
+
+          <div class="ai-composer">
+
+            <!-- Emoji popover -->
+            <div id="emojiPopover" class="emoji-popover" aria-hidden="true">
+              <div class="emoji-head">
+                <input id="emojiSearch" class="emoji-search" type="text" placeholder="ابحث عن إيموجي…" autocomplete="off" />
+                <button id="emojiClose" class="emoji-close" type="button" title="إغلاق">✕</button>
               </div>
-              <a class="ai-powered" href="#" onclick="return false;"><p>يعمل بواسطة المساعد</p></a>
+              <div id="emojiGrid" class="emoji-grid"></div>
+              <div class="emoji-foot">
+                <button class="emoji-chip" data-emoji="👍" type="button">👍</button>
+                <button class="emoji-chip" data-emoji="✅" type="button">✅</button>
+                <button class="emoji-chip" data-emoji="🙏" type="button">🙏</button>
+                <button class="emoji-chip" data-emoji="😂" type="button">😂</button>
+                <button class="emoji-chip" data-emoji="🔥" type="button">🔥</button>
+                <button class="emoji-chip" data-emoji="💡" type="button">💡</button>
+              </div>
             </div>
 
-            <form id="aiForm" class="ai-form" autocomplete="off">
-              <div class="ai-form-inner">
-                <textarea id="aiInput" class="ai-textarea" rows="1" placeholder="اكتب رسالتك" required></textarea>
+            <form id="aiForm" class="ai-form-pro" autocomplete="off">
+              <button id="emojiBtn" class="ai-icon-btn" type="button" title="إيموجي">🙂</button>
 
-                <div class="ai-buttons">
-                  <button class="ai-btn" type="button" title="رموز">🙂</button>
-                  <button class="ai-btn" type="button" title="مرفقات" disabled>📎</button>
-                  <button id="aiSend" class="ai-btn ai-send" type="submit" aria-label="send">➤</button>
-                </div>
-              </div>
+              <textarea
+                id="aiInput"
+                class="ai-input-pro"
+                rows="1"
+                placeholder="اكتب رسالتك…"
+                required
+              ></textarea>
+
+              <button id="aiSend" class="ai-send-pro" type="submit" aria-label="send">
+                <span class="ai-send-ic">➤</span>
+              </button>
             </form>
+
+            <div class="ai-tip">
+              Enter للإرسال • Shift+Enter لسطر جديد
+            </div>
           </div>
 
         </div>
@@ -724,12 +817,17 @@
   const modePill = $("modePill");
 
   const aiMessages = $("aiMessages");
-  const aiMessagesList = $("aiMessagesList");
   const aiForm = $("aiForm");
-  const aiInput = $("aiInput");     // textarea الآن
+  const aiInput = $("aiInput");     // textarea
   const aiSend = $("aiSend");
   const aiHint = $("aiHint");
-  const aiCloseX = $("aiCloseX");
+  const aiDot = $("aiDot");
+
+  const emojiBtn = $("emojiBtn");
+  const emojiPopover = $("emojiPopover");
+  const emojiGrid = $("emojiGrid");
+  const emojiSearch = $("emojiSearch");
+  const emojiClose = $("emojiClose");
 
   const handoffPanel = $("handoffPanel");
   const openHuman = $("openHuman");
@@ -738,7 +836,8 @@
   const required = [
     modal,fab,pill,launcherSub,btnClose,btnMin,
     statusDot,statusText,modePill,
-    aiMessages,aiMessagesList,aiForm,aiInput,aiSend,aiHint,
+    aiMessages,aiForm,aiInput,aiSend,aiHint,aiDot,
+    emojiBtn,emojiPopover,emojiGrid,emojiSearch,emojiClose,
     handoffPanel,openHuman,endHuman
   ];
   if (required.some(x => !x)) {
@@ -747,12 +846,20 @@
   }
 
   // ===== Auto-grow textarea =====
-  function autoGrowTextarea(el){
+  function autoGrow(el){
     el.style.height = "auto";
     el.style.height = Math.min(el.scrollHeight, 140) + "px";
   }
-  aiInput.addEventListener("input", () => autoGrowTextarea(aiInput));
-  setTimeout(() => autoGrowTextarea(aiInput), 0);
+  aiInput.addEventListener("input", () => autoGrow(aiInput));
+  setTimeout(() => autoGrow(aiInput), 0);
+
+  // Enter للإرسال / Shift+Enter سطر جديد
+  aiInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (!aiSend.disabled) aiForm.requestSubmit();
+    }
+  });
 
   // ===== History =====
   function persistAiHistory(item){
@@ -765,7 +872,9 @@
     }catch{}
   }
 
-  function scrollAiBottom(){ aiMessages.scrollTop = aiMessages.scrollHeight; }
+  function scrollAiBottom(){
+    aiMessages.scrollTop = aiMessages.scrollHeight;
+  }
 
   function addAiMessage(from, text, t = Date.now(), persist = true){
     const wrap = document.createElement("div");
@@ -776,13 +885,13 @@
     bubble.textContent = String(text ?? "");
 
     const meta = document.createElement("div");
-    meta.className = "ai-time";
+    meta.className = "ai-meta";
     meta.textContent = new Date(t).toLocaleTimeString("ar-SA", { hour:"2-digit", minute:"2-digit" });
 
     wrap.appendChild(bubble);
     wrap.appendChild(meta);
 
-    aiMessagesList.appendChild(wrap);
+    aiMessages.appendChild(wrap);
     scrollAiBottom();
 
     if (persist) persistAiHistory({ from, text: String(text ?? ""), t });
@@ -790,7 +899,7 @@
 
   function renderAiHistory(){
     // إذا فيه رسائل ضمن القائمة (غير "اليوم") لا تعيد الرسم
-    const existing = aiMessagesList.querySelectorAll(".ai-msg");
+    const existing = aiMessages.querySelectorAll(".ai-msg");
     if (existing.length > 0) return;
 
     try{
@@ -816,6 +925,29 @@
     addAiMessage("bot","هلا! أنا مساعد الدعم 🤝\nاكتب سؤالك، وإذا احتجت دعم مباشر بحوّلك فورًا.");
   }
 
+  // ===== Typing indicator =====
+  let typingEl = null;
+
+  function showTyping(){
+    if (typingEl) return;
+    typingEl = document.createElement("div");
+    typingEl.className = "ai-msg incoming";
+    typingEl.innerHTML = `
+      <div class="ai-bubble">
+        <span class="ai-typing"><span></span><span></span><span></span></span>
+      </div>
+      <div class="ai-meta">${new Date().toLocaleTimeString("ar-SA", { hour:"2-digit", minute:"2-digit" })}</div>
+    `;
+    aiMessages.appendChild(typingEl);
+    scrollAiBottom();
+  }
+
+  function hideTyping(){
+    if (!typingEl) return;
+    typingEl.remove();
+    typingEl = null;
+  }
+
   // ===== Modal open/close =====
   function openModal(){
     modal.classList.add("is-open");
@@ -833,6 +965,7 @@
   function closeModal(){
     modal.classList.remove("is-open");
     modal.setAttribute("aria-hidden", "true");
+    closeEmoji(); // close emoji if open
   }
 
   function toggleModal(){
@@ -848,7 +981,6 @@
 
   btnClose.addEventListener("click", closeModal);
   btnMin.addEventListener("click", closeModal);
-  if (aiCloseX) aiCloseX.addEventListener("click", closeModal);
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && modal.classList.contains("is-open")) closeModal();
@@ -930,7 +1062,6 @@
       return;
     }
 
-    // back to continue
     addAiMessage("bot", "تمت العودة لوضع المساعد. كيف أقدر أساعدك؟");
     hideMessageBird();
     syncUI();
@@ -943,15 +1074,21 @@
     modePill.textContent = "MODE: " + (isContinue ? "CONTINUE" : "HANDOFF");
     launcherSub.textContent = isContinue ? "جاهز لمساعدتك الآن" : "تم التحويل للدعم البشري";
 
+    // dots (header & ai)
     statusDot.style.background = "#111827";
     statusDot.style.boxShadow = "0 0 0 4px rgba(17,24,39,.10)";
+
+    aiDot.style.background = isContinue ? "#10b981" : "#f59e0b";
+    aiDot.style.boxShadow = isContinue
+      ? "0 0 0 4px rgba(16,185,129,.16)"
+      : "0 0 0 4px rgba(245,158,11,.18)";
 
     // AI enable/disable
     aiInput.disabled = !isContinue;
     aiSend.disabled = !isContinue;
 
     aiHint.textContent = isContinue
-      ? "اكتب رسالتك"
+      ? "اكتب سؤالك…"
       : "أنت الآن في HANDOFF — تم فتح الدعم المباشر (MessageBird) خارج النافذة.";
 
     // show handoff panel only in handoff
@@ -965,6 +1102,7 @@
     const isContinue = (mode === "continue");
     aiSend.disabled = b || !isContinue;
     aiInput.disabled = b || !isContinue;
+    emojiBtn.disabled = b || !isContinue;
   }
 
   // ===== n8n helpers =====
@@ -1034,11 +1172,15 @@
     addAiMessage("user", text);
 
     aiInput.value = "";
-    autoGrowTextarea(aiInput);
+    autoGrow(aiInput);
+    closeEmoji();
     setAiBusy(true);
+    showTyping();
 
     try{
       const raw = await sendToN8n(text);
+
+      hideTyping();
 
       const reply = extractReply(raw);
       if (reply) addAiMessage("bot", reply);
@@ -1050,12 +1192,86 @@
       if (nextMode) setMode(nextMode, "n8n");
 
     } catch(err){
+      hideTyping();
       const msg = (err && err.name === "AbortError") ? "انتهت مهلة الاتصال." : "صار خطأ في الاتصال.";
       addAiMessage("bot", msg);
       log("ERR", err);
     } finally {
       setAiBusy(false);
     }
+  });
+
+  // ==========================================================
+  // ✅ Emoji Picker (no libs)
+  // ==========================================================
+  const EMOJIS = [
+    "😀","😁","😂","🤣","😊","😍","😘","😎","🤝","🙏",
+    "👍","👎","✅","❌","⚠️","💡","🔥","✨","🎉","🧠",
+    "📌","📎","📝","📞","💬","🧾","🏷️","⏳","🟢","🔴",
+    "😅","😇","🙂","🙃","😴","😤","😡","😭","🤯","😬",
+    "🚀","🛠️","🔒","🔑","🧩","📊","🧮","🧷","📍","🧿"
+  ];
+
+  function openEmoji(){
+    emojiPopover.classList.add("open");
+    emojiPopover.setAttribute("aria-hidden", "false");
+    emojiSearch.value = "";
+    renderEmojiGrid("");
+    setTimeout(() => emojiSearch.focus(), 0);
+  }
+
+  function closeEmoji(){
+    emojiPopover.classList.remove("open");
+    emojiPopover.setAttribute("aria-hidden", "true");
+  }
+
+  function renderEmojiGrid(query){
+    const q = String(query || "").trim();
+    emojiGrid.innerHTML = "";
+    const list = EMOJIS.filter(e => !q || e.includes(q));
+    list.forEach(e => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "emoji-item";
+      b.textContent = e;
+      b.addEventListener("click", () => insertEmoji(e));
+      emojiGrid.appendChild(b);
+    });
+  }
+
+  function insertEmoji(emoji){
+    const el = aiInput;
+    const start = el.selectionStart ?? el.value.length;
+    const end = el.selectionEnd ?? el.value.length;
+    const before = el.value.slice(0, start);
+    const after = el.value.slice(end);
+    el.value = before + emoji + after;
+    const pos = start + emoji.length;
+    el.setSelectionRange(pos, pos);
+    el.focus();
+    autoGrow(el);
+  }
+
+  emojiBtn.addEventListener("click", () => {
+    if (emojiPopover.classList.contains("open")) closeEmoji();
+    else openEmoji();
+  });
+
+  emojiClose.addEventListener("click", closeEmoji);
+  emojiSearch.addEventListener("input", () => renderEmojiGrid(emojiSearch.value));
+
+  document.querySelectorAll(".emoji-chip").forEach(btn => {
+    btn.addEventListener("click", () => insertEmoji(btn.dataset.emoji));
+  });
+
+  document.addEventListener("mousedown", (e) => {
+    if (!emojiPopover.classList.contains("open")) return;
+    if (emojiPopover.contains(e.target) || emojiBtn.contains(e.target)) return;
+    closeEmoji();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeEmoji();
   });
 
   // ===== MessageBird (external, no embedding) =====
@@ -1087,7 +1303,6 @@
 
   function openMessageBirdChat(contact){
     loadMessageBirdIfNeeded();
-
     document.body.classList.remove("mb-hidden");
 
     const start = Date.now();
