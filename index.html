@@ -8,511 +8,415 @@
   <!-- ✅ Bootstrap RTL -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
 
-  <style>
-    :root{
-      --page:#ffffff;
-      --surface:#ffffff;
-      --surface2:#f7f9ff;
-      --panel:#ffffff;
+<style>
+  :root{
+    --page:#ffffff;
+    --surface:#ffffff;
+    --surface2:#f7f9ff;
+    --panel:#ffffff;
 
-      --text:#0b1220;
-      --muted:#445066;
-      --muted2:#6b768f;
+    --text:#0b1220;
+    --muted:#445066;
+    --muted2:#6b768f;
 
-      --line: rgba(11,18,32,.10);
-      --line2: rgba(11,18,32,.14);
+    --line: rgba(11,18,32,.10);
+    --line2: rgba(11,18,32,.14);
 
-      --blue:#1d4ed8;
-      --blue2:#2563eb;
+    --blue:#1d4ed8;
+    --blue2:#2563eb;
 
-      --shadow: 0 22px 60px rgba(11,18,32,.14);
-      --shadow2: 0 10px 26px rgba(11,18,32,.10);
+    --shadow: 0 22px 60px rgba(11,18,32,.14);
+    --shadow2: 0 10px 26px rgba(11,18,32,.10);
 
-      --ease: cubic-bezier(.2,.8,.2,1);
+    --ease: cubic-bezier(.2,.8,.2,1);
+  }
 
-      --mbR: 18px;
-      --mbRsm: 16px;
-    }
+  html, body { height: 100%; }
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, Segoe UI, Tahoma, Arial, sans-serif;
+    background: var(--page);
+    color: var(--text);
+  }
 
-    html, body { height: 100%; }
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Tahoma, Arial, sans-serif;
-      background: var(--page);
-      color: var(--text);
-    }
+  /* ==========================================================
+     ✅ MessageBird visibility control (OUTSIDE our container)
+     - Hidden by default (continue)
+     - Shown only on handoff by removing body.mb-hidden
+     ========================================================== */
 
-    /* ===== Launcher ===== */
-    .support-launcher{
-      position: fixed;
-      bottom: 18px;
-      left: 18px;
-      z-index: 99999;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      user-select:none;
-    }
+  body.mb-hidden .messagebird-launcher,
+  body.mb-hidden .messagebird-widget-launcher,
+  body.mb-hidden #live-chat-widget-launcher,
+  body.mb-hidden #live-chat-widget-button,
+  body.mb-hidden #live-chat-widget,
+  body.mb-hidden iframe#live-chat-widget-iframe {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
 
-    .support-pill{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding: 10px 12px;
-      border-radius: 999px;
-      border: 1px solid var(--line2);
-      background: rgba(255,255,255,.92);
-      box-shadow: var(--shadow2);
-      cursor:pointer;
-      transition: transform .18s var(--ease), border-color .18s var(--ease), box-shadow .18s var(--ease);
-      backdrop-filter: blur(10px);
-    }
-    .support-pill:hover{
-      transform: translateY(-2px);
-      border-color: rgba(37,99,235,.28);
-      box-shadow: 0 14px 34px rgba(11,18,32,.14);
-    }
+  /* ===== Launcher ===== */
+  .support-launcher{
+    position: fixed;
+    bottom: 18px;
+    left: 18px;
+    z-index: 99999;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    user-select:none;
+  }
 
-    .support-avatar{
-      width: 34px;
-      height: 34px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, rgba(37,99,235,.18), rgba(29,78,216,.10));
-      display:grid;
-      place-items:center;
-      font-size: 18px;
-      border: 1px solid rgba(37,99,235,.22);
-      color: var(--blue);
-    }
+  .support-pill{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding: 10px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--line2);
+    background: rgba(255,255,255,.92);
+    box-shadow: var(--shadow2);
+    cursor:pointer;
+    transition: transform .18s var(--ease), border-color .18s var(--ease), box-shadow .18s var(--ease);
+    backdrop-filter: blur(10px);
+  }
+  .support-pill:hover{
+    transform: translateY(-2px);
+    border-color: rgba(37,99,235,.28);
+    box-shadow: 0 14px 34px rgba(11,18,32,.14);
+  }
 
-    .support-pill .txt{
-      display:flex;
-      flex-direction:column;
-      line-height: 1.15;
-      min-width: 0;
-    }
-    .support-pill .txt b{
-      font-size: 12.5px;
-      letter-spacing: .2px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width: 180px;
-      color: var(--text);
-    }
-    .support-pill .txt span{
-      font-size: 11.5px;
-      color: var(--muted);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width: 180px;
-    }
+  .support-avatar{
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(37,99,235,.18), rgba(29,78,216,.10));
+    display:grid;
+    place-items:center;
+    font-size: 18px;
+    border: 1px solid rgba(37,99,235,.22);
+    color: var(--blue);
+  }
 
-    .support-fab{
-      width: 54px;
-      height: 54px;
-      border: none;
-      border-radius: 18px;
-      cursor: pointer;
-      box-shadow: var(--shadow2);
-      background: linear-gradient(135deg, var(--blue2), var(--blue));
-      color: #ffffff;
-      font-size: 22px;
-      display:grid;
-      place-items:center;
-      transition: transform .18s var(--ease), filter .18s var(--ease);
-    }
-    .support-fab:hover{ transform: translateY(-2px); filter: brightness(1.03); }
-    .support-fab:active{ transform: translateY(0); }
+  .support-pill .txt{
+    display:flex;
+    flex-direction:column;
+    line-height: 1.15;
+    min-width: 0;
+  }
+  .support-pill .txt b{
+    font-size: 12.5px;
+    letter-spacing: .2px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width: 180px;
+    color: var(--text);
+  }
+  .support-pill .txt span{
+    font-size: 11.5px;
+    color: var(--muted);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width: 180px;
+  }
 
-    /* ===== Modal ===== */
+  .support-fab{
+    width: 54px;
+    height: 54px;
+    border: none;
+    border-radius: 18px;
+    cursor: pointer;
+    box-shadow: var(--shadow2);
+    background: linear-gradient(135deg, var(--blue2), var(--blue));
+    color: #ffffff;
+    font-size: 22px;
+    display:grid;
+    place-items:center;
+    transition: transform .18s var(--ease), filter .18s var(--ease);
+  }
+  .support-fab:hover{ transform: translateY(-2px); filter: brightness(1.03); }
+  .support-fab:active{ transform: translateY(0); }
+
+  /* ===== Modal ===== */
+  .support-modal{
+    position: fixed;
+    bottom: 86px;
+    left: 18px;
+    width: min(540px, calc(100vw - 36px));
+    max-height: calc(100vh - 120px);
+    z-index: 99999;
+    display:none;
+  }
+  .support-modal.is-open{ display:block; }
+
+  .support-card{
+    border-radius: 22px;
+    overflow:hidden;
+    border: 1px solid var(--line2);
+    background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(247,249,255,.96));
+    box-shadow: var(--shadow);
+    position: relative;
+    animation: pop .18s var(--ease);
+  }
+
+  @keyframes pop{
+    from{ transform: translateY(10px) scale(.99); opacity: 0; }
+    to  { transform: translateY(0) scale(1); opacity: 1; }
+  }
+
+  /* ===== Header ===== */
+  .support-header{
+    padding: 12px 12px 10px;
+    background:
+      radial-gradient(900px 300px at 10% 0%, rgba(37,99,235,.12), transparent 60%),
+      linear-gradient(180deg, rgba(255,255,255,.98), rgba(247,249,255,.96));
+    border-bottom: 1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+
+  .support-title{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-width:0;
+  }
+
+  .status{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding: 8px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--line2);
+    background: rgba(255,255,255,.92);
+  }
+
+  .status-dot{
+    width:10px; height:10px; border-radius:999px;
+    background: #111827;
+    box-shadow: 0 0 0 4px rgba(17,24,39,.10);
+    flex:0 0 auto;
+  }
+  .status-text{
+    font-size: 11.5px;
+    color: var(--muted);
+    white-space:nowrap;
+  }
+
+  .support-title h3{
+    margin:0;
+    font-size: 13.5px;
+    font-weight: 950;
+    letter-spacing:.2px;
+    line-height:1.2;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width: 250px;
+    color: var(--text);
+  }
+  .support-title p{
+    margin:2px 0 0;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .support-actions{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    flex:0 0 auto;
+  }
+
+  .icon-btn{
+    width: 38px;
+    height: 34px;
+    border-radius: 12px;
+    border: 1px solid var(--line2);
+    background: rgba(255,255,255,.92);
+    color: var(--text);
+    cursor:pointer;
+    transition: transform .18s var(--ease), background .18s var(--ease), border-color .18s var(--ease);
+  }
+  .icon-btn:hover{
+    background: rgba(37,99,235,.06);
+    border-color: rgba(37,99,235,.22);
+    transform: translateY(-1px);
+  }
+  .icon-btn:active{ transform: translateY(0); }
+
+  /* ===== Body ===== */
+  .support-body{
+    background: rgba(255,255,255,.98);
+    display:flex;
+    flex-direction:column;
+    min-height: 460px;
+    max-height: calc(100vh - 250px);
+  }
+
+  /* ===== AI ===== */
+  .ai-messages{
+    flex:1;
+    overflow:auto;
+    padding: 14px;
+    background:
+      radial-gradient(900px 350px at 10% 0%, rgba(37,99,235,.07), transparent 60%),
+      linear-gradient(180deg, rgba(255,255,255,1), rgba(247,249,255,.70));
+    border-bottom: 1px solid var(--line);
+    min-height: 0;
+    scroll-behavior:smooth;
+  }
+
+  .msg{ display:flex; margin: 10px 0; }
+  .msg.user{ justify-content: flex-end; }
+  .msg.bot{ justify-content: flex-start; }
+
+  .bubble{
+    max-width: 86%;
+    padding: 10px 12px;
+    border-radius: 16px;
+    line-height: 1.75;
+    font-size: 13px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    border: 1px solid var(--line2);
+    background: rgba(255,255,255,.98);
+    color: var(--text);
+    box-shadow: 0 10px 20px rgba(11,18,32,.06);
+  }
+
+  .msg.user .bubble{
+    background: rgba(37,99,235,.08);
+    border-color: rgba(37,99,235,.18);
+    color: var(--text);
+  }
+
+  .meta{
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--muted2);
+  }
+
+  .ai-footer{
+    padding: 12px;
+    background: rgba(255,255,255,.98);
+  }
+
+  .hint{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .hint .pill{
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(37,99,235,.22);
+    background: rgba(37,99,235,.08);
+    color: var(--blue);
+    white-space:nowrap;
+    font-weight: 950;
+    font-size: 11.5px;
+  }
+
+  .form-row{
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+
+  .input{
+    flex:1;
+    border-radius: 14px;
+    border: 1px solid var(--line2);
+    background: rgba(247,249,255,.85);
+    color: var(--text);
+    padding: 11px 12px;
+    outline:none;
+    font-size: 13px;
+    transition: box-shadow .18s var(--ease), border-color .18s var(--ease), background .18s var(--ease);
+  }
+  .input:focus{
+    border-color: rgba(37,99,235,.35);
+    background: rgba(255,255,255,1);
+    box-shadow: 0 0 0 4px rgba(37,99,235,.12);
+  }
+
+  .send{
+    border:none;
+    border-radius: 14px;
+    padding: 11px 14px;
+    cursor:pointer;
+    font-weight: 950;
+    background: linear-gradient(135deg, var(--blue2), var(--blue));
+    color: #fff;
+    transition: transform .18s var(--ease), filter .18s var(--ease), opacity .18s var(--ease);
+    user-select:none;
+    min-width: 92px;
+  }
+  .send:hover{ transform: translateY(-1px); filter: brightness(1.03); }
+  .send:active{ transform: translateY(0); }
+  .send:disabled{ opacity:.6; cursor:not-allowed; transform:none; filter:none; }
+
+  /* ===== Handoff Panel (inside modal) ===== */
+  .handoff-panel{
+    display:none;
+    padding: 12px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(37,99,235,.06);
+  }
+  .handoff-panel.show{ display:block; }
+  .handoff-panel .box{
+    border: 1px solid rgba(37,99,235,.20);
+    background: rgba(255,255,255,.92);
+    border-radius: 16px;
+    padding: 12px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .handoff-panel .txt{
+    min-width:0;
+  }
+  .handoff-panel .txt b{
+    display:block;
+    font-size: 13px;
+  }
+  .handoff-panel .txt span{
+    display:block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  @media (max-width: 480px){
     .support-modal{
-      position: fixed;
-      bottom: 86px;
-      left: 18px;
-      width: min(540px, calc(100vw - 36px));
-      max-height: calc(100vh - 120px);
-      z-index: 99999;
-      display:none;
+      left: 12px;
+      width: calc(100vw - 24px);
+      bottom: 78px;
     }
-    .support-modal.is-open{ display:block; }
+    .support-pill .txt b, .support-pill .txt span{ max-width: 140px; }
+    .support-body{ max-height: calc(100vh - 220px); }
+  }
 
-    .support-shell{
-      border-radius: 22px;
-      overflow:hidden;
-      border: 1px solid var(--line2);
-      background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(247,249,255,.96));
-      box-shadow: var(--shadow);
-      position: relative;
-      animation: pop .18s var(--ease);
-    }
-
-    @keyframes pop{
-      from{ transform: translateY(10px) scale(.99); opacity: 0; }
-      to  { transform: translateY(0) scale(1); opacity: 1; }
-    }
-
-    /* ===== Views (FULL SEPARATION) ===== */
-    .support-view{ display:none; }
-    .support-view.active{ display:block; }
-
-    /* ===== Shared Header top bar (close/min only) ===== */
-    .topbar{
-      padding: 10px 12px;
-      background:
-        radial-gradient(900px 300px at 10% 0%, rgba(37,99,235,.10), transparent 60%),
-        linear-gradient(180deg, rgba(255,255,255,.98), rgba(247,249,255,.96));
-      border-bottom: 1px solid var(--line);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-
-    .topbar .left{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      min-width:0;
-    }
-
-    .status{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--line2);
-      background: rgba(255,255,255,.92);
-      flex:0 0 auto;
-    }
-    .status-dot{
-      width:10px; height:10px; border-radius:999px;
-      background: #111827;
-      box-shadow: 0 0 0 4px rgba(17,24,39,.10);
-      flex:0 0 auto;
-    }
-    .status-text{
-      font-size: 11.5px;
-      color: var(--muted);
-      white-space:nowrap;
-    }
-
-    .titleblock{
-      min-width:0;
-    }
-    .titleblock h3{
-      margin:0;
-      font-size: 13.5px;
-      font-weight: 950;
-      letter-spacing:.2px;
-      line-height:1.2;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width: 250px;
-      color: var(--text);
-    }
-    .titleblock p{
-      margin:2px 0 0;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .support-actions{
-      display:flex;
-      gap:8px;
-      align-items:center;
-      flex:0 0 auto;
-    }
-
-    .icon-btn{
-      width: 38px;
-      height: 34px;
-      border-radius: 12px;
-      border: 1px solid var(--line2);
-      background: rgba(255,255,255,.92);
-      color: var(--text);
-      cursor:pointer;
-      transition: transform .18s var(--ease), background .18s var(--ease), border-color .18s var(--ease);
-    }
-    .icon-btn:hover{
-      background: rgba(37,99,235,.06);
-      border-color: rgba(37,99,235,.22);
-      transform: translateY(-1px);
-    }
-    .icon-btn:active{ transform: translateY(0); }
-
-    /* ===== AI View ===== */
-    .ai-body{
-      background: rgba(255,255,255,.98);
-      display:flex;
-      flex-direction:column;
-      min-height: 520px;
-      max-height: calc(100vh - 250px);
-    }
-
-    .ai-messages{
-      flex:1;
-      overflow:auto;
-      padding: 14px;
-      background:
-        radial-gradient(900px 350px at 10% 0%, rgba(37,99,235,.07), transparent 60%),
-        linear-gradient(180deg, rgba(255,255,255,1), rgba(247,249,255,.70));
-      border-bottom: 1px solid var(--line);
-      min-height: 0;
-      scroll-behavior:smooth;
-    }
-
-    .msg{ display:flex; margin: 10px 0; }
-    .msg.user{ justify-content: flex-end; }
-    .msg.bot{ justify-content: flex-start; }
-
-    .bubble{
-      max-width: 86%;
-      padding: 10px 12px;
-      border-radius: 16px;
-      line-height: 1.75;
-      font-size: 13px;
-      white-space: pre-wrap;
-      word-break: break-word;
-      border: 1px solid var(--line2);
-      background: rgba(255,255,255,.98);
-      color: var(--text);
-      box-shadow: 0 10px 20px rgba(11,18,32,.06);
-    }
-
-    .msg.user .bubble{
-      background: rgba(37,99,235,.08);
-      border-color: rgba(37,99,235,.18);
-      color: var(--text);
-    }
-
-    .meta{
-      margin-top: 6px;
-      font-size: 11px;
-      color: var(--muted2);
-    }
-
-    .ai-footer{
-      padding: 12px;
-      background: rgba(255,255,255,.98);
-    }
-
-    .hint{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 10px;
-    }
-    .hint .pill{
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(37,99,235,.22);
-      background: rgba(37,99,235,.08);
-      color: var(--blue);
-      white-space:nowrap;
-      font-weight: 950;
-      font-size: 11.5px;
-    }
-
-    .form-row{
-      display:flex;
-      gap:10px;
-      align-items:center;
-    }
-
-    .input{
-      flex:1;
-      border-radius: 14px;
-      border: 1px solid var(--line2);
-      background: rgba(247,249,255,.85);
-      color: var(--text);
-      padding: 11px 12px;
-      outline:none;
-      font-size: 13px;
-      transition: box-shadow .18s var(--ease), border-color .18s var(--ease), background .18s var(--ease);
-    }
-    .input:focus{
-      border-color: rgba(37,99,235,.35);
-      background: rgba(255,255,255,1);
-      box-shadow: 0 0 0 4px rgba(37,99,235,.12);
-    }
-
-    .send{
-      border:none;
-      border-radius: 14px;
-      padding: 11px 14px;
-      cursor:pointer;
-      font-weight: 950;
-      background: linear-gradient(135deg, var(--blue2), var(--blue));
-      color: #fff;
-      transition: transform .18s var(--ease), filter .18s var(--ease), opacity .18s var(--ease);
-      user-select:none;
-      min-width: 92px;
-    }
-    .send:hover{ transform: translateY(-1px); filter: brightness(1.03); }
-    .send:active{ transform: translateY(0); }
-    .send:disabled{ opacity:.6; cursor:not-allowed; transform:none; filter:none; }
-
-    /* ===== MB View (separate full screen inside modal) ===== */
-    .mb-body{
-      background: rgba(255,255,255,.98);
-      display:flex;
-      flex-direction:column;
-      min-height: 520px;
-      max-height: calc(100vh - 250px);
-    }
-
-    .mb-head{
-      padding: 12px;
-      border-bottom: 1px solid var(--line);
-      background: rgba(255,255,255,.98);
-    }
-
-    .mb-shell{
-      position: relative !important;
-      width: 100%;
-      height: 100%;
-      min-height: 0;
-      border-radius: var(--mbR);
-      border: 1px solid rgba(11,18,32,.10);
-      background: #fff;
-      overflow: hidden !important;
-      box-shadow: none !important;
-    }
-
-    .mb-stage{
-      padding: 12px;
-      flex:1;
-      min-height: 0;
-      background:
-        radial-gradient(900px 350px at 10% 0%, rgba(37,99,235,.06), transparent 60%),
-        linear-gradient(180deg, rgba(255,255,255,1), rgba(247,249,255,.70));
-    }
-
-    /* IMPORTANT: DO NOT hide #live-chat-widget */
-    #live-chat-widget{
-      position: static !important;
-      inset: auto !important;
-      right: auto !important;
-      bottom: auto !important;
-      left: auto !important;
-      top: auto !important;
-
-      z-index: 1 !important;
-      display: block !important;
-      visibility: visible !important;
-      opacity: 1 !important;
-      pointer-events: auto !important;
-
-      width: 100% !important;
-      height: 100% !important;
-      max-width: 100% !important;
-    }
-
-    #live-chat-widget-iframe{
-      position: absolute !important;
-      inset: 0 !important;
-      width: 100% !important;
-      height: 100% !important;
-      max-width: 100% !important;
-
-      border: 0 !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      overflow: hidden !important;
-
-      border-radius: var(--mbR) !important;
-      background: #fff !important;
-      z-index: 1 !important;
-    }
-
-    #live-chat-widget-iframe.opened{
-      position: absolute !important;
-      inset: 0 !important;
-      width: 100% !important;
-      height: 100% !important;
-
-      top: auto !important;
-      left: auto !important;
-      right: auto !important;
-      bottom: auto !important;
-    }
-
-    .mb-fallback{
-      position:absolute;
-      inset:0;
-      display:grid;
-      place-items:center;
-      padding: 16px;
-      text-align:center;
-      background: rgba(255,255,255,.78);
-      backdrop-filter: blur(6px);
-      z-index: 2;
-    }
-    .mb-card{
-      width: 100%;
-      max-width: 360px;
-      border-radius: 18px;
-      border: 1px solid rgba(11,18,32,.12);
-      background: rgba(255,255,255,.98);
-      box-shadow: var(--shadow2);
-      padding: 14px;
-      color: var(--text);
-    }
-    .mb-card b{ display:block; margin-bottom:8px; font-weight: 950; }
-    .mb-card p{ margin:0; font-size: 12.5px; color: var(--muted); line-height: 1.7; }
-    .mb-card .btn{
-      margin-top: 12px;
-      width:100%;
-      border:none;
-      border-radius: 14px;
-      padding: 11px 14px;
-      font-weight: 950;
-      cursor:pointer;
-      background: linear-gradient(135deg, var(--blue2), var(--blue));
-      color: #fff;
-      transition: transform .18s var(--ease), opacity .18s var(--ease);
-    }
-    .mb-card .btn:hover{ transform: translateY(-1px); }
-    .mb-card .btn:active{ transform: translateY(0); }
-
-    /* ✅ Hide ONLY MessageBird launcher button (keep the widget root) */
-    .messagebird-launcher,
-    .messagebird-widget-launcher,
-    #live-chat-widget-launcher,
-    #live-chat-widget-button{
-      display: none !important;
-      visibility: hidden !important;
-      opacity: 0 !important;
-      pointer-events: none !important;
-    }
-
-    @media (max-width: 480px){
-      .support-modal{
-        left: 12px;
-        width: calc(100vw - 24px);
-        bottom: 78px;
-      }
-      .support-pill .txt b, .support-pill .txt span{ max-width: 140px; }
-      .ai-body, .mb-body{ max-height: calc(100vh - 220px); }
-
-      .mb-shell{ border-radius: var(--mbRsm); }
-      #live-chat-widget-iframe{ border-radius: var(--mbRsm) !important; }
-    }
-
-    @media (prefers-reduced-motion: reduce){
-      *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
-    }
-  </style>
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+  }
+</style>
 </head>
 
-<body>
+<body class="mb-hidden">
 
   <!-- ===== Launcher ===== -->
   <div class="support-launcher" aria-label="الدعم">
@@ -528,16 +432,15 @@
 
   <!-- ===== Modal ===== -->
   <div id="supportModal" class="support-modal" aria-hidden="true">
-    <div class="support-shell" role="dialog" aria-label="دعم العملاء">
+    <div class="support-card" role="dialog" aria-label="دعم العملاء">
 
-      <!-- Topbar (shared close/min) -->
-      <div class="topbar">
-        <div class="left">
+      <div class="support-header">
+        <div class="support-title">
           <div class="status">
             <span class="status-dot" id="statusDot"></span>
             <span class="status-text" id="statusText">وضع المساعد: CONTINUE</span>
           </div>
-          <div class="titleblock">
+          <div style="min-width:0">
             <h3 id="supportTitle">مركز الدعم</h3>
             <p id="supportSub">مساعد ذكي — ويتحوّل مباشرة لموظف عند الحاجة</p>
           </div>
@@ -549,69 +452,37 @@
         </div>
       </div>
 
-      <!-- =========================
-           VIEW 1: AI (FULL)
-           ========================= -->
-      <div id="viewAi" class="support-view active" aria-label="واجهة المساعد">
-        <div class="ai-body">
-          <div id="aiMessages" class="ai-messages" aria-live="polite"></div>
-
-          <div class="ai-footer">
-            <div class="hint">
-              <span id="aiHint">اكتب سؤالك… وسيبقى الوضع CONTINUE تلقائيًا.</span>
-              <span class="pill" id="modePill">MODE: CONTINUE</span>
-            </div>
-            <form id="aiForm" class="form-row" autocomplete="off">
-              <input id="aiInput" class="input" type="text" placeholder="اكتب رسالتك…" required />
-              <button id="aiSend" class="send" type="submit">إرسال</button>
-            </form>
+      <!-- ✅ يظهر فقط عند HANDOFF (والـ MB خارج المودال) -->
+      <div id="handoffPanel" class="handoff-panel">
+        <div class="box">
+          <div class="txt">
+            <b>تم تحويلك للدعم البشري</b>
+            <span>سيظهر شات الموظف (MessageBird) خارج هذه النافذة.</span>
+          </div>
+          <div class="d-flex gap-2 flex-shrink-0">
+            <button id="openHuman" class="btn btn-primary btn-sm rounded-3 px-3" type="button">فتح الموظف</button>
+            <button id="endHuman" class="btn btn-outline-primary btn-sm rounded-3 px-3" type="button">إنهاء</button>
           </div>
         </div>
       </div>
 
-      <!-- =========================
-           VIEW 2: MessageBird (FULL)
-           Hidden until HANDOFF
-           ========================= -->
-      <div id="viewMb" class="support-view" aria-label="واجهة الدعم البشري">
-        <div class="mb-body">
-          <div class="mb-head">
-            <div class="d-flex align-items-center justify-content-between gap-2">
-              <div class="d-flex align-items-center gap-2">
-                <div class="rounded-3 d-grid place-items-center"
-                     style="width:38px;height:38px;background: rgba(37,99,235,.10);border:1px solid rgba(37,99,235,.18);">
-                  👩‍💻
-                </div>
-                <div class="lh-sm">
-                  <div class="fw-bold" style="font-size:13px;">الدعم البشري (HANDOFF)</div>
-                  <div class="text-secondary" style="font-size:12px;">لإنهاء المحادثة والعودة للمساعد اضغط "إنهاء"</div>
-                </div>
-              </div>
+      <div class="support-body">
+        <div id="aiMessages" class="ai-messages" aria-live="polite"></div>
 
-              <div class="d-flex align-items-center gap-2 flex-shrink-0">
-                <span class="badge rounded-pill text-bg-light border" id="mbState">جارٍ التحميل…</span>
-                <button id="mbEnd" class="btn btn-primary btn-sm rounded-3 px-3" type="button">إنهاء</button>
-              </div>
-            </div>
+        <div class="ai-footer">
+          <div class="hint">
+            <span id="aiHint">اكتب سؤالك… وسيبقى الوضع CONTINUE تلقائيًا.</span>
+            <span class="pill" id="modePill">MODE: CONTINUE</span>
           </div>
-
-          <div class="mb-stage">
-            <div id="mbContainer" class="mb-shell">
-              <div id="mbFallback" class="mb-fallback">
-                <div class="mb-card">
-                  <b>جارٍ فتح محادثة الموظف…</b>
-                  <p>إذا لم تظهر داخل هذه النافذة، اضغط الزر لفتحها بالطريقة الافتراضية.</p>
-                  <button id="mbOpenFallback" class="btn" type="button">فتح الدعم الآن</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
+          <form id="aiForm" class="form-row" autocomplete="off">
+            <input id="aiInput" class="input" type="text" placeholder="اكتب رسالتك…" required />
+            <button id="aiSend" class="send" type="submit">إرسال</button>
+          </form>
         </div>
-      </div>
+      </div><!-- body -->
 
-    </div>
-  </div>
+    </div><!-- card -->
+  </div><!-- modal -->
 
 <script>
 (() => {
@@ -627,7 +498,7 @@
   const STORAGE = {
     SESSION_KEY: "support_session_id_v5",
     AI_HISTORY_KEY: "support_ai_history_v5",
-    MODE_KEY: "support_mode_v5", // "continue" | "handoff"
+    MODE_KEY: "support_mode_v5",
   };
 
   const $ = (id) => document.getElementById(id);
@@ -649,6 +520,7 @@
     return x && typeof x === "object" && !Array.isArray(x);
   }
 
+  // ✅ فكّ رد n8n المتداخل
   function unwrapN8nPayload(raw){
     let o = raw;
     if (Array.isArray(o)) o = o[0];
@@ -677,9 +549,6 @@
   const btnClose = $("supportClose");
   const btnMin = $("supportMin");
 
-  const viewAi = $("viewAi");
-  const viewMb = $("viewMb");
-
   const statusDot = $("statusDot");
   const statusText = $("statusText");
   const modePill = $("modePill");
@@ -690,28 +559,19 @@
   const aiSend = $("aiSend");
   const aiHint = $("aiHint");
 
-  const mbContainer = $("mbContainer");
-  const mbFallback = $("mbFallback");
-  const mbOpenFallback = $("mbOpenFallback");
-  const mbState = $("mbState");
-  const mbEnd = $("mbEnd");
+  const handoffPanel = $("handoffPanel");
+  const openHuman = $("openHuman");
+  const endHuman = $("endHuman");
 
   const required = [
     modal,fab,pill,launcherSub,btnClose,btnMin,
-    viewAi,viewMb,statusDot,statusText,modePill,
+    statusDot,statusText,modePill,
     aiMessages,aiForm,aiInput,aiSend,aiHint,
-    mbContainer,mbFallback,mbOpenFallback,mbState,mbEnd
+    handoffPanel,openHuman,endHuman
   ];
   if (required.some(x => !x)) {
     console.error("[SUPPORT] Missing DOM elements; aborting widget init.");
     return;
-  }
-
-  // ===== View switching (FULL separation) =====
-  function showView(which){
-    const isAi = (which === "ai");
-    viewAi.classList.toggle("active", isAi);
-    viewMb.classList.toggle("active", !isAi);
   }
 
   // ===== History =====
@@ -777,18 +637,14 @@
   function openModal(){
     modal.classList.add("is-open");
     modal.setAttribute("aria-hidden", "false");
-
     renderAiHistory();
     greetOnce();
     syncUI();
+    setTimeout(() => aiInput.focus(), 60);
 
+    // إذا كان mode handoff: نضمن فتح MB خارجيًا
     if (mode === "handoff") {
-      showView("mb");
-      ensureMessageBirdMountedInsideModal();
       openMessageBirdChat(null);
-    } else {
-      showView("ai");
-      setTimeout(() => aiInput.focus(), 60);
     }
   }
 
@@ -817,12 +673,12 @@
 
   document.addEventListener("mousedown", (e) => {
     if (!modal.classList.contains("is-open")) return;
-    const shell = modal.querySelector(".support-shell");
-    if (shell && !shell.contains(e.target) && e.target !== fab && !pill.contains(e.target)) closeModal();
+    const card = modal.querySelector(".support-card");
+    if (card && !card.contains(e.target) && e.target !== fab && !pill.contains(e.target)) closeModal();
   });
 
   // ==========================================================
-  // ✅ MB start message from N8N summary
+  // ✅ MB: Start message from N8N summary
   // ==========================================================
   const MB_START_MSG_DEFAULT = "السلام عليكم ورحمة الله وبركاته، أريد موظف دعم فني.";
   let mbStartMessageOverride = null;
@@ -866,6 +722,7 @@
         return;
       }
 
+      // لو startConversation غير متوفر، نعتبرها "مرسلة" عشان ما نكرر
       localStorage.setItem(MB_START_SENT_KEY, fp);
       log("MB startConversation not available; skipped sending.", { key: MB_START_SENT_KEY });
 
@@ -885,28 +742,16 @@
     log("MODE =>", mode, "source:", source);
 
     if (mode === "handoff") {
-      // فصل كامل: انتقل لشاشة MB
       addAiMessage("bot", "تم تحويلكم للمهندس المناوب");
-      showView("mb");
-
-      ensureMessageBirdMountedInsideModal();
       openMessageBirdChat(null);
-
       syncUI();
       return;
     }
 
-    // العودة للمساعد
-    showView("ai");
+    // back to continue
     addAiMessage("bot", "تمت العودة لوضع المساعد. كيف أقدر أساعدك؟");
-
-    try{
-      const api = window.MessageBirdChatWidget;
-      if (api && typeof api.toggleChat === "function") api.toggleChat();
-    }catch{}
-
+    hideMessageBird();
     syncUI();
-    setTimeout(() => aiInput.focus(), 60);
   }
 
   function syncUI(){
@@ -919,12 +764,19 @@
     statusDot.style.background = "#111827";
     statusDot.style.boxShadow = "0 0 0 4px rgba(17,24,39,.10)";
 
+    // AI enable/disable
     aiInput.disabled = !isContinue;
     aiSend.disabled = !isContinue;
 
     aiHint.textContent = isContinue
       ? "اكتب سؤالك… وسيبقى الوضع CONTINUE تلقائيًا."
-      : "أنت الآن في HANDOFF — تم فتح الدعم المباشر.";
+      : "أنت الآن في HANDOFF — تم فتح الدعم المباشر (MessageBird) خارج النافذة.";
+
+    // show handoff panel only in handoff
+    handoffPanel.classList.toggle("show", !isContinue);
+
+    // control MB visibility (CSS-based)
+    document.body.classList.toggle("mb-hidden", isContinue);
   }
 
   function setAiBusy(b){
@@ -1022,7 +874,7 @@
     }
   });
 
-  // ===== MessageBird embedding =====
+  // ===== MessageBird (external, no embedding) =====
   function loadMessageBirdIfNeeded(){
     if (document.getElementById("mb-script")) return;
 
@@ -1038,107 +890,24 @@
     document.head.appendChild(s);
   }
 
-  function forceIframeFullSize(iframe){
-    if (!iframe) return;
-    iframe.style.setProperty("position", "absolute", "important");
-    iframe.style.setProperty("inset", "0", "important");
-    iframe.style.setProperty("width", "100%", "important");
-    iframe.style.setProperty("height", "100%", "important");
-    iframe.style.setProperty("border", "0", "important");
-    iframe.style.setProperty("margin", "0", "important");
-    iframe.style.setProperty("padding", "0", "important");
-    iframe.style.setProperty("overflow", "hidden", "important");
-    iframe.style.setProperty("z-index", "1", "important");
-    iframe.style.setProperty("border-radius", "18px", "important");
-    iframe.style.setProperty("background", "#fff", "important");
-  }
-
-  function ensureMessageBirdMountedInsideModal(){
-    loadMessageBirdIfNeeded();
-
-    mbState.textContent = "جارٍ التحميل…";
-    mbFallback.style.display = "grid";
-
-    const start = Date.now();
-    const INTERVAL_MS = 180;
-    const TIMEOUT_MS  = 15000;
-
-    const tryMount = setInterval(() => {
-      const widgetRoot = document.getElementById("live-chat-widget");
-      let mbFrame = document.getElementById("live-chat-widget-iframe");
-
-      if (!mbFrame) {
-        const frames = Array.from(document.querySelectorAll("iframe"));
-        mbFrame = frames.find(f => /messagebird|livechat\.messagebird\.com/i.test(f.getAttribute("src") || ""));
+  function hideMessageBird(){
+    // نخفيه (CSS class) + نحاول نقفل الدردشة لو كانت مفتوحة
+    document.body.classList.add("mb-hidden");
+    try{
+      const api = window.MessageBirdChatWidget;
+      if (api && typeof api.toggleChat === "function") {
+        // بعض الإصدارات تدعم toggleChat(false)
+        try { api.toggleChat(false); }
+        catch { try { api.toggleChat(); } catch {} }
       }
-
-      if (widgetRoot && mbFrame) {
-        clearInterval(tryMount);
-
-        try{
-          if (!mbContainer.contains(widgetRoot)) mbContainer.appendChild(widgetRoot);
-          if (!mbContainer.contains(mbFrame)) mbContainer.appendChild(mbFrame);
-
-          widgetRoot.style.setProperty("position", "static", "important");
-          widgetRoot.style.setProperty("inset", "auto", "important");
-          widgetRoot.style.setProperty("right", "auto", "important");
-          widgetRoot.style.setProperty("bottom", "auto", "important");
-          widgetRoot.style.setProperty("left", "auto", "important");
-          widgetRoot.style.setProperty("top", "auto", "important");
-          widgetRoot.style.setProperty("width", "100%", "important");
-          widgetRoot.style.setProperty("height", "100%", "important");
-          widgetRoot.style.setProperty("display", "block", "important");
-          widgetRoot.style.setProperty("z-index", "1", "important");
-
-          forceIframeFullSize(mbFrame);
-
-          const guardStart = Date.now();
-          const guard = setInterval(() => {
-            forceIframeFullSize(mbFrame);
-            widgetRoot.style.setProperty("position", "static", "important");
-            widgetRoot.style.setProperty("right", "auto", "important");
-            widgetRoot.style.setProperty("bottom", "auto", "important");
-            if (Date.now() - guardStart > 8000) clearInterval(guard);
-          }, 220);
-
-          try{
-            const obs = new MutationObserver(() => {
-              forceIframeFullSize(mbFrame);
-              widgetRoot.style.setProperty("position", "static", "important");
-              widgetRoot.style.setProperty("right", "auto", "important");
-              widgetRoot.style.setProperty("bottom", "auto", "important");
-            });
-
-            obs.observe(mbFrame, { attributes:true, attributeFilter:["style","class"] });
-            obs.observe(widgetRoot, { attributes:true, attributeFilter:["style","class"] });
-
-            setTimeout(() => obs.disconnect(), 20000);
-          }catch{}
-
-          mbFallback.style.display = "none";
-          mbState.textContent = "متصل";
-          log("MB mounted ✅ (root + iframe moved inside container)");
-
-        } catch(e){
-          mbState.textContent = "غير مدعوم";
-          mbFallback.style.display = "grid";
-          console.warn("[SUPPORT] Mount failed:", e);
-        }
-
-        return;
-      }
-
-      if (Date.now() - start > TIMEOUT_MS) {
-        clearInterval(tryMount);
-        mbState.textContent = "غير ظاهر";
-        mbFallback.style.display = "grid";
-        log("MB not found (timeout).", { widgetRoot: !!widgetRoot, mbFrame: !!mbFrame });
-      }
-    }, INTERVAL_MS);
+    }catch{}
   }
 
   function openMessageBirdChat(contact){
     loadMessageBirdIfNeeded();
+
+    // إظهار MB
+    document.body.classList.remove("mb-hidden");
 
     const start = Date.now();
     const INTERVAL_MS = 240;
@@ -1164,23 +933,23 @@
           log("MB identify error", e);
         }
 
-        try{ api.toggleChat(true); }catch{ try{ api.toggleChat(); }catch{} }
+        try { api.toggleChat(true); }
+        catch { try { api.toggleChat(); } catch {} }
 
-        ensureMessageBirdMountedInsideModal();
         sendMbStartMessageOnce();
         return;
       }
 
       if (Date.now() - start > TIMEOUT_MS) {
         clearInterval(timer);
-        mbState.textContent = "تعذر التحميل";
         log("MB API not ready (timeout).");
       }
     }, INTERVAL_MS);
   }
 
-  mbOpenFallback.addEventListener("click", () => openMessageBirdChat(null));
-  mbEnd.addEventListener("click", () => setMode("continue", "user_end"));
+  // Buttons in handoff panel
+  openHuman.addEventListener("click", () => openMessageBirdChat(null));
+  endHuman.addEventListener("click", () => setMode("continue", "user_end"));
 
   // Initial state
   syncUI();
