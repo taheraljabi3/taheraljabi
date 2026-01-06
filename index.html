@@ -44,7 +44,6 @@
      - Hidden by default (continue)
      - Shown only on handoff by removing body.mb-hidden
      ========================================================== */
-
   body.mb-hidden .messagebird-launcher,
   body.mb-hidden .messagebird-widget-launcher,
   body.mb-hidden #live-chat-widget-launcher,
@@ -261,113 +260,6 @@
     max-height: calc(100vh - 250px);
   }
 
-  /* ===== AI ===== */
-  .ai-messages{
-    flex:1;
-    overflow:auto;
-    padding: 14px;
-    background:
-      radial-gradient(900px 350px at 10% 0%, rgba(37,99,235,.07), transparent 60%),
-      linear-gradient(180deg, rgba(255,255,255,1), rgba(247,249,255,.70));
-    border-bottom: 1px solid var(--line);
-    min-height: 0;
-    scroll-behavior:smooth;
-  }
-
-  .msg{ display:flex; margin: 10px 0; }
-  .msg.user{ justify-content: flex-end; }
-  .msg.bot{ justify-content: flex-start; }
-
-  .bubble{
-    max-width: 86%;
-    padding: 10px 12px;
-    border-radius: 16px;
-    line-height: 1.75;
-    font-size: 13px;
-    white-space: pre-wrap;
-    word-break: break-word;
-    border: 1px solid var(--line2);
-    background: rgba(255,255,255,.98);
-    color: var(--text);
-    box-shadow: 0 10px 20px rgba(11,18,32,.06);
-  }
-
-  .msg.user .bubble{
-    background: rgba(37,99,235,.08);
-    border-color: rgba(37,99,235,.18);
-    color: var(--text);
-  }
-
-  .meta{
-    margin-top: 6px;
-    font-size: 11px;
-    color: var(--muted2);
-  }
-
-  .ai-footer{
-    padding: 12px;
-    background: rgba(255,255,255,.98);
-  }
-
-  .hint{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 10px;
-  }
-  .hint .pill{
-    padding: 6px 10px;
-    border-radius: 999px;
-    border: 1px solid rgba(37,99,235,.22);
-    background: rgba(37,99,235,.08);
-    color: var(--blue);
-    white-space:nowrap;
-    font-weight: 950;
-    font-size: 11.5px;
-  }
-
-  .form-row{
-    display:flex;
-    gap:10px;
-    align-items:center;
-  }
-
-  .input{
-    flex:1;
-    border-radius: 14px;
-    border: 1px solid var(--line2);
-    background: rgba(247,249,255,.85);
-    color: var(--text);
-    padding: 11px 12px;
-    outline:none;
-    font-size: 13px;
-    transition: box-shadow .18s var(--ease), border-color .18s var(--ease), background .18s var(--ease);
-  }
-  .input:focus{
-    border-color: rgba(37,99,235,.35);
-    background: rgba(255,255,255,1);
-    box-shadow: 0 0 0 4px rgba(37,99,235,.12);
-  }
-
-  .send{
-    border:none;
-    border-radius: 14px;
-    padding: 11px 14px;
-    cursor:pointer;
-    font-weight: 950;
-    background: linear-gradient(135deg, var(--blue2), var(--blue));
-    color: #fff;
-    transition: transform .18s var(--ease), filter .18s var(--ease), opacity .18s var(--ease);
-    user-select:none;
-    min-width: 92px;
-  }
-  .send:hover{ transform: translateY(-1px); filter: brightness(1.03); }
-  .send:active{ transform: translateY(0); }
-  .send:disabled{ opacity:.6; cursor:not-allowed; transform:none; filter:none; }
-
   /* ===== Handoff Panel (inside modal) ===== */
   .handoff-panel{
     display:none;
@@ -400,6 +292,248 @@
     margin-top: 2px;
   }
 
+  /* ==========================================================
+     ✅ AI UI (MessageBird-like layout)
+     - Header + Messages + Footer + Textarea + Buttons
+     ========================================================== */
+
+  .ai-shell{
+    display:flex;
+    flex-direction:column;
+    flex:1;
+    min-height: 460px;
+    max-height: calc(100vh - 250px);
+    background:#fff;
+  }
+
+  .ai-mb-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding: 12px 12px;
+    border-bottom: 1px solid var(--line);
+    background:#fff;
+  }
+
+  .ai-agent{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-width:0;
+  }
+
+  .ai-avatar{
+    width:40px;
+    height:40px;
+    border-radius: 14px;
+    background: rgba(37,99,235,.10);
+    border: 1px solid rgba(37,99,235,.18);
+    display:grid;
+    place-items:center;
+    flex:0 0 auto;
+    color: var(--text);
+    font-size: 18px;
+  }
+
+  .ai-agent-meta{ min-width:0; }
+  .ai-agent-name{
+    margin:0;
+    font-size: 13px;
+    font-weight: 900;
+    color: var(--text);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width: 320px;
+  }
+  .ai-agent-sub{
+    margin:2px 0 0;
+    font-size: 12px;
+    color: var(--muted);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width: 320px;
+  }
+
+  .ai-close{
+    border:none;
+    background: transparent;
+    width:36px;
+    height:36px;
+    border-radius: 12px;
+    cursor:pointer;
+    color: var(--text);
+    font-size: 18px;
+  }
+  .ai-close:hover{ background: rgba(37,99,235,.06); }
+
+  .ai-messages{
+    flex:1;
+    min-height:0;
+    overflow:auto;
+    background: #f7f9ff;
+    padding: 10px 10px 14px;
+  }
+
+  .ai-messages-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .ai-date{
+    align-self:center;
+    font-size: 12px;
+    color: var(--muted2);
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.85);
+    border: 1px solid rgba(11,18,32,.10);
+  }
+
+  .ai-msg{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    max-width: 92%;
+  }
+  .ai-msg.incoming{ align-self:flex-start; }
+  .ai-msg.outgoing{ align-self:flex-end; }
+
+  .ai-bubble{
+    border-radius: 14px;
+    padding: 10px 12px;
+    font-size: 13px;
+    line-height: 1.7;
+    border: 1px solid rgba(11,18,32,.10);
+    background: #fff;
+    color: var(--text);
+    word-break: break-word;
+    white-space: pre-wrap;
+    box-shadow: 0 8px 18px rgba(11,18,32,.06);
+  }
+  .ai-msg.outgoing .ai-bubble{
+    background: rgba(37,99,235,.10);
+    border-color: rgba(37,99,235,.22);
+  }
+
+  .ai-time{
+    font-size: 11px;
+    color: var(--muted2);
+  }
+
+  .ai-footer{
+    border-top: 1px solid var(--line);
+    background:#fff;
+  }
+
+  .ai-footer-bar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding: 8px 12px;
+  }
+
+  .ai-footer-left{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    min-width:0;
+  }
+
+  .ai-mode{
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(37,99,235,.20);
+    background: rgba(37,99,235,.08);
+    color: var(--blue);
+    font-weight: 900;
+    white-space:nowrap;
+  }
+
+  .ai-hint{
+    font-size: 12px;
+    color: var(--muted);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width: 260px;
+  }
+
+  .ai-powered{
+    text-decoration:none;
+    color: var(--muted2);
+    font-size: 12px;
+  }
+  .ai-powered p{ margin:0; }
+
+  .ai-form{
+    padding: 10px 12px 12px;
+  }
+
+  .ai-form-inner{
+    display:flex;
+    gap:10px;
+    align-items:flex-end;
+    border: 1px solid rgba(11,18,32,.12);
+    background: #fff;
+    border-radius: 14px;
+    padding: 8px 10px;
+  }
+
+  .ai-textarea{
+    flex:1;
+    border:none;
+    outline:none;
+    resize:none;
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 4px 0;
+    background: transparent;
+    color: var(--text);
+    max-height: 140px;
+  }
+
+  .ai-buttons{
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+
+  .ai-btn{
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    border: 1px solid rgba(11,18,32,.12);
+    cursor:pointer;
+    background: #fff;
+    color: var(--text);
+    display:grid;
+    place-items:center;
+    font-size: 14px;
+  }
+  .ai-btn:hover{
+    background: rgba(37,99,235,.06);
+    border-color: rgba(37,99,235,.22);
+  }
+
+  .ai-send{
+    border:none;
+    background: linear-gradient(135deg, var(--blue2), var(--blue));
+    color:#fff;
+    font-weight: 900;
+  }
+  .ai-send:hover{ filter: brightness(1.03); }
+
+  .ai-btn:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+  }
+
   @media (max-width: 480px){
     .support-modal{
       left: 12px;
@@ -408,6 +542,8 @@
     }
     .support-pill .txt b, .support-pill .txt span{ max-width: 140px; }
     .support-body{ max-height: calc(100vh - 220px); }
+    .ai-agent-name,.ai-agent-sub{ max-width: 220px; }
+    .ai-hint{ max-width: 180px; }
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -467,17 +603,51 @@
       </div>
 
       <div class="support-body">
-        <div id="aiMessages" class="ai-messages" aria-live="polite"></div>
 
-        <div class="ai-footer">
-          <div class="hint">
-            <span id="aiHint">اكتب سؤالك… وسيبقى الوضع CONTINUE تلقائيًا.</span>
-            <span class="pill" id="modePill">MODE: CONTINUE</span>
+        <!-- ✅ AI (MessageBird-like) -->
+        <div id="aiShell" class="ai-shell">
+
+          <div class="ai-mb-header">
+            <div class="ai-agent">
+              <div class="ai-avatar">💬</div>
+              <div class="ai-agent-meta">
+                <p class="ai-agent-name">المساعد الذكي</p>
+                <p class="ai-agent-sub">يرد تلقائيًا — ويحوّل لموظف عند الحاجة</p>
+              </div>
+            </div>
+
+            <button id="aiCloseX" class="ai-close" type="button" title="إغلاق">✕</button>
           </div>
-          <form id="aiForm" class="form-row" autocomplete="off">
-            <input id="aiInput" class="input" type="text" placeholder="اكتب رسالتك…" required />
-            <button id="aiSend" class="send" type="submit">إرسال</button>
-          </form>
+
+          <div id="aiMessages" class="ai-messages" aria-live="polite">
+            <div id="aiMessagesList" class="ai-messages-list">
+              <div class="ai-date">اليوم</div>
+              <!-- messages append هنا -->
+            </div>
+          </div>
+
+          <div class="ai-footer">
+            <div class="ai-footer-bar">
+              <div class="ai-footer-left">
+                <span class="ai-mode" id="modePill">MODE: CONTINUE</span>
+                <span class="ai-hint" id="aiHint">اكتب رسالتك</span>
+              </div>
+              <a class="ai-powered" href="#" onclick="return false;"><p>يعمل بواسطة المساعد</p></a>
+            </div>
+
+            <form id="aiForm" class="ai-form" autocomplete="off">
+              <div class="ai-form-inner">
+                <textarea id="aiInput" class="ai-textarea" rows="1" placeholder="اكتب رسالتك" required></textarea>
+
+                <div class="ai-buttons">
+                  <button class="ai-btn" type="button" title="رموز">🙂</button>
+                  <button class="ai-btn" type="button" title="مرفقات" disabled>📎</button>
+                  <button id="aiSend" class="ai-btn ai-send" type="submit" aria-label="send">➤</button>
+                </div>
+              </div>
+            </form>
+          </div>
+
         </div>
       </div><!-- body -->
 
@@ -554,10 +724,12 @@
   const modePill = $("modePill");
 
   const aiMessages = $("aiMessages");
+  const aiMessagesList = $("aiMessagesList");
   const aiForm = $("aiForm");
-  const aiInput = $("aiInput");
+  const aiInput = $("aiInput");     // textarea الآن
   const aiSend = $("aiSend");
   const aiHint = $("aiHint");
+  const aiCloseX = $("aiCloseX");
 
   const handoffPanel = $("handoffPanel");
   const openHuman = $("openHuman");
@@ -566,13 +738,21 @@
   const required = [
     modal,fab,pill,launcherSub,btnClose,btnMin,
     statusDot,statusText,modePill,
-    aiMessages,aiForm,aiInput,aiSend,aiHint,
+    aiMessages,aiMessagesList,aiForm,aiInput,aiSend,aiHint,
     handoffPanel,openHuman,endHuman
   ];
   if (required.some(x => !x)) {
     console.error("[SUPPORT] Missing DOM elements; aborting widget init.");
     return;
   }
+
+  // ===== Auto-grow textarea =====
+  function autoGrowTextarea(el){
+    el.style.height = "auto";
+    el.style.height = Math.min(el.scrollHeight, 140) + "px";
+  }
+  aiInput.addEventListener("input", () => autoGrowTextarea(aiInput));
+  setTimeout(() => autoGrowTextarea(aiInput), 0);
 
   // ===== History =====
   function persistAiHistory(item){
@@ -589,29 +769,30 @@
 
   function addAiMessage(from, text, t = Date.now(), persist = true){
     const wrap = document.createElement("div");
-    wrap.className = "msg " + (from === "user" ? "user" : "bot");
+    wrap.className = "ai-msg " + (from === "user" ? "outgoing" : "incoming");
 
     const bubble = document.createElement("div");
-    bubble.className = "bubble";
+    bubble.className = "ai-bubble";
     bubble.textContent = String(text ?? "");
 
     const meta = document.createElement("div");
-    meta.className = "meta";
+    meta.className = "ai-time";
     meta.textContent = new Date(t).toLocaleTimeString("ar-SA", { hour:"2-digit", minute:"2-digit" });
 
-    const col = document.createElement("div");
-    col.appendChild(bubble);
-    col.appendChild(meta);
+    wrap.appendChild(bubble);
+    wrap.appendChild(meta);
 
-    wrap.appendChild(col);
-    aiMessages.appendChild(wrap);
+    aiMessagesList.appendChild(wrap);
     scrollAiBottom();
 
     if (persist) persistAiHistory({ from, text: String(text ?? ""), t });
   }
 
   function renderAiHistory(){
-    if (aiMessages.childElementCount > 0) return;
+    // إذا فيه رسائل ضمن القائمة (غير "اليوم") لا تعيد الرسم
+    const existing = aiMessagesList.querySelectorAll(".ai-msg");
+    if (existing.length > 0) return;
+
     try{
       const raw = localStorage.getItem(STORAGE.AI_HISTORY_KEY);
       const arr = raw ? JSON.parse(raw) : [];
@@ -624,11 +805,13 @@
   let greeted = false;
   function greetOnce(){
     if (greeted) return;
+
     try{
       const raw = localStorage.getItem(STORAGE.AI_HISTORY_KEY);
       const arr = raw ? JSON.parse(raw) : [];
       if (Array.isArray(arr) && arr.length) { greeted = true; return; }
     }catch{}
+
     greeted = true;
     addAiMessage("bot","هلا! أنا مساعد الدعم 🤝\nاكتب سؤالك، وإذا احتجت دعم مباشر بحوّلك فورًا.");
   }
@@ -642,7 +825,6 @@
     syncUI();
     setTimeout(() => aiInput.focus(), 60);
 
-    // إذا كان mode handoff: نضمن فتح MB خارجيًا
     if (mode === "handoff") {
       openMessageBirdChat(null);
     }
@@ -666,6 +848,7 @@
 
   btnClose.addEventListener("click", closeModal);
   btnMin.addEventListener("click", closeModal);
+  if (aiCloseX) aiCloseX.addEventListener("click", closeModal);
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && modal.classList.contains("is-open")) closeModal();
@@ -722,7 +905,6 @@
         return;
       }
 
-      // لو startConversation غير متوفر، نعتبرها "مرسلة" عشان ما نكرر
       localStorage.setItem(MB_START_SENT_KEY, fp);
       log("MB startConversation not available; skipped sending.", { key: MB_START_SENT_KEY });
 
@@ -769,7 +951,7 @@
     aiSend.disabled = !isContinue;
 
     aiHint.textContent = isContinue
-      ? "اكتب سؤالك… وسيبقى الوضع CONTINUE تلقائيًا."
+      ? "اكتب رسالتك"
       : "أنت الآن في HANDOFF — تم فتح الدعم المباشر (MessageBird) خارج النافذة.";
 
     // show handoff panel only in handoff
@@ -850,7 +1032,9 @@
     if (!text) return;
 
     addAiMessage("user", text);
+
     aiInput.value = "";
+    autoGrowTextarea(aiInput);
     setAiBusy(true);
 
     try{
@@ -891,12 +1075,10 @@
   }
 
   function hideMessageBird(){
-    // نخفيه (CSS class) + نحاول نقفل الدردشة لو كانت مفتوحة
     document.body.classList.add("mb-hidden");
     try{
       const api = window.MessageBirdChatWidget;
       if (api && typeof api.toggleChat === "function") {
-        // بعض الإصدارات تدعم toggleChat(false)
         try { api.toggleChat(false); }
         catch { try { api.toggleChat(); } catch {} }
       }
@@ -906,7 +1088,6 @@
   function openMessageBirdChat(contact){
     loadMessageBirdIfNeeded();
 
-    // إظهار MB
     document.body.classList.remove("mb-hidden");
 
     const start = Date.now();
