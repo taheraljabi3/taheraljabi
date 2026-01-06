@@ -8,555 +8,508 @@
   <!-- ✅ Bootstrap RTL -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
 
-<style>
-  :root{
-    /* ===== Light theme (White + Blue + Black) ===== */
-    --page:#ffffff;
-    --surface:#ffffff;
-    --surface2:#f7f9ff;
-    --panel:#ffffff;
+  <style>
+    :root{
+      --page:#ffffff;
+      --surface:#ffffff;
+      --surface2:#f7f9ff;
+      --panel:#ffffff;
 
-    --text:#0b1220;
-    --muted:#445066;
-    --muted2:#6b768f;
+      --text:#0b1220;
+      --muted:#445066;
+      --muted2:#6b768f;
 
-    --line: rgba(11,18,32,.10);
-    --line2: rgba(11,18,32,.14);
+      --line: rgba(11,18,32,.10);
+      --line2: rgba(11,18,32,.14);
 
-    --blue:#1d4ed8;
-    --blue2:#2563eb;
+      --blue:#1d4ed8;
+      --blue2:#2563eb;
 
-    --shadow: 0 22px 60px rgba(11,18,32,.14);
-    --shadow2: 0 10px 26px rgba(11,18,32,.10);
+      --shadow: 0 22px 60px rgba(11,18,32,.14);
+      --shadow2: 0 10px 26px rgba(11,18,32,.10);
 
-    --ease: cubic-bezier(.2,.8,.2,1);
+      --ease: cubic-bezier(.2,.8,.2,1);
 
-    /* MB radius tokens */
-    --mbR: 18px;
-    --mbRsm: 16px;
-  }
-
-  html, body { height: 100%; }
-  body{
-    margin:0;
-    font-family: system-ui, -apple-system, Segoe UI, Tahoma, Arial, sans-serif;
-    background: var(--page);
-    color: var(--text);
-  }
-
-  /* ===== Launcher ===== */
-  .support-launcher{
-    position: fixed;
-    bottom: 18px;
-    left: 18px;
-    z-index: 99999;
-    display:flex;
-    align-items:center;
-    gap:10px;
-    user-select:none;
-  }
-
-  .support-pill{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding: 10px 12px;
-    border-radius: 999px;
-    border: 1px solid var(--line2);
-    background: rgba(255,255,255,.92);
-    box-shadow: var(--shadow2);
-    cursor:pointer;
-    transition: transform .18s var(--ease), border-color .18s var(--ease), box-shadow .18s var(--ease);
-    backdrop-filter: blur(10px);
-  }
-  .support-pill:hover{
-    transform: translateY(-2px);
-    border-color: rgba(37,99,235,.28);
-    box-shadow: 0 14px 34px rgba(11,18,32,.14);
-  }
-
-  .support-avatar{
-    width: 34px;
-    height: 34px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, rgba(37,99,235,.18), rgba(29,78,216,.10));
-    display:grid;
-    place-items:center;
-    font-size: 18px;
-    border: 1px solid rgba(37,99,235,.22);
-    color: var(--blue);
-  }
-
-  .support-pill .txt{
-    display:flex;
-    flex-direction:column;
-    line-height: 1.15;
-    min-width: 0;
-  }
-  .support-pill .txt b{
-    font-size: 12.5px;
-    letter-spacing: .2px;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    max-width: 180px;
-    color: var(--text);
-  }
-  .support-pill .txt span{
-    font-size: 11.5px;
-    color: var(--muted);
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    max-width: 180px;
-  }
-
-  .support-fab{
-    width: 54px;
-    height: 54px;
-    border: none;
-    border-radius: 18px;
-    cursor: pointer;
-    box-shadow: var(--shadow2);
-    background: linear-gradient(135deg, var(--blue2), var(--blue));
-    color: #ffffff;
-    font-size: 22px;
-    display:grid;
-    place-items:center;
-    transition: transform .18s var(--ease), filter .18s var(--ease);
-  }
-  .support-fab:hover{ transform: translateY(-2px); filter: brightness(1.03); }
-  .support-fab:active{ transform: translateY(0); }
-
-  /* ===== Modal ===== */
-  .support-modal{
-    position: fixed;
-    bottom: 86px;
-    left: 18px;
-    width: min(540px, calc(100vw - 36px));
-    max-height: calc(100vh - 120px);
-    z-index: 99999;
-    display:none;
-  }
-  .support-modal.is-open{ display:block; }
-
-  .support-card{
-    border-radius: 22px;
-    overflow:hidden;
-    border: 1px solid var(--line2);
-    background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(247,249,255,.96));
-    box-shadow: var(--shadow);
-    position: relative;
-    animation: pop .18s var(--ease);
-  }
-
-  @keyframes pop{
-    from{ transform: translateY(10px) scale(.99); opacity: 0; }
-    to  { transform: translateY(0) scale(1); opacity: 1; }
-  }
-
-  /* ===== Header ===== */
-  .support-header{
-    padding: 12px 12px 10px;
-    background:
-      radial-gradient(900px 300px at 10% 0%, rgba(37,99,235,.12), transparent 60%),
-      linear-gradient(180deg, rgba(255,255,255,.98), rgba(247,249,255,.96));
-    border-bottom: 1px solid var(--line);
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-  }
-
-  .support-title{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    min-width:0;
-  }
-
-  .status{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    padding: 8px 10px;
-    border-radius: 999px;
-    border: 1px solid var(--line2);
-    background: rgba(255,255,255,.92);
-  }
-
-  .status-dot{
-    width:10px; height:10px; border-radius:999px;
-    background: #111827;
-    box-shadow: 0 0 0 4px rgba(17,24,39,.10);
-    flex:0 0 auto;
-  }
-  .status-text{
-    font-size: 11.5px;
-    color: var(--muted);
-    white-space:nowrap;
-  }
-
-  .support-title h3{
-    margin:0;
-    font-size: 13.5px;
-    font-weight: 950;
-    letter-spacing:.2px;
-    line-height:1.2;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    max-width: 250px;
-    color: var(--text);
-  }
-  .support-title p{
-    margin:2px 0 0;
-    font-size: 12px;
-    color: var(--muted);
-  }
-
-  .support-actions{
-    display:flex;
-    gap:8px;
-    align-items:center;
-    flex:0 0 auto;
-  }
-
-  .icon-btn{
-    width: 38px;
-    height: 34px;
-    border-radius: 12px;
-    border: 1px solid var(--line2);
-    background: rgba(255,255,255,.92);
-    color: var(--text);
-    cursor:pointer;
-    transition: transform .18s var(--ease), background .18s var(--ease), border-color .18s var(--ease);
-  }
-  .icon-btn:hover{
-    background: rgba(37,99,235,.06);
-    border-color: rgba(37,99,235,.22);
-    transform: translateY(-1px);
-  }
-  .icon-btn:active{ transform: translateY(0); }
-
-  /* ===== Tabs ===== */
-  .tabs{
-    display:flex;
-    gap:10px;
-    padding: 10px 12px;
-    background: rgba(247,249,255,.96);
-    border-bottom: 1px solid var(--line);
-  }
-
-  .tab{
-    flex:1;
-    padding: 10px 12px;
-    border-radius: 14px;
-    border: 1px solid var(--line2);
-    background: rgba(255,255,255,.95);
-    color: var(--muted);
-    cursor: not-allowed;
-    font-weight: 950;
-    font-size: 12.5px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    user-select:none;
-    transition: background .18s var(--ease), border-color .18s var(--ease), color .18s var(--ease);
-  }
-
-  .tab.active{
-    background: linear-gradient(180deg, rgba(37,99,235,.10), rgba(37,99,235,.06));
-    border-color: rgba(37,99,235,.28);
-    color: var(--text);
-  }
-
-  .badge{
-    font-size: 11px;
-    padding: 4px 10px;
-    border-radius: 999px;
-    border: 1px solid rgba(37,99,235,.20);
-    background: rgba(37,99,235,.08);
-    color: var(--blue);
-    font-weight: 900;
-  }
-
-  /* ===== Body ===== */
-  .support-body{
-    background: rgba(255,255,255,.98);
-    display:flex;
-    flex-direction:column;
-    min-height: 460px;
-    max-height: calc(100vh - 250px);
-  }
-
-  .layer{
-    display:none;
-    flex:1;
-    min-height: 0;
-  }
-  .layer.active{
-    display:flex;
-    flex-direction:column;
-    flex:1;
-    min-height: 0;
-  }
-
-  /* ===== AI ===== */
-  .ai-messages{
-    flex:1;
-    overflow:auto;
-    padding: 14px;
-    background:
-      radial-gradient(900px 350px at 10% 0%, rgba(37,99,235,.07), transparent 60%),
-      linear-gradient(180deg, rgba(255,255,255,1), rgba(247,249,255,.70));
-    border-bottom: 1px solid var(--line);
-    min-height: 0;
-    scroll-behavior:smooth;
-  }
-
-  .msg{ display:flex; margin: 10px 0; }
-  .msg.user{ justify-content: flex-end; }
-  .msg.bot{ justify-content: flex-start; }
-
-  .bubble{
-    max-width: 86%;
-    padding: 10px 12px;
-    border-radius: 16px;
-    line-height: 1.75;
-    font-size: 13px;
-    white-space: pre-wrap;
-    word-break: break-word;
-    border: 1px solid var(--line2);
-    background: rgba(255,255,255,.98);
-    color: var(--text);
-    box-shadow: 0 10px 20px rgba(11,18,32,.06);
-  }
-
-  .msg.user .bubble{
-    background: rgba(37,99,235,.08);
-    border-color: rgba(37,99,235,.18);
-    color: var(--text);
-  }
-
-  .meta{
-    margin-top: 6px;
-    font-size: 11px;
-    color: var(--muted2);
-  }
-
-  .ai-footer{
-    padding: 12px;
-    background: rgba(255,255,255,.98);
-  }
-
-  .hint{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 10px;
-  }
-  .hint .pill{
-    padding: 6px 10px;
-    border-radius: 999px;
-    border: 1px solid rgba(37,99,235,.22);
-    background: rgba(37,99,235,.08);
-    color: var(--blue);
-    white-space:nowrap;
-    font-weight: 950;
-    font-size: 11.5px;
-  }
-
-  .form-row{
-    display:flex;
-    gap:10px;
-    align-items:center;
-  }
-
-  .input{
-    flex:1;
-    border-radius: 14px;
-    border: 1px solid var(--line2);
-    background: rgba(247,249,255,.85);
-    color: var(--text);
-    padding: 11px 12px;
-    outline:none;
-    font-size: 13px;
-    transition: box-shadow .18s var(--ease), border-color .18s var(--ease), background .18s var(--ease);
-  }
-  .input:focus{
-    border-color: rgba(37,99,235,.35);
-    background: rgba(255,255,255,1);
-    box-shadow: 0 0 0 4px rgba(37,99,235,.12);
-  }
-
-  .send{
-    border:none;
-    border-radius: 14px;
-    padding: 11px 14px;
-    cursor:pointer;
-    font-weight: 950;
-    background: linear-gradient(135deg, var(--blue2), var(--blue));
-    color: #fff;
-    transition: transform .18s var(--ease), filter .18s var(--ease), opacity .18s var(--ease);
-    user-select:none;
-    min-width: 92px;
-  }
-  .send:hover{ transform: translateY(-1px); filter: brightness(1.03); }
-  .send:active{ transform: translateY(0); }
-  .send:disabled{ opacity:.6; cursor:not-allowed; transform:none; filter:none; }
-
-  /* ==========================================================
-     ✅ MessageBird: Container (Clean + Pro)
-     ========================================================== */
-
-  /* your container */
-  .mb-shell{
-    position: relative !important;
-    width: 100%;
-    height: 62vh;
-    min-height: 540px;
-    max-height: 68vh;
-    border-radius: var(--mbR);
-    border: 1px solid rgba(11,18,32,.10);
-    background: #fff;
-    overflow: hidden !important;
-    box-shadow: none !important;
-  }
-
-  /* IMPORTANT: DO NOT hide #live-chat-widget */
-  #live-chat-widget{
-    position: static !important;
-    inset: auto !important;
-    right: auto !important;
-    bottom: auto !important;
-    left: auto !important;
-    top: auto !important;
-
-    z-index: 1 !important;
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 100% !important;
-  }
-
-  /* iframe always fills our container */
-  #live-chat-widget-iframe{
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 100% !important;
-
-    border: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: hidden !important;
-
-    border-radius: var(--mbR) !important;
-    background: #fff !important;
-    z-index: 1 !important;
-  }
-
-  /* if MB adds opened + tries fixed on mobile, we override */
-  #live-chat-widget-iframe.opened{
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-
-    top: auto !important;
-    left: auto !important;
-    right: auto !important;
-    bottom: auto !important;
-  }
-
-  /* Fallback overlay */
-  .mb-fallback{
-    position:absolute;
-    inset:0;
-    display:grid;
-    place-items:center;
-    padding: 16px;
-    text-align:center;
-    background: rgba(255,255,255,.78);
-    backdrop-filter: blur(6px);
-    z-index: 2;
-  }
-  .mb-card{
-    width: 100%;
-    max-width: 360px;
-    border-radius: 18px;
-    border: 1px solid rgba(11,18,32,.12);
-    background: rgba(255,255,255,.98);
-    box-shadow: var(--shadow2);
-    padding: 14px;
-    color: var(--text);
-  }
-  .mb-card b{ display:block; margin-bottom:8px; font-weight: 950; }
-  .mb-card p{ margin:0; font-size: 12.5px; color: var(--muted); line-height: 1.7; }
-  .mb-card .btn{
-    margin-top: 12px;
-    width:100%;
-    border:none;
-    border-radius: 14px;
-    padding: 11px 14px;
-    font-weight: 950;
-    cursor:pointer;
-    background: linear-gradient(135deg, var(--blue2), var(--blue));
-    color: #fff;
-    transition: transform .18s var(--ease), opacity .18s var(--ease);
-  }
-  .mb-card .btn:hover{ transform: translateY(-1px); }
-  .mb-card .btn:active{ transform: translateY(0); }
-
-  /* ✅ Hide ONLY MessageBird launcher button (keep the widget root) */
-  .messagebird-launcher,
-  .messagebird-widget-launcher,
-  #live-chat-widget-launcher,
-  #live-chat-widget-button{
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-  }
-
-  /* Responsive */
-  @media (max-width: 480px){
-    .support-modal{
-      left: 12px;
-      width: calc(100vw - 24px);
-      bottom: 78px;
+      --mbR: 18px;
+      --mbRsm: 16px;
     }
-    .support-pill .txt b, .support-pill .txt span{ max-width: 140px; }
-    .support-body{ max-height: calc(100vh - 220px); }
+
+    html, body { height: 100%; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Tahoma, Arial, sans-serif;
+      background: var(--page);
+      color: var(--text);
+    }
+
+    /* ===== Launcher ===== */
+    .support-launcher{
+      position: fixed;
+      bottom: 18px;
+      left: 18px;
+      z-index: 99999;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      user-select:none;
+    }
+
+    .support-pill{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: rgba(255,255,255,.92);
+      box-shadow: var(--shadow2);
+      cursor:pointer;
+      transition: transform .18s var(--ease), border-color .18s var(--ease), box-shadow .18s var(--ease);
+      backdrop-filter: blur(10px);
+    }
+    .support-pill:hover{
+      transform: translateY(-2px);
+      border-color: rgba(37,99,235,.28);
+      box-shadow: 0 14px 34px rgba(11,18,32,.14);
+    }
+
+    .support-avatar{
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(37,99,235,.18), rgba(29,78,216,.10));
+      display:grid;
+      place-items:center;
+      font-size: 18px;
+      border: 1px solid rgba(37,99,235,.22);
+      color: var(--blue);
+    }
+
+    .support-pill .txt{
+      display:flex;
+      flex-direction:column;
+      line-height: 1.15;
+      min-width: 0;
+    }
+    .support-pill .txt b{
+      font-size: 12.5px;
+      letter-spacing: .2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 180px;
+      color: var(--text);
+    }
+    .support-pill .txt span{
+      font-size: 11.5px;
+      color: var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 180px;
+    }
+
+    .support-fab{
+      width: 54px;
+      height: 54px;
+      border: none;
+      border-radius: 18px;
+      cursor: pointer;
+      box-shadow: var(--shadow2);
+      background: linear-gradient(135deg, var(--blue2), var(--blue));
+      color: #ffffff;
+      font-size: 22px;
+      display:grid;
+      place-items:center;
+      transition: transform .18s var(--ease), filter .18s var(--ease);
+    }
+    .support-fab:hover{ transform: translateY(-2px); filter: brightness(1.03); }
+    .support-fab:active{ transform: translateY(0); }
+
+    /* ===== Modal ===== */
+    .support-modal{
+      position: fixed;
+      bottom: 86px;
+      left: 18px;
+      width: min(540px, calc(100vw - 36px));
+      max-height: calc(100vh - 120px);
+      z-index: 99999;
+      display:none;
+    }
+    .support-modal.is-open{ display:block; }
+
+    .support-shell{
+      border-radius: 22px;
+      overflow:hidden;
+      border: 1px solid var(--line2);
+      background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(247,249,255,.96));
+      box-shadow: var(--shadow);
+      position: relative;
+      animation: pop .18s var(--ease);
+    }
+
+    @keyframes pop{
+      from{ transform: translateY(10px) scale(.99); opacity: 0; }
+      to  { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    /* ===== Views (FULL SEPARATION) ===== */
+    .support-view{ display:none; }
+    .support-view.active{ display:block; }
+
+    /* ===== Shared Header top bar (close/min only) ===== */
+    .topbar{
+      padding: 10px 12px;
+      background:
+        radial-gradient(900px 300px at 10% 0%, rgba(37,99,235,.10), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.98), rgba(247,249,255,.96));
+      border-bottom: 1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .topbar .left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+
+    .status{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: rgba(255,255,255,.92);
+      flex:0 0 auto;
+    }
+    .status-dot{
+      width:10px; height:10px; border-radius:999px;
+      background: #111827;
+      box-shadow: 0 0 0 4px rgba(17,24,39,.10);
+      flex:0 0 auto;
+    }
+    .status-text{
+      font-size: 11.5px;
+      color: var(--muted);
+      white-space:nowrap;
+    }
+
+    .titleblock{
+      min-width:0;
+    }
+    .titleblock h3{
+      margin:0;
+      font-size: 13.5px;
+      font-weight: 950;
+      letter-spacing:.2px;
+      line-height:1.2;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 250px;
+      color: var(--text);
+    }
+    .titleblock p{
+      margin:2px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .support-actions{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex:0 0 auto;
+    }
+
+    .icon-btn{
+      width: 38px;
+      height: 34px;
+      border-radius: 12px;
+      border: 1px solid var(--line2);
+      background: rgba(255,255,255,.92);
+      color: var(--text);
+      cursor:pointer;
+      transition: transform .18s var(--ease), background .18s var(--ease), border-color .18s var(--ease);
+    }
+    .icon-btn:hover{
+      background: rgba(37,99,235,.06);
+      border-color: rgba(37,99,235,.22);
+      transform: translateY(-1px);
+    }
+    .icon-btn:active{ transform: translateY(0); }
+
+    /* ===== AI View ===== */
+    .ai-body{
+      background: rgba(255,255,255,.98);
+      display:flex;
+      flex-direction:column;
+      min-height: 520px;
+      max-height: calc(100vh - 250px);
+    }
+
+    .ai-messages{
+      flex:1;
+      overflow:auto;
+      padding: 14px;
+      background:
+        radial-gradient(900px 350px at 10% 0%, rgba(37,99,235,.07), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,1), rgba(247,249,255,.70));
+      border-bottom: 1px solid var(--line);
+      min-height: 0;
+      scroll-behavior:smooth;
+    }
+
+    .msg{ display:flex; margin: 10px 0; }
+    .msg.user{ justify-content: flex-end; }
+    .msg.bot{ justify-content: flex-start; }
+
+    .bubble{
+      max-width: 86%;
+      padding: 10px 12px;
+      border-radius: 16px;
+      line-height: 1.75;
+      font-size: 13px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      border: 1px solid var(--line2);
+      background: rgba(255,255,255,.98);
+      color: var(--text);
+      box-shadow: 0 10px 20px rgba(11,18,32,.06);
+    }
+
+    .msg.user .bubble{
+      background: rgba(37,99,235,.08);
+      border-color: rgba(37,99,235,.18);
+      color: var(--text);
+    }
+
+    .meta{
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--muted2);
+    }
+
+    .ai-footer{
+      padding: 12px;
+      background: rgba(255,255,255,.98);
+    }
+
+    .hint{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .hint .pill{
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(37,99,235,.22);
+      background: rgba(37,99,235,.08);
+      color: var(--blue);
+      white-space:nowrap;
+      font-weight: 950;
+      font-size: 11.5px;
+    }
+
+    .form-row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+
+    .input{
+      flex:1;
+      border-radius: 14px;
+      border: 1px solid var(--line2);
+      background: rgba(247,249,255,.85);
+      color: var(--text);
+      padding: 11px 12px;
+      outline:none;
+      font-size: 13px;
+      transition: box-shadow .18s var(--ease), border-color .18s var(--ease), background .18s var(--ease);
+    }
+    .input:focus{
+      border-color: rgba(37,99,235,.35);
+      background: rgba(255,255,255,1);
+      box-shadow: 0 0 0 4px rgba(37,99,235,.12);
+    }
+
+    .send{
+      border:none;
+      border-radius: 14px;
+      padding: 11px 14px;
+      cursor:pointer;
+      font-weight: 950;
+      background: linear-gradient(135deg, var(--blue2), var(--blue));
+      color: #fff;
+      transition: transform .18s var(--ease), filter .18s var(--ease), opacity .18s var(--ease);
+      user-select:none;
+      min-width: 92px;
+    }
+    .send:hover{ transform: translateY(-1px); filter: brightness(1.03); }
+    .send:active{ transform: translateY(0); }
+    .send:disabled{ opacity:.6; cursor:not-allowed; transform:none; filter:none; }
+
+    /* ===== MB View (separate full screen inside modal) ===== */
+    .mb-body{
+      background: rgba(255,255,255,.98);
+      display:flex;
+      flex-direction:column;
+      min-height: 520px;
+      max-height: calc(100vh - 250px);
+    }
+
+    .mb-head{
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.98);
+    }
 
     .mb-shell{
-      min-height: 460px;
-      height: 64vh;
-      max-height: 72vh;
-      border-radius: var(--mbRsm);
+      position: relative !important;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      border-radius: var(--mbR);
+      border: 1px solid rgba(11,18,32,.10);
+      background: #fff;
+      overflow: hidden !important;
+      box-shadow: none !important;
     }
+
+    .mb-stage{
+      padding: 12px;
+      flex:1;
+      min-height: 0;
+      background:
+        radial-gradient(900px 350px at 10% 0%, rgba(37,99,235,.06), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,1), rgba(247,249,255,.70));
+    }
+
+    /* IMPORTANT: DO NOT hide #live-chat-widget */
+    #live-chat-widget{
+      position: static !important;
+      inset: auto !important;
+      right: auto !important;
+      bottom: auto !important;
+      left: auto !important;
+      top: auto !important;
+
+      z-index: 1 !important;
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+
+      width: 100% !important;
+      height: 100% !important;
+      max-width: 100% !important;
+    }
+
     #live-chat-widget-iframe{
-      border-radius: var(--mbRsm) !important;
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      max-width: 100% !important;
+
+      border: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+
+      border-radius: var(--mbR) !important;
+      background: #fff !important;
+      z-index: 1 !important;
     }
-  }
 
-  @media (prefers-reduced-motion: reduce){
-    *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
-  }
-</style>
+    #live-chat-widget-iframe.opened{
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
 
+      top: auto !important;
+      left: auto !important;
+      right: auto !important;
+      bottom: auto !important;
+    }
 
+    .mb-fallback{
+      position:absolute;
+      inset:0;
+      display:grid;
+      place-items:center;
+      padding: 16px;
+      text-align:center;
+      background: rgba(255,255,255,.78);
+      backdrop-filter: blur(6px);
+      z-index: 2;
+    }
+    .mb-card{
+      width: 100%;
+      max-width: 360px;
+      border-radius: 18px;
+      border: 1px solid rgba(11,18,32,.12);
+      background: rgba(255,255,255,.98);
+      box-shadow: var(--shadow2);
+      padding: 14px;
+      color: var(--text);
+    }
+    .mb-card b{ display:block; margin-bottom:8px; font-weight: 950; }
+    .mb-card p{ margin:0; font-size: 12.5px; color: var(--muted); line-height: 1.7; }
+    .mb-card .btn{
+      margin-top: 12px;
+      width:100%;
+      border:none;
+      border-radius: 14px;
+      padding: 11px 14px;
+      font-weight: 950;
+      cursor:pointer;
+      background: linear-gradient(135deg, var(--blue2), var(--blue));
+      color: #fff;
+      transition: transform .18s var(--ease), opacity .18s var(--ease);
+    }
+    .mb-card .btn:hover{ transform: translateY(-1px); }
+    .mb-card .btn:active{ transform: translateY(0); }
 
+    /* ✅ Hide ONLY MessageBird launcher button (keep the widget root) */
+    .messagebird-launcher,
+    .messagebird-widget-launcher,
+    #live-chat-widget-launcher,
+    #live-chat-widget-button{
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
+    @media (max-width: 480px){
+      .support-modal{
+        left: 12px;
+        width: calc(100vw - 24px);
+        bottom: 78px;
+      }
+      .support-pill .txt b, .support-pill .txt span{ max-width: 140px; }
+      .ai-body, .mb-body{ max-height: calc(100vh - 220px); }
+
+      .mb-shell{ border-radius: var(--mbRsm); }
+      #live-chat-widget-iframe{ border-radius: var(--mbRsm) !important; }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+    }
+  </style>
 </head>
 
 <body>
@@ -575,15 +528,16 @@
 
   <!-- ===== Modal ===== -->
   <div id="supportModal" class="support-modal" aria-hidden="true">
-    <div class="support-card" role="dialog" aria-label="دعم العملاء">
+    <div class="support-shell" role="dialog" aria-label="دعم العملاء">
 
-      <div class="support-header">
-        <div class="support-title">
+      <!-- Topbar (shared close/min) -->
+      <div class="topbar">
+        <div class="left">
           <div class="status">
             <span class="status-dot" id="statusDot"></span>
             <span class="status-text" id="statusText">وضع المساعد: CONTINUE</span>
           </div>
-          <div style="min-width:0">
+          <div class="titleblock">
             <h3 id="supportTitle">مركز الدعم</h3>
             <p id="supportSub">مساعد ذكي — ويتحوّل مباشرة لموظف عند الحاجة</p>
           </div>
@@ -595,19 +549,11 @@
         </div>
       </div>
 
-      <div class="tabs" aria-label="التبويبات">
-        <div id="tabAi" class="tab active" aria-disabled="true">
-          🤖 AI <span class="badge" id="aiBadge">CONTINUE</span>
-        </div>
-        <div id="tabMb" class="tab" aria-disabled="true">
-          👩‍💻 موظف <span class="badge" id="mbBadge">مخفي</span>
-        </div>
-      </div>
-
-      <div class="support-body">
-
-        <!-- ===== AI Layer ===== -->
-        <div id="layerAi" class="layer active">
+      <!-- =========================
+           VIEW 1: AI (FULL)
+           ========================= -->
+      <div id="viewAi" class="support-view active" aria-label="واجهة المساعد">
+        <div class="ai-body">
           <div id="aiMessages" class="ai-messages" aria-live="polite"></div>
 
           <div class="ai-footer">
@@ -621,55 +567,51 @@
             </form>
           </div>
         </div>
+      </div>
 
-        <!-- ===== MessageBird Layer (Bootstrap Pro UI) ===== -->
-        <div id="layerMb" class="layer">
-          <div class="p-3">
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-
-              <!-- Header -->
-              <div class="card-header bg-white border-0 py-3">
-                <div class="d-flex align-items-center justify-content-between gap-2">
-                  <div class="d-flex align-items-center gap-2">
-                    <div class="rounded-3 d-grid place-items-center"
-                         style="width:38px;height:38px;background: rgba(37,99,235,.10);border:1px solid rgba(37,99,235,.18);">
-                      👩‍💻
-                    </div>
-                    <div class="lh-sm">
-                      <div class="fw-bold" style="font-size:13px;">الدعم البشري (HANDOFF)</div>
-                      <div class="text-secondary" style="font-size:12px;">يمكنك إنهاء المحادثة للعودة للمساعد</div>
-                    </div>
-                  </div>
-
-                  <div class="d-flex align-items-center gap-2 flex-shrink-0">
-                    <span class="badge rounded-pill text-bg-light border" id="mbState">جارٍ التحميل…</span>
-                    <button id="mbEnd" class="btn btn-primary btn-sm rounded-3 px-3" type="button">
-                      إنهاء
-                    </button>
-                  </div>
+      <!-- =========================
+           VIEW 2: MessageBird (FULL)
+           Hidden until HANDOFF
+           ========================= -->
+      <div id="viewMb" class="support-view" aria-label="واجهة الدعم البشري">
+        <div class="mb-body">
+          <div class="mb-head">
+            <div class="d-flex align-items-center justify-content-between gap-2">
+              <div class="d-flex align-items-center gap-2">
+                <div class="rounded-3 d-grid place-items-center"
+                     style="width:38px;height:38px;background: rgba(37,99,235,.10);border:1px solid rgba(37,99,235,.18);">
+                  👩‍💻
+                </div>
+                <div class="lh-sm">
+                  <div class="fw-bold" style="font-size:13px;">الدعم البشري (HANDOFF)</div>
+                  <div class="text-secondary" style="font-size:12px;">لإنهاء المحادثة والعودة للمساعد اضغط "إنهاء"</div>
                 </div>
               </div>
 
-              <!-- Body -->
-              <div class="card-body p-3">
-                <div id="mbContainer" class="mb-shell">
-                  <div id="mbFallback" class="mb-fallback">
-                    <div class="mb-card">
-                      <b>جارٍ فتح محادثة الموظف…</b>
-                      <p>إذا لم تظهر داخل هذه النافذة، اضغط الزر لفتحها بالطريقة الافتراضية.</p>
-                      <button id="mbOpenFallback" class="btn" type="button">فتح الدعم الآن</button>
-                    </div>
-                  </div>
-                </div>
+              <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                <span class="badge rounded-pill text-bg-light border" id="mbState">جارٍ التحميل…</span>
+                <button id="mbEnd" class="btn btn-primary btn-sm rounded-3 px-3" type="button">إنهاء</button>
               </div>
-
             </div>
           </div>
-        </div>
 
-      </div><!-- body -->
-    </div><!-- card -->
-  </div><!-- modal -->
+          <div class="mb-stage">
+            <div id="mbContainer" class="mb-shell">
+              <div id="mbFallback" class="mb-fallback">
+                <div class="mb-card">
+                  <b>جارٍ فتح محادثة الموظف…</b>
+                  <p>إذا لم تظهر داخل هذه النافذة، اضغط الزر لفتحها بالطريقة الافتراضية.</p>
+                  <button id="mbOpenFallback" class="btn" type="button">فتح الدعم الآن</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
 
 <script>
 (() => {
@@ -688,7 +630,6 @@
     MODE_KEY: "support_mode_v5", // "continue" | "handoff"
   };
 
-  // ===== Helpers =====
   const $ = (id) => document.getElementById(id);
   const log = (...a) => CONFIG.DEBUG && console.log("[SUPPORT]", ...a);
 
@@ -708,7 +649,6 @@
     return x && typeof x === "object" && !Array.isArray(x);
   }
 
-  // ✅ فكّ رد n8n المتداخل
   function unwrapN8nPayload(raw){
     let o = raw;
     if (Array.isArray(o)) o = o[0];
@@ -737,12 +677,8 @@
   const btnClose = $("supportClose");
   const btnMin = $("supportMin");
 
-  const tabAi = $("tabAi");
-  const tabMb = $("tabMb");
-  const layerAi = $("layerAi");
-  const layerMb = $("layerMb");
-  const aiBadge = $("aiBadge");
-  const mbBadge = $("mbBadge");
+  const viewAi = $("viewAi");
+  const viewMb = $("viewMb");
 
   const statusDot = $("statusDot");
   const statusText = $("statusText");
@@ -762,7 +698,7 @@
 
   const required = [
     modal,fab,pill,launcherSub,btnClose,btnMin,
-    tabAi,tabMb,layerAi,layerMb,aiBadge,mbBadge,statusDot,statusText,modePill,
+    viewAi,viewMb,statusDot,statusText,modePill,
     aiMessages,aiForm,aiInput,aiSend,aiHint,
     mbContainer,mbFallback,mbOpenFallback,mbState,mbEnd
   ];
@@ -771,12 +707,12 @@
     return;
   }
 
-  // ===== Hide human tab + human layer until HANDOFF =====
-  function setHumanVisible(visible){
-    tabMb.style.display = visible ? "" : "none";
-    layerMb.style.display = visible ? "" : "none";
+  // ===== View switching (FULL separation) =====
+  function showView(which){
+    const isAi = (which === "ai");
+    viewAi.classList.toggle("active", isAi);
+    viewMb.classList.toggle("active", !isAi);
   }
-  setHumanVisible(false);
 
   // ===== History =====
   function persistAiHistory(item){
@@ -841,15 +777,18 @@
   function openModal(){
     modal.classList.add("is-open");
     modal.setAttribute("aria-hidden", "false");
+
     renderAiHistory();
     greetOnce();
     syncUI();
-    setTimeout(() => aiInput.focus(), 60);
 
     if (mode === "handoff") {
-      setHumanVisible(true);
+      showView("mb");
       ensureMessageBirdMountedInsideModal();
       openMessageBirdChat(null);
+    } else {
+      showView("ai");
+      setTimeout(() => aiInput.focus(), 60);
     }
   }
 
@@ -878,12 +817,12 @@
 
   document.addEventListener("mousedown", (e) => {
     if (!modal.classList.contains("is-open")) return;
-    const card = modal.querySelector(".support-card");
-    if (card && !card.contains(e.target) && e.target !== fab && !pill.contains(e.target)) closeModal();
+    const shell = modal.querySelector(".support-shell");
+    if (shell && !shell.contains(e.target) && e.target !== fab && !pill.contains(e.target)) closeModal();
   });
 
   // ==========================================================
-  // ✅ MB: Start message from N8N summary
+  // ✅ MB start message from N8N summary
   // ==========================================================
   const MB_START_MSG_DEFAULT = "السلام عليكم ورحمة الله وبركاته، أريد موظف دعم فني.";
   let mbStartMessageOverride = null;
@@ -946,14 +885,9 @@
     log("MODE =>", mode, "source:", source);
 
     if (mode === "handoff") {
-      setHumanVisible(true);
-
-      tabMb.classList.add("active");
-      tabAi.classList.remove("active");
-      layerMb.classList.add("active");
-      layerAi.classList.remove("active");
-
+      // فصل كامل: انتقل لشاشة MB
       addAiMessage("bot", "تم تحويلكم للمهندس المناوب");
+      showView("mb");
 
       ensureMessageBirdMountedInsideModal();
       openMessageBirdChat(null);
@@ -962,13 +896,8 @@
       return;
     }
 
-    tabAi.classList.add("active");
-    tabMb.classList.remove("active");
-    layerAi.classList.add("active");
-    layerMb.classList.remove("active");
-
-    setHumanVisible(false);
-
+    // العودة للمساعد
+    showView("ai");
     addAiMessage("bot", "تمت العودة لوضع المساعد. كيف أقدر أساعدك؟");
 
     try{
@@ -977,18 +906,11 @@
     }catch{}
 
     syncUI();
+    setTimeout(() => aiInput.focus(), 60);
   }
 
   function syncUI(){
     const isContinue = (mode === "continue");
-
-    if (isContinue) {
-      layerAi.classList.add("active");
-      tabAi.classList.add("active");
-    }
-
-    aiBadge.textContent = isContinue ? "CONTINUE" : "موقوف";
-    mbBadge.textContent = (mode === "handoff") ? "HANDOFF" : "";
 
     statusText.textContent = "وضع المساعد: " + (isContinue ? "CONTINUE" : "HANDOFF");
     modePill.textContent = "MODE: " + (isContinue ? "CONTINUE" : "HANDOFF");
@@ -1116,7 +1038,6 @@
     document.head.appendChild(s);
   }
 
-  // ✅ تحديث: inset:0 (لأن الحاوية mb-shell بدون padding داخلي)
   function forceIframeFullSize(iframe){
     if (!iframe) return;
     iframe.style.setProperty("position", "absolute", "important");
@@ -1132,94 +1053,89 @@
     iframe.style.setProperty("background", "#fff", "important");
   }
 
-function ensureMessageBirdMountedInsideModal(){
-  loadMessageBirdIfNeeded();
+  function ensureMessageBirdMountedInsideModal(){
+    loadMessageBirdIfNeeded();
 
-  mbState.textContent = "جارٍ التحميل…";
-  mbFallback.style.display = "grid";
+    mbState.textContent = "جارٍ التحميل…";
+    mbFallback.style.display = "grid";
 
-  const start = Date.now();
-  const INTERVAL_MS = 180;
-  const TIMEOUT_MS  = 15000;
+    const start = Date.now();
+    const INTERVAL_MS = 180;
+    const TIMEOUT_MS  = 15000;
 
-  const tryMount = setInterval(() => {
-    const widgetRoot = document.getElementById("live-chat-widget");
-    let mbFrame = document.getElementById("live-chat-widget-iframe");
+    const tryMount = setInterval(() => {
+      const widgetRoot = document.getElementById("live-chat-widget");
+      let mbFrame = document.getElementById("live-chat-widget-iframe");
 
-    if (!mbFrame) {
-      const frames = Array.from(document.querySelectorAll("iframe"));
-      mbFrame = frames.find(f => /messagebird|livechat\.messagebird\.com/i.test(f.getAttribute("src") || ""));
-    }
+      if (!mbFrame) {
+        const frames = Array.from(document.querySelectorAll("iframe"));
+        mbFrame = frames.find(f => /messagebird|livechat\.messagebird\.com/i.test(f.getAttribute("src") || ""));
+      }
 
-    if (widgetRoot && mbFrame) {
-      clearInterval(tryMount);
+      if (widgetRoot && mbFrame) {
+        clearInterval(tryMount);
 
-      try{
-        // ✅ لازم ننقل الـ ROOT والـ IFRAME داخل الحاوية
-        if (!mbContainer.contains(widgetRoot)) mbContainer.appendChild(widgetRoot);
-        if (!mbContainer.contains(mbFrame)) mbContainer.appendChild(mbFrame);
+        try{
+          if (!mbContainer.contains(widgetRoot)) mbContainer.appendChild(widgetRoot);
+          if (!mbContainer.contains(mbFrame)) mbContainer.appendChild(mbFrame);
 
-        // ✅ ثبت root (يلغي fixed)
-        widgetRoot.style.setProperty("position", "static", "important");
-        widgetRoot.style.setProperty("inset", "auto", "important");
-        widgetRoot.style.setProperty("right", "auto", "important");
-        widgetRoot.style.setProperty("bottom", "auto", "important");
-        widgetRoot.style.setProperty("left", "auto", "important");
-        widgetRoot.style.setProperty("top", "auto", "important");
-        widgetRoot.style.setProperty("width", "100%", "important");
-        widgetRoot.style.setProperty("height", "100%", "important");
-        widgetRoot.style.setProperty("display", "block", "important");
-        widgetRoot.style.setProperty("z-index", "1", "important");
-
-        // ✅ ثبت iframe (يملى mb-shell)
-        forceIframeFullSize(mbFrame);
-
-        // ✅ Guard لأن MB يغير style بعد التحميل
-        const guardStart = Date.now();
-        const guard = setInterval(() => {
-          forceIframeFullSize(mbFrame);
           widgetRoot.style.setProperty("position", "static", "important");
+          widgetRoot.style.setProperty("inset", "auto", "important");
           widgetRoot.style.setProperty("right", "auto", "important");
           widgetRoot.style.setProperty("bottom", "auto", "important");
-          if (Date.now() - guardStart > 8000) clearInterval(guard);
-        }, 220);
+          widgetRoot.style.setProperty("left", "auto", "important");
+          widgetRoot.style.setProperty("top", "auto", "important");
+          widgetRoot.style.setProperty("width", "100%", "important");
+          widgetRoot.style.setProperty("height", "100%", "important");
+          widgetRoot.style.setProperty("display", "block", "important");
+          widgetRoot.style.setProperty("z-index", "1", "important");
 
-        // ✅ Observer لأي تغييرات style/class
-        try{
-          const obs = new MutationObserver(() => {
+          forceIframeFullSize(mbFrame);
+
+          const guardStart = Date.now();
+          const guard = setInterval(() => {
             forceIframeFullSize(mbFrame);
             widgetRoot.style.setProperty("position", "static", "important");
             widgetRoot.style.setProperty("right", "auto", "important");
             widgetRoot.style.setProperty("bottom", "auto", "important");
-          });
+            if (Date.now() - guardStart > 8000) clearInterval(guard);
+          }, 220);
 
-          obs.observe(mbFrame, { attributes:true, attributeFilter:["style","class"] });
-          obs.observe(widgetRoot, { attributes:true, attributeFilter:["style","class"] });
+          try{
+            const obs = new MutationObserver(() => {
+              forceIframeFullSize(mbFrame);
+              widgetRoot.style.setProperty("position", "static", "important");
+              widgetRoot.style.setProperty("right", "auto", "important");
+              widgetRoot.style.setProperty("bottom", "auto", "important");
+            });
 
-          setTimeout(() => obs.disconnect(), 20000);
-        }catch{}
+            obs.observe(mbFrame, { attributes:true, attributeFilter:["style","class"] });
+            obs.observe(widgetRoot, { attributes:true, attributeFilter:["style","class"] });
 
-        mbFallback.style.display = "none";
-        mbState.textContent = "متصل";
-        log("MB mounted ✅ (root + iframe moved inside container)");
+            setTimeout(() => obs.disconnect(), 20000);
+          }catch{}
 
-      } catch(e){
-        mbState.textContent = "غير مدعوم";
-        mbFallback.style.display = "grid";
-        console.warn("[SUPPORT] Mount failed:", e);
+          mbFallback.style.display = "none";
+          mbState.textContent = "متصل";
+          log("MB mounted ✅ (root + iframe moved inside container)");
+
+        } catch(e){
+          mbState.textContent = "غير مدعوم";
+          mbFallback.style.display = "grid";
+          console.warn("[SUPPORT] Mount failed:", e);
+        }
+
+        return;
       }
 
-      return;
-    }
-
-    if (Date.now() - start > TIMEOUT_MS) {
-      clearInterval(tryMount);
-      mbState.textContent = "غير ظاهر";
-      mbFallback.style.display = "grid";
-      log("MB not found (timeout).", { widgetRoot: !!widgetRoot, mbFrame: !!mbFrame });
-    }
-  }, INTERVAL_MS);
-}
+      if (Date.now() - start > TIMEOUT_MS) {
+        clearInterval(tryMount);
+        mbState.textContent = "غير ظاهر";
+        mbFallback.style.display = "grid";
+        log("MB not found (timeout).", { widgetRoot: !!widgetRoot, mbFrame: !!mbFrame });
+      }
+    }, INTERVAL_MS);
+  }
 
   function openMessageBirdChat(contact){
     loadMessageBirdIfNeeded();
@@ -1273,8 +1189,3 @@ function ensureMessageBirdMountedInsideModal(){
 
 </body>
 </html>
-
-
-
-
-
