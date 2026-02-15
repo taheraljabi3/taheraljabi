@@ -1,137 +1,1117 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<!doctype html>
+<html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>مركز الدعم</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Articles — Smart Life Insights</title>
+  <meta name="description" content="A modern, professional articles page with search, filters, sorting, and modal reading experience." />
 
-  <!-- ✅ Bootstrap RTL -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+  <style>
+    :root{
+      --bg: #0b1220;
+      --panel: rgba(255,255,255,.06);
+      --panel-2: rgba(255,255,255,.09);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.68);
+      --muted-2: rgba(255,255,255,.55);
+      --border: rgba(255,255,255,.12);
+      --accent: #6ee7ff;
+      --accent-2: #a78bfa;
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+      --radius-lg: 24px;
+      --max: 1160px;
+      --blur: 14px;
+      --ring: 0 0 0 4px rgba(110,231,255,.14);
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
 
+    [data-theme="light"]{
+      --bg: #f6f7fb;
+      --panel: rgba(17,24,39,.05);
+      --panel-2: rgba(17,24,39,.075);
+      --text: rgba(17,24,39,.92);
+      --muted: rgba(17,24,39,.68);
+      --muted-2: rgba(17,24,39,.55);
+      --border: rgba(17,24,39,.12);
+      --shadow: 0 12px 40px rgba(17,24,39,.12);
+      --ring: 0 0 0 4px rgba(79,70,229,.12);
+      --accent: #4f46e5;
+      --accent-2: #06b6d4;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: var(--font);
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 18% -10%, rgba(167,139,250,.35), transparent 65%),
+        radial-gradient(900px 520px at 80% 0%, rgba(110,231,255,.25), transparent 55%),
+        radial-gradient(900px 600px at 50% 110%, rgba(34,197,94,.10), transparent 60%),
+        var(--bg);
+      line-height: 1.45;
+      overflow-x:hidden;
+    }
+
+    a{ color:inherit; text-decoration:none; }
+    button, input, select{ font:inherit; color:inherit; }
+    .container{ max-width: var(--max); margin: 0 auto; padding: 22px 18px 64px; }
+
+    /* Top Nav */
+    .nav{
+      display:flex; align-items:center; justify-content:space-between;
+      gap: 14px; padding: 14px 16px;
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.05));
+      backdrop-filter: blur(var(--blur));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      position: sticky; top: 12px; z-index: 20;
+    }
+
+    .brand{
+      display:flex; align-items:center; gap: 10px;
+      font-weight: 750; letter-spacing: .2px;
+      white-space: nowrap;
+    }
+    .logo{
+      width: 36px; height:36px;
+      border-radius: 12px;
+      background:
+        radial-gradient(12px 12px at 30% 30%, rgba(255,255,255,.7), transparent 70%),
+        linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 10px 25px rgba(110,231,255,.18);
+      border:1px solid rgba(255,255,255,.18);
+    }
+    .brand small{ display:block; font-weight: 600; color: var(--muted); letter-spacing: 0; margin-top:2px; }
+    .nav-actions{ display:flex; align-items:center; gap: 10px; }
+
+    .chip{
+      display:inline-flex; align-items:center; gap: 8px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      cursor:pointer;
+      transition: transform .15s ease, background .15s ease, border-color .15s ease;
+    }
+    .chip:hover{ transform: translateY(-1px); background: rgba(255,255,255,.085); border-color: rgba(255,255,255,.18); }
+    .chip:active{ transform: translateY(0px) scale(.99); }
+    .chip svg{ width:18px; height:18px; opacity:.9; }
+
+    /* Hero */
+    .hero{
+      margin-top: 18px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
+      backdrop-filter: blur(var(--blur));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .hero::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(680px 220px at 18% 15%, rgba(110,231,255,.28), transparent 60%),
+        radial-gradient(540px 220px at 78% 30%, rgba(167,139,250,.28), transparent 62%),
+        radial-gradient(520px 220px at 55% 110%, rgba(34,197,94,.12), transparent 60%);
+      pointer-events:none;
+      filter: blur(0px);
+      opacity:.9;
+    }
+    .hero-inner{
+      position:relative;
+      padding: 26px 22px;
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 20px;
+      align-items: center;
+    }
+    .hero h1{
+      margin:0 0 10px;
+      font-size: clamp(24px, 3vw, 40px);
+      line-height:1.12;
+      letter-spacing:-.6px;
+    }
+    .hero p{
+      margin:0;
+      color: var(--muted);
+      max-width: 62ch;
+      font-size: 15.5px;
+    }
+    .hero-stats{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-self: stretch;
+    }
+    .stat{
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      padding: 14px 14px;
+    }
+    .stat .k{ font-weight: 800; font-size: 18px; }
+    .stat .l{ color: var(--muted); font-size: 13px; margin-top: 4px; }
+
+    /* Layout */
+    .layout{
+      margin-top: 18px;
+      display:grid;
+      grid-template-columns: 320px 1fr;
+      gap: 16px;
+      align-items:start;
+    }
+
+    /* Sidebar */
+    .panel{
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      backdrop-filter: blur(var(--blur));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .panel .panel-head{
+      padding: 14px 16px;
+      border-bottom:1px solid var(--border);
+      display:flex; align-items:center; justify-content:space-between;
+      gap: 10px;
+      background: rgba(255,255,255,.04);
+    }
+    .panel .panel-head strong{ font-size: 14px; letter-spacing:.2px; }
+    .panel .panel-body{ padding: 14px 16px 16px; }
+
+    .field{
+      display:flex; flex-direction:column; gap: 8px; margin-bottom: 12px;
+    }
+    .label{
+      font-size: 12px; letter-spacing:.3px;
+      text-transform: uppercase;
+      color: var(--muted-2);
+    }
+    .control{
+      display:flex; align-items:center; gap: 10px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      border-radius: 14px;
+      padding: 10px 12px;
+      transition: box-shadow .15s ease, border-color .15s ease, background .15s ease;
+    }
+    .control:focus-within{ box-shadow: var(--ring); border-color: rgba(110,231,255,.35); background: rgba(255,255,255,.085); }
+    .control input{
+      border:none; outline:none; background:transparent;
+      width:100%;
+      font-size: 14.5px;
+    }
+    .control select{
+      width:100%;
+      border:none; outline:none; background:transparent;
+      font-size: 14.5px;
+      appearance:none;
+      cursor:pointer;
+    }
+    .icon{
+      width:18px; height:18px; opacity:.85; flex: 0 0 auto;
+    }
+
+    .categories{
+      display:flex; flex-wrap:wrap; gap: 8px;
+      margin-top: 8px;
+    }
+    .pill{
+      padding: 8px 10px;
+      border-radius: 999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      cursor:pointer;
+      font-size: 13px;
+      color: var(--muted);
+      user-select:none;
+      transition: transform .15s ease, background .15s ease, border-color .15s ease, color .15s ease;
+    }
+    .pill:hover{ transform: translateY(-1px); background: rgba(255,255,255,.08); color: var(--text); }
+    .pill.active{
+      background: linear-gradient(135deg, rgba(110,231,255,.20), rgba(167,139,250,.18));
+      border-color: rgba(110,231,255,.28);
+      color: var(--text);
+    }
+
+    .hint{
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+      border-top:1px dashed var(--border);
+      padding-top: 12px;
+    }
+
+    /* Main */
+    .main{
+      display:flex; flex-direction:column; gap: 12px;
+    }
+    .toolbar{
+      display:flex; align-items:center; justify-content:space-between;
+      gap: 10px;
+      padding: 12px 14px;
+    }
+    .toolbar .meta{
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .toolbar .actions{
+      display:flex; align-items:center; gap: 10px;
+    }
+
+    .btn{
+      display:inline-flex; align-items:center; gap: 8px;
+      padding: 9px 12px;
+      border-radius: 14px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      cursor:pointer;
+      transition: transform .15s ease, background .15s ease, border-color .15s ease;
+      user-select:none;
+      font-weight: 650;
+      font-size: 13.5px;
+    }
+    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.085); border-color: rgba(255,255,255,.18); }
+    .btn:active{ transform: translateY(0px) scale(.99); }
+    .btn svg{ width:18px; height:18px; opacity:.9; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 12px;
+      padding: 0 0 4px;
+    }
+    .card{
+      grid-column: span 6;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      cursor:pointer;
+      transition: transform .18s ease, background .18s ease, border-color .18s ease;
+      position:relative;
+    }
+    .card:hover{ transform: translateY(-2px); background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.18); }
+    .card:active{ transform: translateY(0px) scale(.995); }
+
+    .thumb{
+      height: 140px;
+      background:
+        radial-gradient(220px 120px at 20% 25%, rgba(110,231,255,.35), transparent 65%),
+        radial-gradient(220px 120px at 80% 35%, rgba(167,139,250,.35), transparent 62%),
+        linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      border-bottom: 1px solid var(--border);
+      position:relative;
+    }
+    .tag{
+      position:absolute;
+      left: 12px; top: 12px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.22);
+      backdrop-filter: blur(10px);
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing:.2px;
+    }
+    [data-theme="light"] .tag{
+      background: rgba(255,255,255,.55);
+      border-color: rgba(17,24,39,.16);
+    }
+    .card-body{
+      padding: 14px 14px 14px;
+      display:flex; flex-direction:column; gap: 10px;
+    }
+    .title{
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.25;
+      letter-spacing:-.2px;
+      margin: 0;
+    }
+    .excerpt{
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.8px;
+      display:-webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow:hidden;
+      min-height: 40px;
+    }
+    .row{
+      display:flex; align-items:center; justify-content:space-between;
+      gap: 10px;
+      color: var(--muted-2);
+      font-size: 12.8px;
+    }
+    .author{
+      display:flex; align-items:center; gap: 10px;
+      min-width:0;
+    }
+    .avatar{
+      width: 26px; height:26px; border-radius: 10px;
+      border:1px solid var(--border);
+      background: linear-gradient(135deg, rgba(110,231,255,.35), rgba(167,139,250,.28));
+      flex: 0 0 auto;
+    }
+    .author span{
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+      max-width: 160px;
+    }
+
+    .pagination{
+      padding: 12px 14px;
+      display:flex; align-items:center; justify-content:space-between;
+      gap: 12px;
+      border-top:1px solid var(--border);
+    }
+    .page-info{ color: var(--muted); font-size: 13px; }
+    .page-controls{ display:flex; align-items:center; gap: 10px; }
+
+    /* Empty state */
+    .empty{
+      padding: 28px 18px;
+      text-align:center;
+      color: var(--muted);
+    }
+    .empty strong{ color: var(--text); }
+
+    /* Modal */
+    .modal{
+      position:fixed; inset:0;
+      display:none;
+      align-items:center; justify-content:center;
+      padding: 18px;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(10px);
+      z-index: 50;
+    }
+    .modal.open{ display:flex; }
+    .modal-card{
+      width:min(980px, 100%);
+      max-height: min(82vh, 720px);
+      border-radius: 22px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.085);
+      box-shadow: 0 25px 90px rgba(0,0,0,.45);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+    }
+    [data-theme="light"] .modal-card{ background: rgba(255,255,255,.92); }
+    .modal-head{
+      padding: 12px 14px;
+      border-bottom:1px solid var(--border);
+      display:flex; align-items:center; justify-content:space-between;
+      gap: 10px;
+      background: rgba(255,255,255,.06);
+    }
+    .modal-head .left{
+      display:flex; align-items:center; gap: 10px;
+      min-width: 0;
+    }
+    .modal-head .badge{
+      padding: 6px 10px;
+      border-radius: 999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.08);
+      font-size: 12.5px;
+      font-weight: 800;
+      white-space:nowrap;
+    }
+    .modal-head .h{
+      font-weight: 900;
+      letter-spacing:-.3px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 62ch;
+    }
+    .modal-close{
+      width: 40px; height:40px;
+      border-radius: 14px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      cursor:pointer;
+      display:grid; place-items:center;
+      transition: transform .15s ease, background .15s ease;
+    }
+    .modal-close:hover{ transform: translateY(-1px); background: rgba(255,255,255,.10); }
+    .modal-body{
+      overflow:auto;
+      padding: 18px 18px 22px;
+    }
+    .modal-body h2{ margin: 0 0 10px; font-size: 24px; letter-spacing:-.5px; }
+    .modal-body .meta{
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 13.5px;
+      display:flex; flex-wrap:wrap; gap: 10px;
+    }
+    .modal-body .content{
+      color: var(--text);
+      font-size: 15.5px;
+      line-height: 1.75;
+    }
+    .modal-body .content p{ margin: 0 0 12px; color: var(--text); }
+    .modal-body .content ul{ margin: 10px 0 14px 22px; color: var(--text); }
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 10px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+    }
+
+    /* Responsive */
+    @media (max-width: 980px){
+      .hero-inner{ grid-template-columns: 1fr; }
+      .layout{ grid-template-columns: 1fr; }
+      .card{ grid-column: span 12; }
+      .panel{ position:relative; }
+    }
+  </style>
 </head>
 
-<body class="mb-hidden">
+<body>
+  <div class="container">
+    <!-- NAV -->
+    <header class="nav">
+      <a class="brand" href="#" aria-label="Home">
+        <span class="logo" aria-hidden="true"></span>
+        <span>
+          Smart Life <span style="opacity:.95">Insights</span>
+          <small>Articles & Knowledge</small>
+        </span>
+      </a>
 
-  <!-- ===== Launcher ===== -->
-  <div class="support-launcher" aria-label="الدعم">
-    <div id="supportPill" class="support-pill" role="button" tabindex="0" aria-label="فتح مركز الدعم">
-      <div class="support-avatar">💎</div>
-      <div class="txt">
-        <b>مركز الدعم</b>
-        <span id="launcherSub">جاهز لمساعدتك الآن</span>
+      <div class="nav-actions">
+        <button class="chip" id="themeToggle" type="button" aria-label="Toggle theme">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <span id="themeLabel">Theme</span>
+        </button>
+
+        <button class="chip" id="openTips" type="button" aria-label="Keyboard tips">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 7h16v10H4V7Z" stroke="currentColor" stroke-width="1.8" />
+            <path d="M7 10h.01M10 10h.01M13 10h.01M16 10h.01M7 13h.01M10 13h.01M13 13h.01M16 13h.01" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+          </svg>
+          <span>Shortcuts</span>
+        </button>
       </div>
-    </div>
-    <button id="supportFab" class="support-fab" type="button" aria-label="فتح الدعم">💬</button>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero" aria-label="Articles hero">
+      <div class="hero-inner">
+        <div>
+          <h1>Explore modern articles with a clean, premium reading experience ✨</h1>
+          <p>
+            Search, filter, sort, and open any article in a focused reader modal.
+            This template is built with pure HTML/CSS/JS — fast, responsive, and easy to customize.
+          </p>
+        </div>
+
+        <div class="hero-stats" aria-label="Quick stats">
+          <div class="stat">
+            <div class="k" id="statTotal">—</div>
+            <div class="l">Total articles</div>
+          </div>
+          <div class="stat">
+            <div class="k" id="statTopics">—</div>
+            <div class="l">Topics available</div>
+          </div>
+          <div class="stat">
+            <div class="k" id="statReading">—</div>
+            <div class="l">Avg. reading time</div>
+          </div>
+          <div class="stat">
+            <div class="k" id="statUpdated">—</div>
+            <div class="l">Last update</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MAIN LAYOUT -->
+    <section class="layout" aria-label="Articles layout">
+      <!-- SIDEBAR -->
+      <aside class="panel" aria-label="Filters">
+        <div class="panel-head">
+          <strong>Filters</strong>
+          <button class="btn" id="resetBtn" type="button" title="Reset filters">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M21 12a9 9 0 1 1-2.64-6.36" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M21 4v6h-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Reset
+          </button>
+        </div>
+
+        <div class="panel-body">
+          <div class="field">
+            <div class="label">Search</div>
+            <div class="control">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M16.5 16.5 21 21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+              <input id="searchInput" type="search" placeholder="Search articles, tags, authors..." autocomplete="off" />
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="label">Sort</div>
+            <div class="control">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 7h10M7 12h7M7 17h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+              <select id="sortSelect">
+                <option value="newest">Newest first</option>
+                <option value="oldest">Oldest first</option>
+                <option value="reading">Shortest reading time</option>
+                <option value="title">Title (A → Z)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="label">Topics</div>
+            <div class="categories" id="topicPills" aria-label="Topic pills"></div>
+          </div>
+
+          <div class="hint">
+            Tips: press <span class="kbd">/</span> to focus search, <span class="kbd">Esc</span> to close the reader.
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAIN -->
+      <main class="panel main" aria-label="Articles list">
+        <div class="panel-head toolbar">
+          <div class="meta" id="resultsMeta">Showing …</div>
+          <div class="actions">
+            <button class="btn" id="prevBtn" type="button" title="Previous page">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M15 6 9 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Prev
+            </button>
+            <button class="btn" id="nextBtn" type="button" title="Next page">
+              Next
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M9 6 15 12l-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="panel-body">
+          <div class="grid" id="cardsGrid" aria-label="Articles grid"></div>
+          <div class="empty" id="emptyState" style="display:none;">
+            <strong>No results found.</strong><br/>
+            Try a different keyword or choose another topic.
+          </div>
+        </div>
+
+        <div class="pagination">
+          <div class="page-info" id="pageInfo">Page —</div>
+          <div class="page-controls">
+            <span class="page-info" id="pageCount">—</span>
+          </div>
+        </div>
+      </main>
+    </section>
   </div>
 
-  <!-- ===== Modal ===== -->
-  <div id="supportModal" class="support-modal" aria-hidden="true">
-    <div class="support-card" role="dialog" aria-label="دعم العملاء">
-
-      <div class="support-header">
-        <div class="support-title">
-          <div class="status">
-            <span class="status-dot" id="statusDot"></span>
-            <span class="status-text" id="statusText">وضع المساعد: CONTINUE</span>
-          </div>
-          <div style="min-width:0">
-            <h3 id="supportTitle">مركز الدعم</h3>
-            <p id="supportSub">مساعد ذكي — ويتحوّل مباشرة لموظف عند الحاجة</p>
-          </div>
+  <!-- MODAL -->
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div class="left">
+          <span class="badge" id="modalTopic">Topic</span>
+          <div class="h" id="modalTitle">Title</div>
         </div>
-
-        <div class="support-actions">
-          <button id="supportMin" class="icon-btn" type="button" title="تصغير">—</button>
-          <button id="supportClose" class="icon-btn" type="button" title="إغلاق">✕</button>
-        </div>
+        <button class="modal-close" id="modalClose" type="button" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+          </svg>
+        </button>
       </div>
-
-      <!-- ✅ يظهر فقط عند HANDOFF (والـ MB خارج المودال) -->
-      <div id="handoffPanel" class="handoff-panel">
-        <div class="box">
-          <div class="txt">
-            <b>تم تحويلك للدعم البشري</b>
-            <span>سيظهر شات الموظف (MessageBird) خارج هذه النافذة.</span>
-          </div>
-          <div class="d-flex gap-2 flex-shrink-0">
-            <button id="openHuman" class="btn btn-primary btn-sm rounded-3 px-3" type="button">فتح الموظف</button>
-            <button id="endHuman" class="btn btn-outline-primary btn-sm rounded-3 px-3" type="button">إنهاء</button>
-          </div>
-        </div>
+      <div class="modal-body">
+        <h2 id="modalTitleH2"></h2>
+        <div class="meta" id="modalMeta"></div>
+        <div class="content" id="modalContent"></div>
       </div>
+    </div>
+  </div>
 
-      <div class="support-body">
+  <script>
+    // ---------- Demo Data (replace with your API later) ----------
+    const ARTICLES = [
+      {
+        id: "a-001",
+        title: "Designing a Knowledge Base That Actually Solves Tickets",
+        topic: "Support",
+        author: "Smart Life Team",
+        date: "2026-01-28",
+        readingMin: 6,
+        excerpt: "A practical framework for structuring FAQs, escalation rules, and keeping answers accurate over time.",
+        content: [
+          "A strong knowledge base is not a document dump. It is a product that reduces resolution time and increases trust.",
+          "Start with categories users already think in: billing, inventory, accounting, setup, reports, and troubleshooting.",
+          "Write answers as steps (not paragraphs), include constraints (what cannot be done), and clarify edge-cases.",
+          "Define an escalation rule: if the KB does not contain the answer, the AI must not guess — it escalates."
+        ],
+        bullets: [
+          "Use short titles and searchable keywords.",
+          "Prefer step-by-step answers.",
+          "Add examples and expected results.",
+          "Review monthly based on ticket trends."
+        ]
+      },
+      {
+        id: "a-002",
+        title: "Inventory Costing: Why Your Average Cost Differs Sometimes",
+        topic: "Accounting",
+        author: "Finance Ops",
+        date: "2026-01-10",
+        readingMin: 8,
+        excerpt: "Understand item card cost vs average cost, and how transactions affect the values in ERP systems.",
+        content: [
+          "In many ERPs, the item card cost may represent a default/reference cost, while the average cost is calculated from movements.",
+          "Purchases, returns, transfers, and adjustments can change average cost depending on your costing method.",
+          "Always validate the period filters and warehouse/branch scope when comparing reports."
+        ],
+        bullets: [
+          "Check report filters (date, branch, warehouse).",
+          "Confirm costing method (periodic vs perpetual).",
+          "Review recent adjustments and returns."
+        ]
+      },
+      {
+        id: "a-003",
+        title: "A Premium UI Checklist for SaaS ERP Dashboards",
+        topic: "Product",
+        author: "UX Lab",
+        date: "2025-12-18",
+        readingMin: 7,
+        excerpt: "A clean, modern checklist you can apply to any ERP module: clarity, hierarchy, density, and actions.",
+        content: [
+          "Premium UIs feel fast and confident because they prioritize hierarchy: titles, key metrics, and primary actions.",
+          "Reduce noise: use consistent spacing, consistent component styles, and predictable navigation.",
+          "Prefer clarity over cleverness — especially for accounting users."
+        ],
+        bullets: [
+          "One primary action per screen.",
+          "Use consistent spacing (8/12/16).",
+          "Summaries at top, details below.",
+          "Keyboard shortcuts for power users."
+        ]
+      },
+      {
+        id: "a-004",
+        title: "How to Write Functional vs Non-Functional Requirements (Fast)",
+        topic: "Engineering",
+        author: "R&D Office",
+        date: "2026-02-02",
+        readingMin: 5,
+        excerpt: "A compact guide to writing requirements without ambiguity, plus examples and common mistakes.",
+        content: [
+          "Functional requirements describe what the system must do. Non-functional requirements describe qualities (performance, security, usability).",
+          "Avoid vague words (fast, easy, suitable). Replace them with measurable criteria.",
+          "Use unique IDs for traceability and change history."
+        ],
+        bullets: [
+          "Use: The system shall + verb + object.",
+          "Keep one idea per requirement.",
+          "Add measurable NFR targets.",
+          "Use IDs (FR-001, NFR-003)."
+        ]
+      },
+      {
+        id: "a-005",
+        title: "Escalation Without Friction: When AI Should Hand Off to Humans",
+        topic: "Support",
+        author: "Support Lead",
+        date: "2026-02-08",
+        readingMin: 6,
+        excerpt: "A simple, customer-friendly handoff process that keeps trust and avoids incorrect answers.",
+        content: [
+          "Escalate when the user request is not covered by policy/KB, when there is account-specific data, or when the user reports a bug.",
+          "Use a short confirmation: 'I’ll forward this to a support specialist and get back to you.'",
+          "Collect minimal clarifying info before escalation: module, branch, date, and screenshot if possible."
+        ],
+        bullets: [
+          "Never guess missing features.",
+          "Ask 1 clarifying question max.",
+          "Confirm module + action attempted.",
+          "Provide a short next-steps message."
+        ]
+      },
+      {
+        id: "a-006",
+        title: "Reports That Leaders Actually Read: Executive Summaries in ERP",
+        topic: "Analytics",
+        author: "BI Team",
+        date: "2025-11-22",
+        readingMin: 9,
+        excerpt: "Turn noisy report tables into decision-ready summaries: top KPIs, trends, and risks.",
+        content: [
+          "Executives want decisions, not tables. Lead with KPI deltas, then show supporting details.",
+          "Use anomaly detection to highlight unusual spikes in expenses or inventory shrinkage.",
+          "Add plain-language insights so non-technical stakeholders act faster."
+        ],
+        bullets: [
+          "KPI deltas vs last period.",
+          "Top 3 risks & reasons.",
+          "Recommendations & actions.",
+          "Drill-down links."
+        ]
+      },
+      {
+        id: "a-007",
+        title: "Branch Pricing: How to Manage Multiple Price Groups",
+        topic: "Sales",
+        author: "Implementation",
+        date: "2026-01-15",
+        readingMin: 7,
+        excerpt: "A practical model for price groups per branch — and how to roll it out without chaos.",
+        content: [
+          "Use price groups to isolate branch pricing and avoid manual overrides on every quote.",
+          "Assign a default group per branch and audit exceptions weekly during rollout."
+        ],
+        bullets: [
+          "Define groups by segment/region.",
+          "Bulk upload initial prices.",
+          "Assign branches to groups.",
+          "Audit exceptions regularly."
+        ]
+      },
+      {
+        id: "a-008",
+        title: "Stock Count Without Excel: Mobile-first Counting Workflow",
+        topic: "Inventory",
+        author: "Ops Enablement",
+        date: "2026-02-12",
+        readingMin: 6,
+        excerpt: "How mobile counting reduces errors, speeds up reconciliation, and improves auditability.",
+        content: [
+          "Mobile counting minimizes copy/paste errors and makes it easier to capture counts per location.",
+          "Use a staged approach: freeze window, scan items, record counts, reconcile variances, then approve."
+        ],
+        bullets: [
+          "Define a freeze window.",
+          "Count by location/zone.",
+          "Reconcile variances.",
+          "Approve and lock the count."
+        ]
+      }
+    ];
 
-        <!-- ✅ AI CHAT (PRO) -->
-        <div id="aiChat" class="ai-pro">
+    // ---------- State ----------
+    const state = {
+      theme: localStorage.getItem("theme") || "dark",
+      query: "",
+      topic: "All",
+      sort: "newest",
+      page: 1,
+      pageSize: 6
+    };
 
-          <div class="ai-topbar">
-            <div class="ai-title">
-              <span class="ai-dot" id="aiDot"></span>
-              <span class="ai-name">المساعد الذكي</span>
-              <span class="ai-sep">•</span>
-              <span class="ai-sub" id="aiHint">اكتب سؤالك</span>
-            </div>
+    // ---------- Elements ----------
+    const $ = (sel) => document.querySelector(sel);
+    const grid = $("#cardsGrid");
+    const empty = $("#emptyState");
+    const meta = $("#resultsMeta");
+    const pageInfo = $("#pageInfo");
+    const pageCount = $("#pageCount");
+    const prevBtn = $("#prevBtn");
+    const nextBtn = $("#nextBtn");
+    const resetBtn = $("#resetBtn");
+    const searchInput = $("#searchInput");
+    const sortSelect = $("#sortSelect");
+    const topicPills = $("#topicPills");
+    const themeToggle = $("#themeToggle");
+    const themeLabel = $("#themeLabel");
+    const openTips = $("#openTips");
 
-            <div class="ai-mini">
-              <span class="ai-pill" id="modePill">MODE: CONTINUE</span>
-            </div>
+    const modal = $("#modal");
+    const modalClose = $("#modalClose");
+    const modalTopic = $("#modalTopic");
+    const modalTitle = $("#modalTitle");
+    const modalTitleH2 = $("#modalTitleH2");
+    const modalMeta = $("#modalMeta");
+    const modalContent = $("#modalContent");
+
+    const statTotal = $("#statTotal");
+    const statTopics = $("#statTopics");
+    const statReading = $("#statReading");
+    const statUpdated = $("#statUpdated");
+
+    // ---------- Helpers ----------
+    const fmtDate = (iso) => {
+      const d = new Date(iso + "T00:00:00");
+      return d.toLocaleDateString(undefined, { year:"numeric", month:"short", day:"2-digit" });
+    };
+    const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+    const uniq = (arr) => [...new Set(arr)];
+
+    function applyTheme(){
+      document.documentElement.setAttribute("data-theme", state.theme);
+      const isLight = state.theme === "light";
+      themeLabel.textContent = isLight ? "Light" : "Dark";
+      localStorage.setItem("theme", state.theme);
+    }
+
+    function computeStats(){
+      statTotal.textContent = String(ARTICLES.length);
+      const topics = uniq(ARTICLES.map(a => a.topic));
+      statTopics.textContent = String(topics.length);
+      const avg = Math.round(ARTICLES.reduce((s,a)=>s+a.readingMin,0) / ARTICLES.length);
+      statReading.textContent = `${avg} min`;
+      const last = ARTICLES
+        .map(a => a.date)
+        .sort((a,b)=> new Date(b) - new Date(a))[0];
+      statUpdated.textContent = fmtDate(last);
+    }
+
+    function buildTopics(){
+      const topics = ["All", ...uniq(ARTICLES.map(a => a.topic)).sort((a,b)=>a.localeCompare(b))];
+      topicPills.innerHTML = "";
+      topics.forEach(t => {
+        const el = document.createElement("button");
+        el.type = "button";
+        el.className = "pill" + (t === state.topic ? " active" : "");
+        el.textContent = t;
+        el.addEventListener("click", () => {
+          state.topic = t;
+          state.page = 1;
+          render();
+        });
+        topicPills.appendChild(el);
+      });
+    }
+
+    function filterAndSort(){
+      const q = state.query.trim().toLowerCase();
+      let list = ARTICLES.slice();
+
+      if (state.topic !== "All"){
+        list = list.filter(a => a.topic === state.topic);
+      }
+
+      if (q){
+        list = list.filter(a => {
+          const hay = [
+            a.title, a.topic, a.author, a.excerpt,
+            ...(a.content || []),
+            ...(a.bullets || [])
+          ].join(" ").toLowerCase();
+          return hay.includes(q);
+        });
+      }
+
+      switch (state.sort){
+        case "oldest":
+          list.sort((a,b) => new Date(a.date) - new Date(b.date));
+          break;
+        case "reading":
+          list.sort((a,b) => a.readingMin - b.readingMin);
+          break;
+        case "title":
+          list.sort((a,b) => a.title.localeCompare(b.title));
+          break;
+        case "newest":
+        default:
+          list.sort((a,b) => new Date(b.date) - new Date(a.date));
+      }
+
+      return list;
+    }
+
+    function cardTemplate(a){
+      return `
+        <article class="card" data-id="${a.id}" tabindex="0" role="button" aria-label="Open article: ${escapeHtml(a.title)}">
+          <div class="thumb">
+            <span class="tag">${escapeHtml(a.topic)}</span>
           </div>
-
-          <div id="aiMessages" class="ai-messages-pro" aria-live="polite">
-            <div class="ai-date">اليوم</div>
-            <!-- messages append here -->
-          </div>
-
-          <div class="ai-composer">
-
-            <!-- Emoji popover -->
-            <div id="emojiPopover" class="emoji-popover" aria-hidden="true">
-              <div class="emoji-head">
-                <input id="emojiSearch" class="emoji-search" type="text" placeholder="ابحث عن إيموجي…" autocomplete="off" />
-                <button id="emojiClose" class="emoji-close" type="button" title="إغلاق">✕</button>
+          <div class="card-body">
+            <h3 class="title">${escapeHtml(a.title)}</h3>
+            <p class="excerpt">${escapeHtml(a.excerpt)}</p>
+            <div class="row">
+              <div class="author">
+                <span class="avatar" aria-hidden="true"></span>
+                <span>${escapeHtml(a.author)}</span>
               </div>
-              <div id="emojiGrid" class="emoji-grid"></div>
-              <div class="emoji-foot">
-                <button class="emoji-chip" data-emoji="👍" type="button">👍</button>
-                <button class="emoji-chip" data-emoji="✅" type="button">✅</button>
-                <button class="emoji-chip" data-emoji="🙏" type="button">🙏</button>
-                <button class="emoji-chip" data-emoji="😂" type="button">😂</button>
-                <button class="emoji-chip" data-emoji="🔥" type="button">🔥</button>
-                <button class="emoji-chip" data-emoji="💡" type="button">💡</button>
-              </div>
-            </div>
-
-            <form id="aiForm" class="ai-form-pro" autocomplete="off">
-              <button id="emojiBtn" class="ai-icon-btn" type="button" title="إيموجي">🙂</button>
-
-              <textarea
-                id="aiInput"
-                class="ai-input-pro"
-                rows="1"
-                placeholder="اكتب رسالتك…"
-                required
-              ></textarea>
-
-              <button id="aiSend" class="ai-send-pro" type="submit" aria-label="send">
-                <span class="ai-send-ic">➤</span>
-              </button>
-            </form>
-
-            <div class="ai-tip">
-              Enter للإرسال • Shift+Enter لسطر جديد
+              <div>${fmtDate(a.date)} • ${a.readingMin} min</div>
             </div>
           </div>
+        </article>
+      `;
+    }
 
-        </div>
-      </div><!-- body -->
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
 
-    </div><!-- card -->
-  </div><!-- modal -->
-<script
+    function render(){
+      // Update pills active states
+      [...topicPills.children].forEach(btn => {
+        btn.classList.toggle("active", btn.textContent === state.topic);
+      });
+
+      // Filter + sort
+      const list = filterAndSort();
+
+      // Pagination
+      const total = list.length;
+      const totalPages = Math.max(1, Math.ceil(total / state.pageSize));
+      state.page = clamp(state.page, 1, totalPages);
+
+      const start = (state.page - 1) * state.pageSize;
+      const pageItems = list.slice(start, start + state.pageSize);
+
+      grid.innerHTML = pageItems.map(cardTemplate).join("");
+      empty.style.display = pageItems.length ? "none" : "block";
+
+      meta.textContent = `Showing ${pageItems.length} of ${total} results` + (state.topic !== "All" ? ` • Topic: ${state.topic}` : "");
+      pageInfo.textContent = `Page ${state.page} of ${totalPages}`;
+      pageCount.textContent = totalPages === 1 ? "—" : `Total pages: ${totalPages}`;
+
+      prevBtn.disabled = state.page <= 1;
+      nextBtn.disabled = state.page >= totalPages;
+
+      // Bind open actions
+      [...grid.querySelectorAll(".card")].forEach(card => {
+        card.addEventListener("click", () => openArticle(card.dataset.id));
+        card.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            openArticle(card.dataset.id);
+          }
+        });
+      });
+    }
+
+    function openArticle(id){
+      const a = ARTICLES.find(x => x.id === id);
+      if (!a) return;
+
+      modalTopic.textContent = a.topic;
+      modalTitle.textContent = a.title;
+      modalTitleH2.textContent = a.title;
+
+      modalMeta.innerHTML = `
+        <span>By <strong>${escapeHtml(a.author)}</strong></span>
+        <span>•</span>
+        <span>${fmtDate(a.date)}</span>
+        <span>•</span>
+        <span>${a.readingMin} min read</span>
+      `;
+
+      const paragraphs = (a.content || []).map(p => `<p>${escapeHtml(p)}</p>`).join("");
+      const bullets = (a.bullets && a.bullets.length)
+        ? `<ul>${a.bullets.map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
+        : "";
+
+      modalContent.innerHTML = paragraphs + bullets;
+      modal.classList.add("open");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeModal(){
+      modal.classList.remove("open");
+      document.body.style.overflow = "";
+    }
+
+    // ---------- Events ----------
+    searchInput.addEventListener("input", (e) => {
+      state.query = e.target.value;
+      state.page = 1;
+      render();
+    });
+
+    sortSelect.addEventListener("change", (e) => {
+      state.sort = e.target.value;
+      state.page = 1;
+      render();
+    });
+
+    prevBtn.addEventListener("click", () => {
+      state.page = Math.max(1, state.page - 1);
+      render();
+    });
+
+    nextBtn.addEventListener("click", () => {
+      state.page = state.page + 1;
+      render();
+    });
+
+    resetBtn.addEventListener("click", () => {
+      state.query = "";
+      state.topic = "All";
+      state.sort = "newest";
+      state.page = 1;
+      searchInput.value = "";
+      sortSelect.value = "newest";
+      render();
+    });
+
+    themeToggle.addEventListener("click", () => {
+      state.theme = (state.theme === "dark") ? "light" : "dark";
+      applyTheme();
+    });
+
+    openTips.addEventListener("click", () => {
+      openArticle("a-005"); // open a helpful article as "tips"
+    });
+
+    modalClose.addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "/" && document.activeElement !== searchInput){
+        e.preventDefault();
+        searchInput.focus();
+      }
+      if (e.key === "Escape"){
+        closeModal();
+      }
+    });
+
+    // ---------- Init ----------
+    applyTheme();
+    computeStats();
+    buildTopics();
+    sortSelect.value = state.sort;
+    render();
+  </script>
+	<script
 	src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
 	data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62"
 ></script>
 </body>
 </html>
-
