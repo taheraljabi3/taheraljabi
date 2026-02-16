@@ -1,972 +1,996 @@
 <!doctype html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Articles — Smart Life Insights</title>
-  <meta name="description" content="A modern, professional articles page with search, filters, sorting, and modal reading experience." />
-
+  <title>سمارت لايف | المقالات</title>
+  <meta name="description" content="صفحة مقالات عربية بتصميم احترافي مع بحث وفلترة ووضع ليلي." />
   <style>
     :root{
       --bg: #0b1220;
       --panel: rgba(255,255,255,.06);
-      --panel-2: rgba(255,255,255,.09);
+      --panel-2: rgba(255,255,255,.08);
       --text: rgba(255,255,255,.92);
       --muted: rgba(255,255,255,.68);
-      --muted-2: rgba(255,255,255,.55);
       --border: rgba(255,255,255,.12);
-      --accent: #6ee7ff;
-      --accent-2: #a78bfa;
-      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --shadow: 0 18px 50px rgba(0,0,0,.35);
+      --accent: #7c3aed;
+      --accent-2: #22c55e;
+      --danger: #ef4444;
       --radius: 18px;
-      --radius-lg: 24px;
-      --max: 1160px;
-      --blur: 14px;
-      --ring: 0 0 0 4px rgba(110,231,255,.14);
-      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      --radius-2: 22px;
+      --container: 1120px;
+
+      --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Noto Kufi Arabic", "Cairo", "Tajawal", Arial, sans-serif;
     }
 
+    /* Light mode */
     [data-theme="light"]{
       --bg: #f6f7fb;
-      --panel: rgba(17,24,39,.05);
-      --panel-2: rgba(17,24,39,.075);
-      --text: rgba(17,24,39,.92);
-      --muted: rgba(17,24,39,.68);
-      --muted-2: rgba(17,24,39,.55);
-      --border: rgba(17,24,39,.12);
-      --shadow: 0 12px 40px rgba(17,24,39,.12);
-      --ring: 0 0 0 4px rgba(79,70,229,.12);
-      --accent: #4f46e5;
-      --accent-2: #06b6d4;
+      --panel: rgba(0,0,0,.04);
+      --panel-2: rgba(0,0,0,.06);
+      --text: rgba(8,15,28,.94);
+      --muted: rgba(8,15,28,.62);
+      --border: rgba(8,15,28,.10);
+      --shadow: 0 16px 44px rgba(8,15,28,.10);
     }
 
-    *{ box-sizing:border-box; }
+    *{ box-sizing: border-box; }
     html,body{ height:100%; }
     body{
       margin:0;
       font-family: var(--font);
       color: var(--text);
       background:
-        radial-gradient(1200px 600px at 18% -10%, rgba(167,139,250,.35), transparent 65%),
-        radial-gradient(900px 520px at 80% 0%, rgba(110,231,255,.25), transparent 55%),
-        radial-gradient(900px 600px at 50% 110%, rgba(34,197,94,.10), transparent 60%),
+        radial-gradient(900px 500px at 20% 10%, rgba(124,58,237,.35), transparent 60%),
+        radial-gradient(800px 450px at 90% 20%, rgba(34,197,94,.22), transparent 55%),
+        radial-gradient(600px 400px at 45% 95%, rgba(56,189,248,.18), transparent 55%),
         var(--bg);
-      line-height: 1.45;
-      overflow-x:hidden;
+      line-height: 1.7;
+      letter-spacing: .1px;
     }
 
-    a{ color:inherit; text-decoration:none; }
-    button, input, select{ font:inherit; color:inherit; }
-    .container{ max-width: var(--max); margin: 0 auto; padding: 22px 18px 64px; }
+    a{ color: inherit; text-decoration: none; }
+    button, input, select { font-family: inherit; }
 
-    /* Top Nav */
+    .container{
+      width: min(var(--container), calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    /* Top nav */
     .nav{
-      display:flex; align-items:center; justify-content:space-between;
-      gap: 14px; padding: 14px 16px;
-      border:1px solid var(--border);
-      background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.05));
-      backdrop-filter: blur(var(--blur));
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      position: sticky; top: 12px; z-index: 20;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      backdrop-filter: blur(12px);
+      background: color-mix(in oklab, var(--bg) 80%, transparent);
+      border-bottom: 1px solid var(--border);
     }
-
+    .nav-inner{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap:12px;
+      padding: 14px 0;
+    }
     .brand{
-      display:flex; align-items:center; gap: 10px;
-      font-weight: 750; letter-spacing: .2px;
-      white-space: nowrap;
+      display:flex; align-items:center; gap:10px;
+      min-width: 220px;
     }
     .logo{
-      width: 36px; height:36px;
-      border-radius: 12px;
+      width: 40px; height: 40px;
+      border-radius: 14px;
       background:
-        radial-gradient(12px 12px at 30% 30%, rgba(255,255,255,.7), transparent 70%),
-        linear-gradient(135deg, var(--accent), var(--accent-2));
-      box-shadow: 0 10px 25px rgba(110,231,255,.18);
-      border:1px solid rgba(255,255,255,.18);
+        radial-gradient(18px 18px at 30% 30%, rgba(255,255,255,.55), transparent 60%),
+        linear-gradient(135deg, var(--accent), #06b6d4);
+      box-shadow: 0 12px 26px rgba(124,58,237,.25);
+      border: 1px solid rgba(255,255,255,.18);
     }
-    .brand small{ display:block; font-weight: 600; color: var(--muted); letter-spacing: 0; margin-top:2px; }
-    .nav-actions{ display:flex; align-items:center; gap: 10px; }
+    .brand h1{
+      font-size: 15px;
+      margin:0;
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+    .brand p{
+      margin:0;
+      font-size: 12px;
+      color: var(--muted);
+    }
 
-    .chip{
-      display:inline-flex; align-items:center; gap: 8px;
-      padding: 9px 12px;
-      border-radius: 999px;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.06);
-      cursor:pointer;
-      transition: transform .15s ease, background .15s ease, border-color .15s ease;
+    .nav-actions{
+      display:flex; align-items:center; gap:10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
-    .chip:hover{ transform: translateY(-1px); background: rgba(255,255,255,.085); border-color: rgba(255,255,255,.18); }
-    .chip:active{ transform: translateY(0px) scale(.99); }
-    .chip svg{ width:18px; height:18px; opacity:.9; }
+
+    .pill{
+      display:flex; align-items:center; gap:10px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      box-shadow: 0 10px 26px rgba(0,0,0,.08);
+    }
+
+    .icon-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width: 40px; height: 40px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      cursor:pointer;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+    }
+    .icon-btn:hover{ transform: translateY(-1px); background: var(--panel-2); border-color: color-mix(in oklab, var(--border) 70%, var(--accent) 30%); }
+    .icon{
+      width: 18px; height: 18px;
+      display:inline-block;
+    }
+
+    .cta{
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid color-mix(in oklab, var(--accent) 42%, var(--border));
+      background: linear-gradient(135deg, color-mix(in oklab, var(--accent) 75%, transparent), transparent);
+      cursor:pointer;
+      color: var(--text);
+      font-weight: 700;
+      transition: transform .12s ease, filter .12s ease;
+    }
+    .cta:hover{ transform: translateY(-1px); filter: brightness(1.05); }
 
     /* Hero */
     .hero{
-      margin-top: 18px;
-      border-radius: var(--radius-lg);
+      padding: 26px 0 14px;
+    }
+    .hero-grid{
+      display:grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+    .hero-card{
+      border-radius: var(--radius-2);
       border: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
-      backdrop-filter: blur(var(--blur));
+      background: linear-gradient(180deg, var(--panel), transparent);
       box-shadow: var(--shadow);
+      padding: 18px;
       overflow:hidden;
       position:relative;
     }
-    .hero::before{
+    .hero-card:before{
       content:"";
-      position:absolute; inset:-2px;
-      background:
-        radial-gradient(680px 220px at 18% 15%, rgba(110,231,255,.28), transparent 60%),
-        radial-gradient(540px 220px at 78% 30%, rgba(167,139,250,.28), transparent 62%),
-        radial-gradient(520px 220px at 55% 110%, rgba(34,197,94,.12), transparent 60%);
-      pointer-events:none;
+      position:absolute; inset:-120px -80px auto auto;
+      width: 320px; height: 320px;
+      background: radial-gradient(circle at 30% 30%, rgba(124,58,237,.34), transparent 60%);
       filter: blur(0px);
-      opacity:.9;
+      transform: rotate(15deg);
     }
-    .hero-inner{
+    .hero h2{
+      margin: 0 0 8px;
+      font-size: 28px;
+      letter-spacing: .2px;
+      line-height: 1.3;
       position:relative;
-      padding: 26px 22px;
-      display:grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap: 20px;
-      align-items: center;
-    }
-    .hero h1{
-      margin:0 0 10px;
-      font-size: clamp(24px, 3vw, 40px);
-      line-height:1.12;
-      letter-spacing:-.6px;
     }
     .hero p{
-      margin:0;
-      color: var(--muted);
-      max-width: 62ch;
-      font-size: 15.5px;
-    }
-    .hero-stats{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      align-self: stretch;
-    }
-    .stat{
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.06);
-      padding: 14px 14px;
-    }
-    .stat .k{ font-weight: 800; font-size: 18px; }
-    .stat .l{ color: var(--muted); font-size: 13px; margin-top: 4px; }
-
-    /* Layout */
-    .layout{
-      margin-top: 18px;
-      display:grid;
-      grid-template-columns: 320px 1fr;
-      gap: 16px;
-      align-items:start;
-    }
-
-    /* Sidebar */
-    .panel{
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.06);
-      backdrop-filter: blur(var(--blur));
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .panel .panel-head{
-      padding: 14px 16px;
-      border-bottom:1px solid var(--border);
-      display:flex; align-items:center; justify-content:space-between;
-      gap: 10px;
-      background: rgba(255,255,255,.04);
-    }
-    .panel .panel-head strong{ font-size: 14px; letter-spacing:.2px; }
-    .panel .panel-body{ padding: 14px 16px 16px; }
-
-    .field{
-      display:flex; flex-direction:column; gap: 8px; margin-bottom: 12px;
-    }
-    .label{
-      font-size: 12px; letter-spacing:.3px;
-      text-transform: uppercase;
-      color: var(--muted-2);
-    }
-    .control{
-      display:flex; align-items:center; gap: 10px;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.06);
-      border-radius: 14px;
-      padding: 10px 12px;
-      transition: box-shadow .15s ease, border-color .15s ease, background .15s ease;
-    }
-    .control:focus-within{ box-shadow: var(--ring); border-color: rgba(110,231,255,.35); background: rgba(255,255,255,.085); }
-    .control input{
-      border:none; outline:none; background:transparent;
-      width:100%;
-      font-size: 14.5px;
-    }
-    .control select{
-      width:100%;
-      border:none; outline:none; background:transparent;
-      font-size: 14.5px;
-      appearance:none;
-      cursor:pointer;
-    }
-    .icon{
-      width:18px; height:18px; opacity:.85; flex: 0 0 auto;
-    }
-
-    .categories{
-      display:flex; flex-wrap:wrap; gap: 8px;
-      margin-top: 8px;
-    }
-    .pill{
-      padding: 8px 10px;
-      border-radius: 999px;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.05);
-      cursor:pointer;
-      font-size: 13px;
-      color: var(--muted);
-      user-select:none;
-      transition: transform .15s ease, background .15s ease, border-color .15s ease, color .15s ease;
-    }
-    .pill:hover{ transform: translateY(-1px); background: rgba(255,255,255,.08); color: var(--text); }
-    .pill.active{
-      background: linear-gradient(135deg, rgba(110,231,255,.20), rgba(167,139,250,.18));
-      border-color: rgba(110,231,255,.28);
-      color: var(--text);
-    }
-
-    .hint{
-      margin-top: 12px;
-      font-size: 13px;
-      color: var(--muted);
-      border-top:1px dashed var(--border);
-      padding-top: 12px;
-    }
-
-    /* Main */
-    .main{
-      display:flex; flex-direction:column; gap: 12px;
-    }
-    .toolbar{
-      display:flex; align-items:center; justify-content:space-between;
-      gap: 10px;
-      padding: 12px 14px;
-    }
-    .toolbar .meta{
-      font-size: 13px;
-      color: var(--muted);
-    }
-    .toolbar .actions{
-      display:flex; align-items:center; gap: 10px;
-    }
-
-    .btn{
-      display:inline-flex; align-items:center; gap: 8px;
-      padding: 9px 12px;
-      border-radius: 14px;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.06);
-      cursor:pointer;
-      transition: transform .15s ease, background .15s ease, border-color .15s ease;
-      user-select:none;
-      font-weight: 650;
-      font-size: 13.5px;
-    }
-    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.085); border-color: rgba(255,255,255,.18); }
-    .btn:active{ transform: translateY(0px) scale(.99); }
-    .btn svg{ width:18px; height:18px; opacity:.9; }
-
-    .grid{
-      display:grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 12px;
-      padding: 0 0 4px;
-    }
-    .card{
-      grid-column: span 6;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.06);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-      cursor:pointer;
-      transition: transform .18s ease, background .18s ease, border-color .18s ease;
-      position:relative;
-    }
-    .card:hover{ transform: translateY(-2px); background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.18); }
-    .card:active{ transform: translateY(0px) scale(.995); }
-
-    .thumb{
-      height: 140px;
-      background:
-        radial-gradient(220px 120px at 20% 25%, rgba(110,231,255,.35), transparent 65%),
-        radial-gradient(220px 120px at 80% 35%, rgba(167,139,250,.35), transparent 62%),
-        linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
-      border-bottom: 1px solid var(--border);
-      position:relative;
-    }
-    .tag{
-      position:absolute;
-      left: 12px; top: 12px;
-      padding: 7px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(0,0,0,.22);
-      backdrop-filter: blur(10px);
-      font-size: 12.5px;
-      font-weight: 700;
-      letter-spacing:.2px;
-    }
-    [data-theme="light"] .tag{
-      background: rgba(255,255,255,.55);
-      border-color: rgba(17,24,39,.16);
-    }
-    .card-body{
-      padding: 14px 14px 14px;
-      display:flex; flex-direction:column; gap: 10px;
-    }
-    .title{
-      font-size: 16px;
-      font-weight: 800;
-      line-height: 1.25;
-      letter-spacing:-.2px;
-      margin: 0;
-    }
-    .excerpt{
-      margin: 0;
-      color: var(--muted);
-      font-size: 13.8px;
-      display:-webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow:hidden;
-      min-height: 40px;
-    }
-    .row{
-      display:flex; align-items:center; justify-content:space-between;
-      gap: 10px;
-      color: var(--muted-2);
-      font-size: 12.8px;
-    }
-    .author{
-      display:flex; align-items:center; gap: 10px;
-      min-width:0;
-    }
-    .avatar{
-      width: 26px; height:26px; border-radius: 10px;
-      border:1px solid var(--border);
-      background: linear-gradient(135deg, rgba(110,231,255,.35), rgba(167,139,250,.28));
-      flex: 0 0 auto;
-    }
-    .author span{
-      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-      max-width: 160px;
-    }
-
-    .pagination{
-      padding: 12px 14px;
-      display:flex; align-items:center; justify-content:space-between;
-      gap: 12px;
-      border-top:1px solid var(--border);
-    }
-    .page-info{ color: var(--muted); font-size: 13px; }
-    .page-controls{ display:flex; align-items:center; gap: 10px; }
-
-    /* Empty state */
-    .empty{
-      padding: 28px 18px;
-      text-align:center;
-      color: var(--muted);
-    }
-    .empty strong{ color: var(--text); }
-
-    /* Modal */
-    .modal{
-      position:fixed; inset:0;
-      display:none;
-      align-items:center; justify-content:center;
-      padding: 18px;
-      background: rgba(0,0,0,.55);
-      backdrop-filter: blur(10px);
-      z-index: 50;
-    }
-    .modal.open{ display:flex; }
-    .modal-card{
-      width:min(980px, 100%);
-      max-height: min(82vh, 720px);
-      border-radius: 22px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.085);
-      box-shadow: 0 25px 90px rgba(0,0,0,.45);
-      overflow:hidden;
-      display:flex;
-      flex-direction:column;
-    }
-    [data-theme="light"] .modal-card{ background: rgba(255,255,255,.92); }
-    .modal-head{
-      padding: 12px 14px;
-      border-bottom:1px solid var(--border);
-      display:flex; align-items:center; justify-content:space-between;
-      gap: 10px;
-      background: rgba(255,255,255,.06);
-    }
-    .modal-head .left{
-      display:flex; align-items:center; gap: 10px;
-      min-width: 0;
-    }
-    .modal-head .badge{
-      padding: 6px 10px;
-      border-radius: 999px;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.08);
-      font-size: 12.5px;
-      font-weight: 800;
-      white-space:nowrap;
-    }
-    .modal-head .h{
-      font-weight: 900;
-      letter-spacing:-.3px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width: 62ch;
-    }
-    .modal-close{
-      width: 40px; height:40px;
-      border-radius: 14px;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.06);
-      cursor:pointer;
-      display:grid; place-items:center;
-      transition: transform .15s ease, background .15s ease;
-    }
-    .modal-close:hover{ transform: translateY(-1px); background: rgba(255,255,255,.10); }
-    .modal-body{
-      overflow:auto;
-      padding: 18px 18px 22px;
-    }
-    .modal-body h2{ margin: 0 0 10px; font-size: 24px; letter-spacing:-.5px; }
-    .modal-body .meta{
       margin: 0 0 14px;
       color: var(--muted);
-      font-size: 13.5px;
-      display:flex; flex-wrap:wrap; gap: 10px;
+      position:relative;
     }
-    .modal-body .content{
-      color: var(--text);
-      font-size: 15.5px;
-      line-height: 1.75;
+    .hero-badges{
+      display:flex; flex-wrap:wrap; gap:10px;
+      position:relative;
     }
-    .modal-body .content p{ margin: 0 0 12px; color: var(--text); }
-    .modal-body .content ul{ margin: 10px 0 14px 22px; color: var(--text); }
-    .kbd{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--muted);
       font-size: 12px;
-      padding: 3px 8px;
-      border-radius: 10px;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.06);
+      user-select:none;
+    }
+    .dot{
+      width: 8px; height: 8px;
+      border-radius: 999px;
+      background: var(--accent-2);
+      box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent-2) 18%, transparent);
+    }
+
+    .hero-side{
+      display:grid;
+      grid-template-rows: 1fr 1fr;
+      gap: 16px;
+    }
+    .mini{
+      padding: 16px;
+      border-radius: var(--radius-2);
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--panel), transparent);
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .mini h3{ margin:0 0 6px; font-size: 15px; }
+    .mini p{ margin:0; color: var(--muted); font-size: 13px; }
+    .mini .stat{
+      margin-top: 10px;
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+    .chip{
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      font-size: 12px;
       color: var(--muted);
     }
+
+    /* Controls */
+    .controls{
+      margin-top: 12px;
+      display:grid;
+      grid-template-columns: 1.2fr .8fr .8fr .6fr;
+      gap: 10px;
+    }
+    .field{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 14px;
+      padding: 10px 12px;
+      box-shadow: 0 10px 26px rgba(0,0,0,.08);
+    }
+    .field input{
+      width:100%;
+      border:0;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 14px;
+    }
+    .field select{
+      width:100%;
+      border:0;
+      outline:none;
+      background: transparent;
+      color: var(--text);
+      font-size: 14px;
+      appearance: none;
+      cursor:pointer;
+    }
+    .field .hint{ color: var(--muted); font-size: 12px; white-space: nowrap; }
+    .kbd{
+      border: 1px dashed var(--border);
+      padding: 4px 8px;
+      border-radius: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* Grid */
+    .section{
+      padding: 8px 0 40px;
+    }
+    .grid{
+      margin-top: 14px;
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .card{
+      border-radius: var(--radius-2);
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--panel), transparent);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      transition: transform .14s ease, border-color .14s ease, background .14s ease;
+      position:relative;
+    }
+    .card:hover{
+      transform: translateY(-2px);
+      border-color: color-mix(in oklab, var(--border) 55%, var(--accent) 45%);
+      background: linear-gradient(180deg, var(--panel-2), transparent);
+    }
+    .thumb{
+      height: 150px;
+      background:
+        radial-gradient(200px 120px at 20% 40%, rgba(255,255,255,.20), transparent 55%),
+        linear-gradient(135deg, color-mix(in oklab, var(--accent) 80%, #0ea5e9), rgba(34,197,94,.12));
+      border-bottom: 1px solid var(--border);
+      position:relative;
+      overflow:hidden;
+    }
+    .thumb:after{
+      content:"";
+      position:absolute; inset:auto -60px -60px auto;
+      width: 180px; height: 180px;
+      background: radial-gradient(circle at 40% 40%, rgba(34,197,94,.25), transparent 60%);
+      transform: rotate(18deg);
+    }
+    .card-body{ padding: 14px 14px 12px; }
+    .meta{
+      display:flex; align-items:center; justify-content: space-between;
+      gap:10px;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .tag{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 12px;
+      user-select:none;
+    }
+    .tag .t-dot{
+      width: 7px; height: 7px; border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(124,58,237,.16);
+    }
+    .title{
+      margin: 0 0 8px;
+      font-size: 16px;
+      line-height: 1.45;
+      font-weight: 850;
+      letter-spacing: .15px;
+    }
+    .excerpt{
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .card-footer{
+      display:flex; align-items:center; justify-content: space-between; gap: 10px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      cursor:pointer;
+      font-weight: 750;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      background: var(--panel-2);
+      border-color: color-mix(in oklab, var(--border) 65%, var(--accent) 35%);
+    }
+    .stats{
+      display:flex; align-items:center; gap:10px; color: var(--muted); font-size: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+    .stat-pill{
+      display:inline-flex; align-items:center; gap:6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+    }
+
+    .empty{
+      margin-top: 18px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-2);
+      padding: 18px;
+      color: var(--muted);
+      background: color-mix(in oklab, var(--panel) 70%, transparent);
+      display:none;
+    }
+
+    .loadmore-wrap{
+      margin-top: 16px;
+      display:flex; justify-content:center;
+    }
+    .loadmore{
+      padding: 12px 16px;
+      border-radius: 999px;
+      border: 1px solid color-mix(in oklab, var(--accent) 42%, var(--border));
+      background: linear-gradient(135deg, color-mix(in oklab, var(--accent) 60%, transparent), transparent);
+      color: var(--text);
+      cursor:pointer;
+      font-weight: 800;
+      box-shadow: 0 16px 40px rgba(124,58,237,.16);
+      transition: transform .12s ease, filter .12s ease;
+    }
+    .loadmore:hover{ transform: translateY(-1px); filter: brightness(1.05); }
+
+    /* Modal */
+    .overlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index: 80;
+      padding: 18px;
+    }
+    .modal{
+      width: min(860px, 100%);
+      border-radius: 22px;
+      border: 1px solid var(--border);
+      background: color-mix(in oklab, var(--bg) 70%, #000 30%);
+      box-shadow: 0 26px 80px rgba(0,0,0,.45);
+      overflow:hidden;
+      position:relative;
+    }
+    [data-theme="light"] .modal{
+      background: color-mix(in oklab, var(--bg) 92%, #fff 8%);
+    }
+    .modal-head{
+      display:flex; align-items:flex-start; justify-content: space-between; gap: 10px;
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-head h3{
+      margin:0;
+      font-size: 18px;
+      line-height: 1.35;
+      font-weight: 900;
+    }
+    .modal-head .sub{
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .modal-body{
+      padding: 14px;
+      color: var(--text);
+    }
+    .modal-body p{
+      margin: 0 0 12px;
+      color: color-mix(in oklab, var(--text) 92%, var(--muted));
+    }
+    .modal-body ul{
+      margin: 0; padding: 0 18px 0 0;
+      color: color-mix(in oklab, var(--text) 92%, var(--muted));
+    }
+    .modal-body li{ margin: 6px 0; }
+    .close{
+      width: 40px; height: 40px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      cursor:pointer;
+      transition: transform .12s ease, background .12s ease;
+      display:inline-flex; align-items:center; justify-content:center;
+    }
+    .close:hover{ transform: translateY(-1px); background: var(--panel-2); }
+
+    /* Footer */
+    footer{
+      border-top: 1px solid var(--border);
+      padding: 18px 0 26px;
+      color: var(--muted);
+      text-align:center;
+    }
+
+    /* Toast */
+    .toast{
+      position: fixed;
+      bottom: 14px;
+      right: 14px;
+      left: 14px;
+      margin: 0 auto;
+      width: min(520px, calc(100% - 28px));
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: color-mix(in oklab, var(--panel) 85%, transparent);
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+      padding: 12px 12px;
+      display:none;
+      z-index: 120;
+      backdrop-filter: blur(10px);
+    }
+    .toast strong{ font-weight: 900; }
+    .toast p{ margin: 6px 0 0; font-size: 13px; color: var(--muted); }
 
     /* Responsive */
     @media (max-width: 980px){
-      .hero-inner{ grid-template-columns: 1fr; }
-      .layout{ grid-template-columns: 1fr; }
-      .card{ grid-column: span 12; }
-      .panel{ position:relative; }
+      .hero-grid{ grid-template-columns: 1fr; }
+      .hero-side{ grid-template-rows: auto; grid-template-columns: 1fr 1fr; }
+      .controls{ grid-template-columns: 1fr 1fr; }
+      .grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 640px){
+      .hero-side{ grid-template-columns: 1fr; }
+      .controls{ grid-template-columns: 1fr; }
+      .grid{ grid-template-columns: 1fr; }
+      .brand{ min-width: unset; }
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <!-- NAV -->
-    <header class="nav">
-      <a class="brand" href="#" aria-label="Home">
-        <span class="logo" aria-hidden="true"></span>
-        <span>
-          Smart Life <span style="opacity:.95">Insights</span>
-          <small>Articles & Knowledge</small>
-        </span>
-      </a>
-
-      <div class="nav-actions">
-        <button class="chip" id="themeToggle" type="button" aria-label="Toggle theme">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z" stroke="currentColor" stroke-width="1.8"/>
-            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
-          <span id="themeLabel">Theme</span>
-        </button>
-
-        <button class="chip" id="openTips" type="button" aria-label="Keyboard tips">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M4 7h16v10H4V7Z" stroke="currentColor" stroke-width="1.8" />
-            <path d="M7 10h.01M10 10h.01M13 10h.01M16 10h.01M7 13h.01M10 13h.01M13 13h.01M16 13h.01" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
-          </svg>
-          <span>Shortcuts</span>
-        </button>
-      </div>
-    </header>
-
-    <!-- HERO -->
-    <section class="hero" aria-label="Articles hero">
-      <div class="hero-inner">
+  <!-- NAV -->
+  <header class="nav">
+    <div class="container nav-inner">
+      <div class="brand" role="banner" aria-label="الهوية">
+        <div class="logo" aria-hidden="true"></div>
         <div>
-          <h1>Explore modern articles with a clean, premium reading experience ✨</h1>
-          <p>
-            Search, filter, sort, and open any article in a focused reader modal.
-            This template is built with pure HTML/CSS/JS — fast, responsive, and easy to customize.
-          </p>
-        </div>
-
-        <div class="hero-stats" aria-label="Quick stats">
-          <div class="stat">
-            <div class="k" id="statTotal">—</div>
-            <div class="l">Total articles</div>
-          </div>
-          <div class="stat">
-            <div class="k" id="statTopics">—</div>
-            <div class="l">Topics available</div>
-          </div>
-          <div class="stat">
-            <div class="k" id="statReading">—</div>
-            <div class="l">Avg. reading time</div>
-          </div>
-          <div class="stat">
-            <div class="k" id="statUpdated">—</div>
-            <div class="l">Last update</div>
-          </div>
+          <h1>سمارت لايف • المقالات</h1>
+          <p>محتوى عربي احترافي • بحث وفلترة • وضع ليلي</p>
         </div>
       </div>
-    </section>
 
-    <!-- MAIN LAYOUT -->
-    <section class="layout" aria-label="Articles layout">
-      <!-- SIDEBAR -->
-      <aside class="panel" aria-label="Filters">
-        <div class="panel-head">
-          <strong>Filters</strong>
-          <button class="btn" id="resetBtn" type="button" title="Reset filters">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M21 12a9 9 0 1 1-2.64-6.36" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-              <path d="M21 4v6h-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Reset
-          </button>
+      <div class="nav-actions" aria-label="أدوات">
+        <div class="pill" title="اختصارات لوحة المفاتيح">
+          <span class="hint">اختصار البحث</span>
+          <span class="kbd">/</span>
         </div>
 
-        <div class="panel-body">
-          <div class="field">
-            <div class="label">Search</div>
-            <div class="control">
-              <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="1.8"/>
-                <path d="M16.5 16.5 21 21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-              </svg>
-              <input id="searchInput" type="search" placeholder="Search articles, tags, authors..." autocomplete="off" />
-            </div>
+        <button class="icon-btn" id="themeBtn" aria-label="تبديل الوضع الليلي/النهاري" title="الوضع الليلي/النهاري">
+          <!-- moon/sun icon (inline svg) -->
+          <svg class="icon" viewBox="0 0 24 24" fill="none">
+            <path d="M21 13.2A8.5 8.5 0 0 1 10.8 3 7 7 0 1 0 21 13.2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <button class="cta" id="subscribeBtn" type="button">اشترك بالتحديثات</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO + CONTROLS -->
+  <main class="container hero">
+    <div class="hero-grid">
+      <section class="hero-card" aria-label="مقدمة">
+        <h2>مقالات تساعدك على اتخاذ قرارات أفضل 📚✨</h2>
+        <p>
+          اكتشف أدلة عملية في <strong>المحاسبة</strong> و<strong>المخزون</strong> و<strong>التقارير</strong> وتجربة المستخدم.
+          ابحث، فلتر، ورتّب المحتوى بسهولة.
+        </p>
+        <div class="hero-badges" aria-label="مزايا">
+          <span class="badge"><span class="dot"></span> بحث فوري</span>
+          <span class="badge"><span class="dot" style="background: var(--accent); box-shadow: 0 0 0 4px rgba(124,58,237,.18)"></span> قراءة داخل نافذة</span>
+          <span class="badge"><span class="dot" style="background: #38bdf8; box-shadow: 0 0 0 4px rgba(56,189,248,.18)"></span> ترتيب وفلترة</span>
+        </div>
+
+        <div class="controls" aria-label="أدوات البحث">
+          <div class="field" title="اكتب كلمات مفتاحية">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M21 21l-4.3-4.3m1.8-5.2a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <input id="searchInput" placeholder="ابحث عن مقال: مثال (القيد الافتتاحي، متوسط التكلفة...)" autocomplete="off" />
           </div>
 
-          <div class="field">
-            <div class="label">Sort</div>
-            <div class="control">
-              <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M7 7h10M7 12h7M7 17h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-              </svg>
-              <select id="sortSelect">
-                <option value="newest">Newest first</option>
-                <option value="oldest">Oldest first</option>
-                <option value="reading">Shortest reading time</option>
-                <option value="title">Title (A → Z)</option>
-              </select>
-            </div>
+          <div class="field" title="اختر التصنيف">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M3 7h18M6 12h12M10 17h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <select id="categorySelect" aria-label="التصنيف">
+              <option value="all">كل التصنيفات</option>
+            </select>
           </div>
 
-          <div class="field">
-            <div class="label">Topics</div>
-            <div class="categories" id="topicPills" aria-label="Topic pills"></div>
+          <div class="field" title="ترتيب النتائج">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M8 7h12M8 12h9M8 17h6M4 7v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <select id="sortSelect" aria-label="الترتيب">
+              <option value="newest">الأحدث</option>
+              <option value="views">الأكثر قراءة</option>
+              <option value="rating">الأعلى تقييماً</option>
+            </select>
           </div>
 
-          <div class="hint">
-            Tips: press <span class="kbd">/</span> to focus search, <span class="kbd">Esc</span> to close the reader.
+          <div class="field" title="عدد النتائج المعروضة">
+            <span class="hint">لكل صفحة</span>
+            <select id="pageSizeSelect" aria-label="حجم الصفحة">
+              <option value="6">6</option>
+              <option value="9" selected>9</option>
+              <option value="12">12</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <aside class="hero-side" aria-label="لوحات جانبية">
+        <div class="mini">
+          <h3>نصائح سريعة 💡</h3>
+          <p>اضغط <span class="kbd">/</span> للانتقال إلى مربع البحث فورًا.</p>
+          <div class="stat">
+            <span class="chip" id="statTotal">إجمالي المقالات: —</span>
+            <span class="chip" id="statShown">المعروض الآن: —</span>
+          </div>
+        </div>
+
+        <div class="mini">
+          <h3>مقالات مميزة ⭐</h3>
+          <p>نرشح لك محتوى عملي “جاهز للتطبيق” مع أمثلة.</p>
+          <div class="stat">
+            <span class="chip" id="statTop">أعلى تقييم: —</span>
+            <span class="chip" id="statCat">الأكثر نشرًا: —</span>
           </div>
         </div>
       </aside>
+    </div>
 
-      <!-- MAIN -->
-      <main class="panel main" aria-label="Articles list">
-        <div class="panel-head toolbar">
-          <div class="meta" id="resultsMeta">Showing …</div>
-          <div class="actions">
-            <button class="btn" id="prevBtn" type="button" title="Previous page">
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M15 6 9 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              Prev
-            </button>
-            <button class="btn" id="nextBtn" type="button" title="Next page">
-              Next
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M9 6 15 12l-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-          </div>
-        </div>
+    <!-- Articles -->
+    <section class="section" aria-label="قائمة المقالات">
+      <div class="grid" id="grid"></div>
+      <div class="empty" id="emptyState">
+        لا توجد نتائج مطابقة 🔎 جرّب كلمات أخرى أو غيّر التصنيف/الترتيب.
+      </div>
 
-        <div class="panel-body">
-          <div class="grid" id="cardsGrid" aria-label="Articles grid"></div>
-          <div class="empty" id="emptyState" style="display:none;">
-            <strong>No results found.</strong><br/>
-            Try a different keyword or choose another topic.
-          </div>
-        </div>
-
-        <div class="pagination">
-          <div class="page-info" id="pageInfo">Page —</div>
-          <div class="page-controls">
-            <span class="page-info" id="pageCount">—</span>
-          </div>
-        </div>
-      </main>
+      <div class="loadmore-wrap">
+        <button class="loadmore" id="loadMoreBtn" type="button">تحميل المزيد</button>
+      </div>
     </section>
-  </div>
+  </main>
+
+  <footer class="container">
+    © <span id="year"></span> — صفحة مقالات عربية (HTML/CSS/JS) • تصميم احترافي
+  </footer>
 
   <!-- MODAL -->
-  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal-card">
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="قراءة المقال">
+    <div class="modal">
       <div class="modal-head">
-        <div class="left">
-          <span class="badge" id="modalTopic">Topic</span>
-          <div class="h" id="modalTitle">Title</div>
+        <div>
+          <h3 id="modalTitle">عنوان المقال</h3>
+          <div class="sub" id="modalSub">—</div>
         </div>
-        <button class="modal-close" id="modalClose" type="button" aria-label="Close">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+        <button class="close" id="closeModal" aria-label="إغلاق">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           </svg>
         </button>
       </div>
-      <div class="modal-body">
-        <h2 id="modalTitleH2"></h2>
-        <div class="meta" id="modalMeta"></div>
-        <div class="content" id="modalContent"></div>
-      </div>
+      <div class="modal-body" id="modalBody"></div>
     </div>
   </div>
 
+  <!-- TOAST -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
   <script>
-    // ---------- Demo Data (replace with your API later) ----------
-    const ARTICLES = [
+    // -----------------------------
+    // Demo Articles Data (Arabic)
+    // -----------------------------
+    const articles = [
       {
-        id: "a-001",
-        title: "Designing a Knowledge Base That Actually Solves Tickets",
-        topic: "Support",
-        author: "Smart Life Team",
+        id: "a1",
+        title: "كيف تفهم متوسط التكلفة ولماذا قد يختلف عن تكلفة الصنف؟",
+        excerpt: "شرح مبسط لفرق (تكلفة الصنف) مقابل (متوسط التكلفة) وكيف ينعكس ذلك على تقارير الأرصدة.",
+        category: "المخزون",
+        date: "2026-02-10",
+        views: 2480,
+        rating: 4.8,
+        minutes: 6,
+        content: [
+          "متوسط التكلفة هو طريقة لحساب تكلفة المخزون بناءً على متوسط أسعار الشراء عبر الزمن، وقد يختلف عن تكلفة تعريف الصنف في بطاقة الصنف.",
+          "إذا وجدت اختلافًا، راجع: فواتير الشراء، حركات المخزون، التسويات، وأي عمليات رجوع أثّرت على الكمية والتكلفة.",
+          "يفضل دائمًا الاعتماد على تقرير الأرصدة للفترة الصحيحة مع فلترة الفرع/المستودع لضمان دقة القراءة."
+        ]
+      },
+      {
+        id: "a2",
+        title: "القيد الافتتاحي: متى يُنشأ تلقائيًا ومتى يكون يدويًا؟",
+        excerpt: "تفريق عملي بين القيد الافتتاحي التلقائي عند الإقفال السنوي والقيد اليدوي في بداية استخدام النظام.",
+        category: "المحاسبة",
         date: "2026-01-28",
-        readingMin: 6,
-        excerpt: "A practical framework for structuring FAQs, escalation rules, and keeping answers accurate over time.",
+        views: 1890,
+        rating: 4.7,
+        minutes: 7,
         content: [
-          "A strong knowledge base is not a document dump. It is a product that reduces resolution time and increases trust.",
-          "Start with categories users already think in: billing, inventory, accounting, setup, reports, and troubleshooting.",
-          "Write answers as steps (not paragraphs), include constraints (what cannot be done), and clarify edge-cases.",
-          "Define an escalation rule: if the KB does not contain the answer, the AI must not guess — it escalates."
-        ],
-        bullets: [
-          "Use short titles and searchable keywords.",
-          "Prefer step-by-step answers.",
-          "Add examples and expected results.",
-          "Review monthly based on ticket trends."
+          "القيد الافتتاحي التلقائي يتم إنشاؤه عند إغلاق السنة المالية لترحيل أرصدة الحسابات للسنة الجديدة.",
+          "لا يمكن عادةً إنشاء قيد افتتاحي يدوي لسنة أُغلقت مسبقًا لأن النظام يولده لحظيًا أثناء الإقفال.",
+          "القيد الافتتاحي اليدوي يكون مرة واحدة فقط عند بداية استخدام النظام لإدخال الأرصدة الافتتاحية قبل تسجيل العمليات."
         ]
       },
       {
-        id: "a-002",
-        title: "Inventory Costing: Why Your Average Cost Differs Sometimes",
-        topic: "Accounting",
-        author: "Finance Ops",
-        date: "2026-01-10",
-        readingMin: 8,
-        excerpt: "Understand item card cost vs average cost, and how transactions affect the values in ERP systems.",
-        content: [
-          "In many ERPs, the item card cost may represent a default/reference cost, while the average cost is calculated from movements.",
-          "Purchases, returns, transfers, and adjustments can change average cost depending on your costing method.",
-          "Always validate the period filters and warehouse/branch scope when comparing reports."
-        ],
-        bullets: [
-          "Check report filters (date, branch, warehouse).",
-          "Confirm costing method (periodic vs perpetual).",
-          "Review recent adjustments and returns."
-        ]
-      },
-      {
-        id: "a-003",
-        title: "A Premium UI Checklist for SaaS ERP Dashboards",
-        topic: "Product",
-        author: "UX Lab",
-        date: "2025-12-18",
-        readingMin: 7,
-        excerpt: "A clean, modern checklist you can apply to any ERP module: clarity, hierarchy, density, and actions.",
-        content: [
-          "Premium UIs feel fast and confident because they prioritize hierarchy: titles, key metrics, and primary actions.",
-          "Reduce noise: use consistent spacing, consistent component styles, and predictable navigation.",
-          "Prefer clarity over cleverness — especially for accounting users."
-        ],
-        bullets: [
-          "One primary action per screen.",
-          "Use consistent spacing (8/12/16).",
-          "Summaries at top, details below.",
-          "Keyboard shortcuts for power users."
-        ]
-      },
-      {
-        id: "a-004",
-        title: "How to Write Functional vs Non-Functional Requirements (Fast)",
-        topic: "Engineering",
-        author: "R&D Office",
+        id: "a3",
+        title: "أفضل طريقة لتصفير كميات الأصناف دون التأثير على أصناف أخرى",
+        excerpt: "متى تستخدم (تسوية مخزون) ومتى تستخدم (جرد مخزون) مع خطوات عملية لتجنب الأخطاء.",
+        category: "المخزون",
         date: "2026-02-02",
-        readingMin: 5,
-        excerpt: "A compact guide to writing requirements without ambiguity, plus examples and common mistakes.",
+        views: 2210,
+        rating: 4.6,
+        minutes: 5,
         content: [
-          "Functional requirements describe what the system must do. Non-functional requirements describe qualities (performance, security, usability).",
-          "Avoid vague words (fast, easy, suitable). Replace them with measurable criteria.",
-          "Use unique IDs for traceability and change history."
-        ],
-        bullets: [
-          "Use: The system shall + verb + object.",
-          "Keep one idea per requirement.",
-          "Add measurable NFR targets.",
-          "Use IDs (FR-001, NFR-003)."
+          "لتصفير أصناف محددة: أنشئ تسوية مخزون جديدة وأضف الأصناف المستهدفة فقط بكميات طرح مناسبة.",
+          "لتصفير شامل أو معالجة فروقات كبيرة: استخدم الجرد المخزني وفق الطريقة المعتمدة لديك.",
+          "تأكد من اختيار الفرع/المستودع الصحيح قبل الحفظ لتجنب ترحيل الأثر لمكان آخر."
         ]
       },
       {
-        id: "a-005",
-        title: "Escalation Without Friction: When AI Should Hand Off to Humans",
-        topic: "Support",
-        author: "Support Lead",
-        date: "2026-02-08",
-        readingMin: 6,
-        excerpt: "A simple, customer-friendly handoff process that keeps trust and avoids incorrect answers.",
+        id: "a4",
+        title: "تصدير التقارير: PDF أم Excel؟ ومتى تستخدم كل خيار",
+        excerpt: "دليل سريع يساعدك تختار صيغة التصدير المناسبة بحسب هدفك (مراجعة/تحليل/مشاركة).",
+        category: "التقارير",
+        date: "2026-01-20",
+        views: 980,
+        rating: 4.4,
+        minutes: 4,
         content: [
-          "Escalate when the user request is not covered by policy/KB, when there is account-specific data, or when the user reports a bug.",
-          "Use a short confirmation: 'I’ll forward this to a support specialist and get back to you.'",
-          "Collect minimal clarifying info before escalation: module, branch, date, and screenshot if possible."
-        ],
-        bullets: [
-          "Never guess missing features.",
-          "Ask 1 clarifying question max.",
-          "Confirm module + action attempted.",
-          "Provide a short next-steps message."
+          "PDF مناسب للمشاركة الرسمية والطباعة والاعتماد.",
+          "Excel مناسب للتحليل، الفرز، إنشاء Pivot، وإضافة معادلات.",
+          "قبل التصدير تأكد من الفلاتر (الفترة، الفرع، الحالة) لأنها تنعكس على النتيجة مباشرة."
         ]
       },
       {
-        id: "a-006",
-        title: "Reports That Leaders Actually Read: Executive Summaries in ERP",
-        topic: "Analytics",
-        author: "BI Team",
-        date: "2025-11-22",
-        readingMin: 9,
-        excerpt: "Turn noisy report tables into decision-ready summaries: top KPIs, trends, and risks.",
-        content: [
-          "Executives want decisions, not tables. Lead with KPI deltas, then show supporting details.",
-          "Use anomaly detection to highlight unusual spikes in expenses or inventory shrinkage.",
-          "Add plain-language insights so non-technical stakeholders act faster."
-        ],
-        bullets: [
-          "KPI deltas vs last period.",
-          "Top 3 risks & reasons.",
-          "Recommendations & actions.",
-          "Drill-down links."
-        ]
-      },
-      {
-        id: "a-007",
-        title: "Branch Pricing: How to Manage Multiple Price Groups",
-        topic: "Sales",
-        author: "Implementation",
-        date: "2026-01-15",
-        readingMin: 7,
-        excerpt: "A practical model for price groups per branch — and how to roll it out without chaos.",
-        content: [
-          "Use price groups to isolate branch pricing and avoid manual overrides on every quote.",
-          "Assign a default group per branch and audit exceptions weekly during rollout."
-        ],
-        bullets: [
-          "Define groups by segment/region.",
-          "Bulk upload initial prices.",
-          "Assign branches to groups.",
-          "Audit exceptions regularly."
-        ]
-      },
-      {
-        id: "a-008",
-        title: "Stock Count Without Excel: Mobile-first Counting Workflow",
-        topic: "Inventory",
-        author: "Ops Enablement",
+        id: "a5",
+        title: "نقل المخزون بين فرعين: خطوات آمنة لتجنب فروقات الجرد",
+        excerpt: "تحويل المخزون بين الفروع يحتاج دقة في (من/إلى) والفترة والتأكد من الاستلام.",
+        category: "المخزون",
         date: "2026-02-12",
-        readingMin: 6,
-        excerpt: "How mobile counting reduces errors, speeds up reconciliation, and improves auditability.",
+        views: 1340,
+        rating: 4.5,
+        minutes: 6,
         content: [
-          "Mobile counting minimizes copy/paste errors and makes it easier to capture counts per location.",
-          "Use a staged approach: freeze window, scan items, record counts, reconcile variances, then approve."
-        ],
-        bullets: [
-          "Define a freeze window.",
-          "Count by location/zone.",
-          "Reconcile variances.",
-          "Approve and lock the count."
+          "اذهب إلى تحويل المخزون → إضافة تحويل جديد.",
+          "حدد الفرع المُحوَّل منه والفرع المُحوَّل إليه بدقة.",
+          "راجع الكميات وتأكد من اعتماد/استلام التحويل حسب الصلاحيات في نظامك."
+        ]
+      },
+      {
+        id: "a6",
+        title: "إشعار دائن/مدين: تعديل الفاتورة بدون إلغائها",
+        excerpt: "متى تستخدم الإشعار الدائن لتخفيض القيمة ومتى تستخدم الإشعار المدين لزيادتها.",
+        category: "المبيعات",
+        date: "2026-01-12",
+        views: 760,
+        rating: 4.3,
+        minutes: 5,
+        content: [
+          "الإشعار الدائن: لتخفيض القيمة (خصم، إرجاع، زيادة احتساب سابق).",
+          "الإشعار المدين: لرفع القيمة (فروقات سعرية، نقص احتساب سابق).",
+          "الهدف: الحفاظ على التسلسل المحاسبي دون إلغاء الفاتورة الأصلية."
+        ]
+      },
+      {
+        id: "a7",
+        title: "هيكلة الأصناف: خام + أصناف تجميعية لتفادي فروقات المخزون",
+        excerpt: "حل احترافي لفصل الخام عن الناتج وربط الاستهلاك تلقائيًا مع المبيعات.",
+        category: "التصنيع",
+        date: "2026-02-06",
+        views: 1650,
+        rating: 4.9,
+        minutes: 8,
+        content: [
+          "عرّف الصنف الأساسي كصنف خام.",
+          "عرّف الأصناف الناتجة كأصناف تجميعية تعتمد في مكوناتها على الخام.",
+          "عند البيع، يظهر اسم التجميعي، بينما يتم خصم الخام تلقائيًا من الداخل لضبط الرصيد بدقة."
+        ]
+      },
+      {
+        id: "a8",
+        title: "استبعاد الأصناف ذات الكمية الصفرية من تقرير الأرصدة",
+        excerpt: "تفعيل فلتر بسيط يخفي الأصناف ذات الرصيد الصفري لتسهيل المراجعة.",
+        category: "التقارير",
+        date: "2026-02-01",
+        views: 540,
+        rating: 4.2,
+        minutes: 3,
+        content: [
+          "ادخل إلى النظام المالي → أرصدة الأصناف.",
+          "في أسفل الصفحة فعّل خيار (كمية غير صفرية).",
+          "ستُخفى الأصناف ذات الكمية الصفرية تلقائيًا."
+        ]
+      },
+      {
+        id: "a9",
+        title: "تحديد فئات فرعية للأصناف لتنظيم التقارير والبحث",
+        excerpt: "تقسيم الفئات يسهل إدارة المنتجات وتقارير المبيعات والمخزون.",
+        category: "الإعدادات",
+        date: "2026-01-18",
+        views: 620,
+        rating: 4.1,
+        minutes: 4,
+        content: [
+          "اذهب إلى إعدادات النظام → الفئات الرئيسية.",
+          "أمام كل فئة رئيسية استخدم زر الإضافة لإنشاء فئة فرعية.",
+          "احفظ التعديلات ثم اربط الأصناف بالفئة الفرعية عند تحرير الصنف."
+        ]
+      },
+      {
+        id: "a10",
+        title: "الوحدات: كيف تضيف درزن وشدة وحبة بطريقة صحيحة",
+        excerpt: "ربط وحدات متعددة (حبة/شدة/درزن) باستخدام عملية الضرب لتتحول الكميات تلقائيًا.",
+        category: "الإعدادات",
+        date: "2026-02-14",
+        views: 1120,
+        rating: 4.6,
+        minutes: 7,
+        content: [
+          "حدد الوحدة الأساسية (مثل الحبة).",
+          "أنشئ وحدة فرعية (مثل الدرزن) وربطها بالحبة مع عملية ضرب وقيمة 12.",
+          "يمكنك إضافة وحدات إضافية (شدة) بنفس الأسلوب وربطها بوحدة أساس واضحة لتفادي أخطاء الكميات."
+        ]
+      },
+      {
+        id: "a11",
+        title: "كيف تطلع قيمة المخزون الإجمالية بسرعة",
+        excerpt: "أين تجد إجمالي قيمة المخزون (متوسط التكلفة الإجمالي) وكيف تتأكد من الفترة الصحيحة.",
+        category: "المحاسبة",
+        date: "2026-01-30",
+        views: 830,
+        rating: 4.4,
+        minutes: 4,
+        content: [
+          "ادخل إلى النظام المحاسبي → أرصدة الأصناف.",
+          "تأكد من فلترة الفترة المطلوبة.",
+          "أسفل الصفحة ستجد (متوسط التكلفة (الإجمالي)) وهو إجمالي قيمة المخزون."
         ]
       }
     ];
 
-    // ---------- State ----------
+    // -----------------------------
+    // State
+    // -----------------------------
     const state = {
-      theme: localStorage.getItem("theme") || "dark",
       query: "",
-      topic: "All",
+      category: "all",
       sort: "newest",
-      page: 1,
-      pageSize: 6
+      pageSize: 9,
+      visibleCount: 9,
+      theme: "dark"
     };
 
-    // ---------- Elements ----------
+    // -----------------------------
+    // Helpers
+    // -----------------------------
     const $ = (sel) => document.querySelector(sel);
-    const grid = $("#cardsGrid");
-    const empty = $("#emptyState");
-    const meta = $("#resultsMeta");
-    const pageInfo = $("#pageInfo");
-    const pageCount = $("#pageCount");
-    const prevBtn = $("#prevBtn");
-    const nextBtn = $("#nextBtn");
-    const resetBtn = $("#resetBtn");
-    const searchInput = $("#searchInput");
-    const sortSelect = $("#sortSelect");
-    const topicPills = $("#topicPills");
-    const themeToggle = $("#themeToggle");
-    const themeLabel = $("#themeLabel");
-    const openTips = $("#openTips");
+    const gridEl = $("#grid");
+    const emptyEl = $("#emptyState");
+    const loadMoreBtn = $("#loadMoreBtn");
 
-    const modal = $("#modal");
-    const modalClose = $("#modalClose");
-    const modalTopic = $("#modalTopic");
-    const modalTitle = $("#modalTitle");
-    const modalTitleH2 = $("#modalTitleH2");
-    const modalMeta = $("#modalMeta");
-    const modalContent = $("#modalContent");
-
-    const statTotal = $("#statTotal");
-    const statTopics = $("#statTopics");
-    const statReading = $("#statReading");
-    const statUpdated = $("#statUpdated");
-
-    // ---------- Helpers ----------
-    const fmtDate = (iso) => {
+    function formatDate(iso){
       const d = new Date(iso + "T00:00:00");
-      return d.toLocaleDateString(undefined, { year:"numeric", month:"short", day:"2-digit" });
-    };
-    const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
-    const uniq = (arr) => [...new Set(arr)];
-
-    function applyTheme(){
-      document.documentElement.setAttribute("data-theme", state.theme);
-      const isLight = state.theme === "light";
-      themeLabel.textContent = isLight ? "Light" : "Dark";
-      localStorage.setItem("theme", state.theme);
+      const fmt = new Intl.DateTimeFormat("ar-SA", { year:"numeric", month:"long", day:"numeric" });
+      return fmt.format(d);
     }
 
-    function computeStats(){
-      statTotal.textContent = String(ARTICLES.length);
-      const topics = uniq(ARTICLES.map(a => a.topic));
-      statTopics.textContent = String(topics.length);
-      const avg = Math.round(ARTICLES.reduce((s,a)=>s+a.readingMin,0) / ARTICLES.length);
-      statReading.textContent = `${avg} min`;
-      const last = ARTICLES
-        .map(a => a.date)
-        .sort((a,b)=> new Date(b) - new Date(a))[0];
-      statUpdated.textContent = fmtDate(last);
+    function toast(title, msg){
+      const t = $("#toast");
+      t.innerHTML = `<strong>${title}</strong><p>${msg}</p>`;
+      t.style.display = "block";
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(()=> t.style.display="none", 2400);
     }
 
-    function buildTopics(){
-      const topics = ["All", ...uniq(ARTICLES.map(a => a.topic)).sort((a,b)=>a.localeCompare(b))];
-      topicPills.innerHTML = "";
-      topics.forEach(t => {
-        const el = document.createElement("button");
-        el.type = "button";
-        el.className = "pill" + (t === state.topic ? " active" : "");
-        el.textContent = t;
-        el.addEventListener("click", () => {
-          state.topic = t;
-          state.page = 1;
-          render();
-        });
-        topicPills.appendChild(el);
-      });
+    function computeMostCommonCategory(list){
+      const map = new Map();
+      list.forEach(a => map.set(a.category, (map.get(a.category)||0)+1));
+      let best = null, bestN = -1;
+      for (const [k,v] of map.entries()){
+        if (v > bestN){ best = k; bestN = v; }
+      }
+      return best ? `${best} (${bestN})` : "—";
     }
 
-    function filterAndSort(){
+    function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+
+    // -----------------------------
+    // Filtering + Sorting
+    // -----------------------------
+    function getFiltered(){
       const q = state.query.trim().toLowerCase();
-      let list = ARTICLES.slice();
+      let list = [...articles];
 
-      if (state.topic !== "All"){
-        list = list.filter(a => a.topic === state.topic);
+      if (state.category !== "all"){
+        list = list.filter(a => a.category === state.category);
       }
-
       if (q){
-        list = list.filter(a => {
-          const hay = [
-            a.title, a.topic, a.author, a.excerpt,
-            ...(a.content || []),
-            ...(a.bullets || [])
-          ].join(" ").toLowerCase();
-          return hay.includes(q);
-        });
+        list = list.filter(a =>
+          a.title.toLowerCase().includes(q) ||
+          a.excerpt.toLowerCase().includes(q) ||
+          a.category.toLowerCase().includes(q)
+        );
       }
 
-      switch (state.sort){
-        case "oldest":
-          list.sort((a,b) => new Date(a.date) - new Date(b.date));
-          break;
-        case "reading":
-          list.sort((a,b) => a.readingMin - b.readingMin);
-          break;
-        case "title":
-          list.sort((a,b) => a.title.localeCompare(b.title));
-          break;
-        case "newest":
-        default:
-          list.sort((a,b) => new Date(b.date) - new Date(a.date));
+      if (state.sort === "newest"){
+        list.sort((a,b) => new Date(b.date) - new Date(a.date));
+      } else if (state.sort === "views"){
+        list.sort((a,b) => b.views - a.views);
+      } else if (state.sort === "rating"){
+        list.sort((a,b) => b.rating - a.rating);
       }
-
       return list;
     }
 
-    function cardTemplate(a){
+    // -----------------------------
+    // Rendering
+    // -----------------------------
+    function render(){
+      const list = getFiltered();
+      const visible = list.slice(0, state.visibleCount);
+
+      gridEl.innerHTML = visible.map(a => cardHTML(a)).join("");
+
+      emptyEl.style.display = list.length ? "none" : "block";
+      loadMoreBtn.style.display = (list.length > visible.length) ? "inline-flex" : "none";
+
+      // Stats
+      $("#statTotal").textContent = `إجمالي المقالات: ${articles.length}`;
+      $("#statShown").textContent = `المعروض الآن: ${visible.length} / ${list.length}`;
+      const top = [...articles].sort((x,y)=>y.rating-x.rating)[0];
+      $("#statTop").textContent = `أعلى تقييم: ${top ? `${top.rating}⭐` : "—"}`;
+      $("#statCat").textContent = `الأكثر نشرًا: ${computeMostCommonCategory(articles)}`;
+
+      // bind open buttons
+      document.querySelectorAll("[data-open]").forEach(btn => {
+        btn.addEventListener("click", () => openArticle(btn.getAttribute("data-open")));
+      });
+    }
+
+    function cardHTML(a){
       return `
-        <article class="card" data-id="${a.id}" tabindex="0" role="button" aria-label="Open article: ${escapeHtml(a.title)}">
-          <div class="thumb">
-            <span class="tag">${escapeHtml(a.topic)}</span>
-          </div>
+        <article class="card" aria-label="مقال">
+          <div class="thumb" aria-hidden="true"></div>
           <div class="card-body">
-            <h3 class="title">${escapeHtml(a.title)}</h3>
-            <p class="excerpt">${escapeHtml(a.excerpt)}</p>
-            <div class="row">
-              <div class="author">
-                <span class="avatar" aria-hidden="true"></span>
-                <span>${escapeHtml(a.author)}</span>
+            <div class="meta">
+              <span>${formatDate(a.date)}</span>
+              <span class="tag"><span class="t-dot"></span>${a.category}</span>
+            </div>
+
+            <h3 class="title">${escapeHTML(a.title)}</h3>
+            <p class="excerpt">${escapeHTML(a.excerpt)}</p>
+
+            <div class="card-footer">
+              <button class="btn" type="button" data-open="${a.id}">
+                اقرأ المقال
+                <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M10 17l5-5-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+
+              <div class="stats" aria-label="إحصائيات">
+                <span class="stat-pill" title="عدد القراءات">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" stroke="currentColor" stroke-width="2"/>
+                    <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                  ${a.views.toLocaleString("ar-SA")}
+                </span>
+
+                <span class="stat-pill" title="التقييم">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 3l2.7 5.8 6.3.9-4.6 4.5 1.1 6.3L12 17.9 6.5 20.5l1.1-6.3L3 9.7l6.3-.9L12 3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                  </svg>
+                  ${a.rating}
+                </span>
+
+                <span class="stat-pill" title="زمن القراءة">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 8v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                  ${a.minutes} د
+                </span>
               </div>
-              <div>${fmtDate(a.date)} • ${a.readingMin} min</div>
             </div>
           </div>
         </article>
       `;
     }
 
-    function escapeHtml(str){
+    function escapeHTML(str){
       return String(str)
         .replaceAll("&","&amp;")
         .replaceAll("<","&lt;")
@@ -975,139 +999,147 @@
         .replaceAll("'","&#039;");
     }
 
-    function render(){
-      // Update pills active states
-      [...topicPills.children].forEach(btn => {
-        btn.classList.toggle("active", btn.textContent === state.topic);
-      });
-
-      // Filter + sort
-      const list = filterAndSort();
-
-      // Pagination
-      const total = list.length;
-      const totalPages = Math.max(1, Math.ceil(total / state.pageSize));
-      state.page = clamp(state.page, 1, totalPages);
-
-      const start = (state.page - 1) * state.pageSize;
-      const pageItems = list.slice(start, start + state.pageSize);
-
-      grid.innerHTML = pageItems.map(cardTemplate).join("");
-      empty.style.display = pageItems.length ? "none" : "block";
-
-      meta.textContent = `Showing ${pageItems.length} of ${total} results` + (state.topic !== "All" ? ` • Topic: ${state.topic}` : "");
-      pageInfo.textContent = `Page ${state.page} of ${totalPages}`;
-      pageCount.textContent = totalPages === 1 ? "—" : `Total pages: ${totalPages}`;
-
-      prevBtn.disabled = state.page <= 1;
-      nextBtn.disabled = state.page >= totalPages;
-
-      // Bind open actions
-      [...grid.querySelectorAll(".card")].forEach(card => {
-        card.addEventListener("click", () => openArticle(card.dataset.id));
-        card.addEventListener("keydown", (e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            openArticle(card.dataset.id);
-          }
-        });
-      });
-    }
+    // -----------------------------
+    // Modal
+    // -----------------------------
+    const overlay = $("#overlay");
+    const modalTitle = $("#modalTitle");
+    const modalSub = $("#modalSub");
+    const modalBody = $("#modalBody");
 
     function openArticle(id){
-      const a = ARTICLES.find(x => x.id === id);
+      const a = articles.find(x => x.id === id);
       if (!a) return;
 
-      modalTopic.textContent = a.topic;
       modalTitle.textContent = a.title;
-      modalTitleH2.textContent = a.title;
-
-      modalMeta.innerHTML = `
-        <span>By <strong>${escapeHtml(a.author)}</strong></span>
+      modalSub.innerHTML = `
+        <span class="tag"><span class="t-dot"></span>${a.category}</span>
         <span>•</span>
-        <span>${fmtDate(a.date)}</span>
+        <span>${formatDate(a.date)}</span>
         <span>•</span>
-        <span>${a.readingMin} min read</span>
+        <span>${a.minutes} دقائق قراءة</span>
+        <span>•</span>
+        <span>${a.views.toLocaleString("ar-SA")} قراءة</span>
+        <span>•</span>
+        <span>${a.rating}⭐</span>
       `;
 
-      const paragraphs = (a.content || []).map(p => `<p>${escapeHtml(p)}</p>`).join("");
-      const bullets = (a.bullets && a.bullets.length)
-        ? `<ul>${a.bullets.map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
-        : "";
+      modalBody.innerHTML = `
+        <p>${escapeHTML(a.excerpt)}</p>
+        <ul>
+          ${a.content.map(p => `<li>${escapeHTML(p)}</li>`).join("")}
+        </ul>
+      `;
 
-      modalContent.innerHTML = paragraphs + bullets;
-      modal.classList.add("open");
-      document.body.style.overflow = "hidden";
+      overlay.style.display = "flex";
+
+      // bump views (demo)
+      a.views += 1;
+      render();
     }
 
     function closeModal(){
-      modal.classList.remove("open");
-      document.body.style.overflow = "";
+      overlay.style.display = "none";
     }
 
-    // ---------- Events ----------
-    searchInput.addEventListener("input", (e) => {
+    $("#closeModal").addEventListener("click", closeModal);
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) closeModal();
+    });
+    document.addEventListener("keydown", (e)=>{
+      if (e.key === "Escape") closeModal();
+    });
+
+    // -----------------------------
+    // Controls events
+    // -----------------------------
+    $("#searchInput").addEventListener("input", (e)=>{
       state.query = e.target.value;
-      state.page = 1;
+      state.visibleCount = state.pageSize;
       render();
     });
 
-    sortSelect.addEventListener("change", (e) => {
+    $("#categorySelect").addEventListener("change", (e)=>{
+      state.category = e.target.value;
+      state.visibleCount = state.pageSize;
+      render();
+    });
+
+    $("#sortSelect").addEventListener("change", (e)=>{
       state.sort = e.target.value;
-      state.page = 1;
+      state.visibleCount = state.pageSize;
       render();
     });
 
-    prevBtn.addEventListener("click", () => {
-      state.page = Math.max(1, state.page - 1);
+    $("#pageSizeSelect").addEventListener("change", (e)=>{
+      state.pageSize = parseInt(e.target.value, 10);
+      state.visibleCount = state.pageSize;
       render();
     });
 
-    nextBtn.addEventListener("click", () => {
-      state.page = state.page + 1;
+    loadMoreBtn.addEventListener("click", ()=>{
+      const list = getFiltered();
+      state.visibleCount = clamp(state.visibleCount + state.pageSize, 0, list.length);
       render();
     });
 
-    resetBtn.addEventListener("click", () => {
-      state.query = "";
-      state.topic = "All";
-      state.sort = "newest";
-      state.page = 1;
-      searchInput.value = "";
-      sortSelect.value = "newest";
-      render();
-    });
-
-    themeToggle.addEventListener("click", () => {
-      state.theme = (state.theme === "dark") ? "light" : "dark";
-      applyTheme();
-    });
-
-    openTips.addEventListener("click", () => {
-      openArticle("a-005"); // open a helpful article as "tips"
-    });
-
-    modalClose.addEventListener("click", closeModal);
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) closeModal();
-    });
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "/" && document.activeElement !== searchInput){
+    // Keyboard shortcut: "/" focuses search
+    document.addEventListener("keydown", (e)=>{
+      if (e.key === "/" && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA"){
         e.preventDefault();
-        searchInput.focus();
-      }
-      if (e.key === "Escape"){
-        closeModal();
+        $("#searchInput").focus();
       }
     });
 
-    // ---------- Init ----------
-    applyTheme();
-    computeStats();
-    buildTopics();
-    sortSelect.value = state.sort;
-    render();
+    // Theme toggle (persist)
+    function applyTheme(theme){
+      document.documentElement.setAttribute("data-theme", theme);
+      state.theme = theme;
+      localStorage.setItem("theme", theme);
+
+      // swap icon (simple)
+      const btn = $("#themeBtn");
+      btn.innerHTML = theme === "light"
+        ? `<svg class="icon" viewBox="0 0 24 24" fill="none">
+             <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z" stroke="currentColor" stroke-width="2"/>
+             <path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l-1.5-1.5M20.5 20.5L19 19M19 5l1.5-1.5M3.5 20.5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+           </svg>`
+        : `<svg class="icon" viewBox="0 0 24 24" fill="none">
+             <path d="M21 13.2A8.5 8.5 0 0 1 10.8 3 7 7 0 1 0 21 13.2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+           </svg>`;
+    }
+
+    $("#themeBtn").addEventListener("click", ()=>{
+      applyTheme(state.theme === "dark" ? "light" : "dark");
+      toast("تم تغيير المظهر ✅", state.theme === "dark" ? "الوضع الليلي مفعل." : "الوضع النهاري مفعل.");
+    });
+
+    $("#subscribeBtn").addEventListener("click", ()=>{
+      toast("اشتراك تجريبي ✨", "هذا زر شكلي — يمكنك ربطه لاحقًا بنموذج بريد أو API.");
+    });
+
+    // -----------------------------
+    // Init categories
+    // -----------------------------
+    function init(){
+      $("#year").textContent = new Date().getFullYear();
+
+      const savedTheme = localStorage.getItem("theme");
+      applyTheme(savedTheme === "light" ? "light" : "dark");
+
+      const cats = Array.from(new Set(articles.map(a => a.category))).sort((a,b)=> a.localeCompare(b, "ar"));
+      const sel = $("#categorySelect");
+      cats.forEach(c=>{
+        const opt = document.createElement("option");
+        opt.value = c;
+        opt.textContent = c;
+        sel.appendChild(opt);
+      });
+
+      render();
+    }
+
+    init();
   </script>
 	<script
 	src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
@@ -1123,6 +1155,3 @@
 ></script>
 </body>
 </html>
-
-
-
