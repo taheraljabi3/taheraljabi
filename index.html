@@ -1,183 +1,117 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html>
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Smart Life Direction Demo</title>
-
-<!-- BIRD SDK -->
-<script
-  src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
-  data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62"
-  defer>
-</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RTL / LTR Test</title>
 
 <style>
 body{
   margin:0;
-  font-family:system-ui,-apple-system,"Segoe UI","Cairo",sans-serif;
+  font-family:Arial, sans-serif;
   background:#0b1220;
   color:#fff;
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  transition:.3s ease;
+  transition:.3s;
 }
 
-/* ===== HEADER ===== */
+/* ===== Direction Classes ===== */
+
+body.rtl{
+  direction:rtl;
+  text-align:right;
+}
+
+body.ltr{
+  direction:ltr;
+  text-align:left;
+}
+
+/* Header */
 header{
-  padding:20px;
-  border-bottom:1px solid rgba(255,255,255,.1);
   display:flex;
+  justify-content:space-between;
   align-items:center;
+  padding:20px;
+  border-bottom:1px solid rgba(255,255,255,.2);
 }
 
-/* RTL Layout */
-html[dir="rtl"] header{
-  flex-direction:row;
-  justify-content:space-between;
-  text-align:right;
-}
-
-/* LTR Layout */
-html[dir="ltr"] header{
+/* Force reverse layout */
+body.ltr header{
   flex-direction:row-reverse;
-  justify-content:space-between;
-  text-align:left;
 }
 
-/* ===== MAIN ===== */
-main{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  padding:40px;
-  transition:.3s ease;
+body.rtl header{
+  flex-direction:row;
 }
 
-html[dir="rtl"] main{
-  text-align:right;
-}
-
-html[dir="ltr"] main{
-  text-align:left;
-}
-
-/* ===== Direction Toggle ===== */
-.dir-toggle{
-  padding:8px 14px;
+/* Chat button */
+.chat-btn{
+  position:fixed;
+  bottom:24px;
+  right:24px;
+  padding:14px 20px;
+  border:none;
   border-radius:999px;
-  border:1px solid rgba(255,255,255,.2);
-  background:rgba(255,255,255,.08);
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);
   color:#fff;
   cursor:pointer;
-  font-weight:600;
+  font-weight:bold;
   transition:.2s;
 }
 
-.dir-toggle:hover{
-  background:rgba(255,255,255,.18);
+body.ltr .chat-btn{
+  right:auto;
+  left:24px;
 }
 
-/* ===== Chat Button ===== */
-.sl-chat-btn{
-  position:fixed;
-  bottom:24px;
-  inset-inline-end:24px; /* RTL/LTR auto */
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:14px 20px;
-  border-radius:999px;
-  border:none;
-  cursor:pointer;
-  font-size:15px;
-  font-weight:700;
-  background:linear-gradient(135deg,#4f46e5,#7c3aed);
-  color:#fff;
-  box-shadow:0 12px 30px rgba(0,0,0,.35);
-  transition:.25s;
-  z-index:9999;
-}
-
-.sl-chat-btn:hover{
+.chat-btn:hover{
   transform:translateY(-3px);
-  box-shadow:0 18px 40px rgba(0,0,0,.45);
-}
-
-.sl-chat-btn svg{
-  width:18px;
-  height:18px;
-}
-
-@media(max-width:640px){
-  .sl-chat-btn{
-    bottom:16px;
-    inset-inline-end:16px;
-  }
 }
 </style>
 </head>
 
-<body>
+<body class="rtl">
 
 <header>
-  <h2 id="pageTitle">سمارت لايف</h2>
-  <button id="dirToggleBtn" class="dir-toggle">🌐 English</button>
+  <h2 id="title">سمارت لايف</h2>
+  <button id="toggleBtn">🌐 English</button>
 </header>
 
-<main>
+<main style="padding:40px;">
   <h1 id="headline">مرحبًا بك 👋</h1>
-  <p id="desc">اضغط على زر تبديل الاتجاه لرؤية انعكاس الصفحة بالكامل.</p>
+  <p id="desc">اضغط على الزر لرؤية انعكاس الصفحة.</p>
 </main>
 
-<!-- CHAT BUTTON -->
-<button 
-  class="sl-chat-btn"
-  data-mbchat-trigger="e745248e-02fc-4580-83ba-7224c55a7327">
-  
-  <svg viewBox="0 0 24 24" fill="none">
-    <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z"
-          stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-  </svg>
-
-  <span id="chatText">تواصل معنا</span>
-</button>
+<button class="chat-btn" id="chatText">تواصل معنا</button>
 
 <script>
-const toggleBtn = document.getElementById("dirToggleBtn");
-const html = document.documentElement;
+const toggleBtn = document.getElementById("toggleBtn");
+const body = document.body;
 
-function updateDirection(dir){
-  html.setAttribute("dir", dir);
-  html.setAttribute("lang", dir === "rtl" ? "ar" : "en");
-
-  if(dir === "rtl"){
-    toggleBtn.textContent = "🌐 English";
-    document.getElementById("headline").textContent = "مرحبًا بك 👋";
-    document.getElementById("desc").textContent = "اضغط على زر تبديل الاتجاه لرؤية انعكاس الصفحة بالكامل.";
-    document.getElementById("chatText").textContent = "تواصل معنا";
-  } else {
-    toggleBtn.textContent = "🌐 عربي";
-    document.getElementById("headline").textContent = "Welcome 👋";
-    document.getElementById("desc").textContent = "Click the toggle button to see the layout fully reversed.";
-    document.getElementById("chatText").textContent = "Contact Us";
-  }
-
-  localStorage.setItem("site_direction", dir);
+function setRTL(){
+  body.classList.remove("ltr");
+  body.classList.add("rtl");
+  toggleBtn.textContent = "🌐 English";
+  document.getElementById("headline").textContent = "مرحبًا بك 👋";
+  document.getElementById("desc").textContent = "اضغط على الزر لرؤية انعكاس الصفحة.";
+  document.getElementById("chatText").textContent = "تواصل معنا";
 }
 
-// Load saved direction
-const savedDir = localStorage.getItem("site_direction");
-if(savedDir){
-  updateDirection(savedDir);
+function setLTR(){
+  body.classList.remove("rtl");
+  body.classList.add("ltr");
+  toggleBtn.textContent = "🌐 عربي";
+  document.getElementById("headline").textContent = "Welcome 👋";
+  document.getElementById("desc").textContent = "Click the button to reverse layout.";
+  document.getElementById("chatText").textContent = "Contact Us";
 }
 
 toggleBtn.addEventListener("click", ()=>{
-  const currentDir = html.getAttribute("dir");
-  const newDir = currentDir === "rtl" ? "ltr" : "rtl";
-  updateDirection(newDir);
+  if(body.classList.contains("rtl")){
+    setLTR();
+  } else {
+    setRTL();
+  }
 });
 </script>
 
