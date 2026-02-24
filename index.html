@@ -1,6 +1,10 @@
 <!doctype html>
 <html lang="ar" dir="rtl" data-theme="dark">
 <head>
+  <script
+  src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
+  data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62"
+></script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>سمارت لايف | المقالات</title>
@@ -613,40 +617,59 @@
       </div>
     </div>
   </header>
+<!-- SMART LIFE CHAT BUTTON -->
 <style>
-  .contact-chat-btn {
-    display: inline-flex;
+  .sl-chat-btn {
+    position: fixed;
+    bottom: 24px;
+    inset-inline-end: 24px; /* يعمل RTL و LTR تلقائيًا */
+    display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px 22px;
-    font-size: 16px;
-    font-weight: 600;
-    border-radius: 8px;
+    gap: 10px;
+    padding: 14px 20px;
+    border-radius: 999px;
     border: none;
     cursor: pointer;
+    font-size: 15px;
+    font-weight: 700;
     background: linear-gradient(135deg, #4f46e5, #7c3aed);
     color: #fff;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    transition: all 0.3s ease;
+    box-shadow: 0 12px 30px rgba(0,0,0,.25);
+    transition: all .25s ease;
+    z-index: 9999;
   }
 
-  .contact-chat-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+  .sl-chat-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 40px rgba(0,0,0,.35);
   }
 
-  .contact-chat-wrapper {
-    text-align: center;
-    margin: 40px 0;
+  .sl-chat-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  @media (max-width: 640px){
+    .sl-chat-btn {
+      bottom: 16px;
+      inset-inline-end: 16px;
+      padding: 12px 18px;
+      font-size: 14px;
+    }
   }
 </style>
 
-<div class="contact-chat-wrapper">
-  <button 
-    class="contact-chat-btn"
-    data-mbchat-trigger="e745248e-02fc-4580-83ba-7224c55a7327">
-    💬 تواصل معنا
-  </button>
+<button 
+  class="sl-chat-btn"
+  data-mbchat-trigger="e745248e-02fc-4580-83ba-7224c55a7327">
+  
+  <svg viewBox="0 0 24 24" fill="none">
+    <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z" 
+          stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+  </svg>
+
+  تواصل معنا
+</button>
 </div>
 
 <script>
@@ -1589,13 +1612,11 @@
 
     init();
   </script>
-<script
-  src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
-  data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62"
-></script>
+
 
 </body>
 </html>
+
 
 
 
