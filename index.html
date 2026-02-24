@@ -1,86 +1,112 @@
 <!doctype html>
 <html lang="ar" dir="rtl" data-theme="dark">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>سمارت لايف | المقالات</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Smart Life | Demo Direction Switch</title>
 
-  <!-- BIRD SDK -->
+<!-- BIRD SDK -->
+<script
+  src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
+  data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62"
+  defer>
+</script>
 
+<style>
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,"Segoe UI","Cairo",sans-serif;
+  background:#0b1220;
+  color:#fff;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
 
-  <style>
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, "Segoe UI", "Cairo", sans-serif;
-      background:#0b1220;
-      color:#fff;
-      min-height:100vh;
-    }
+header{
+  padding:20px;
+  border-bottom:1px solid rgba(255,255,255,.1);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
 
-    header{
-      padding:20px;
-      border-bottom:1px solid rgba(255,255,255,.1);
-      text-align:center;
-    }
+main{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:40px;
+}
 
-    main{
-      padding:40px;
-      text-align:center;
-    }
+/* ===== Direction Toggle Button ===== */
+.dir-toggle{
+  padding:8px 14px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  cursor:pointer;
+  font-weight:600;
+  transition:.2s;
+}
 
-    /* ===== CHAT BUTTON ===== */
+.dir-toggle:hover{
+  background:rgba(255,255,255,.18);
+}
 
-    .sl-chat-btn{
-      position: fixed;
-      bottom: 24px;
-      inset-inline-end: 24px; /* RTL/LTR auto */
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 14px 20px;
-      border-radius: 999px;
-      border: none;
-      cursor: pointer;
-      font-size: 15px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #4f46e5, #7c3aed);
-      color: #fff;
-      box-shadow: 0 12px 30px rgba(0,0,0,.35);
-      transition: all .25s ease;
-      z-index: 9999;
-    }
+/* ===== Chat Button ===== */
+.sl-chat-btn{
+  position:fixed;
+  bottom:24px;
+  inset-inline-end:24px; /* RTL/LTR auto */
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:14px 20px;
+  border-radius:999px;
+  border:none;
+  cursor:pointer;
+  font-size:15px;
+  font-weight:700;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);
+  color:#fff;
+  box-shadow:0 12px 30px rgba(0,0,0,.35);
+  transition:.25s;
+  z-index:9999;
+}
 
-    .sl-chat-btn:hover{
-      transform: translateY(-3px);
-      box-shadow: 0 18px 40px rgba(0,0,0,.45);
-    }
+.sl-chat-btn:hover{
+  transform:translateY(-3px);
+  box-shadow:0 18px 40px rgba(0,0,0,.45);
+}
 
-    .sl-chat-btn svg{
-      width:18px;
-      height:18px;
-    }
+.sl-chat-btn svg{
+  width:18px;
+  height:18px;
+}
 
-    @media (max-width:640px){
-      .sl-chat-btn{
-        bottom:16px;
-        inset-inline-end:16px;
-        padding:12px 18px;
-        font-size:14px;
-      }
-    }
-  </style>
+@media(max-width:640px){
+  .sl-chat-btn{
+    bottom:16px;
+    inset-inline-end:16px;
+  }
+}
+</style>
 </head>
 
 <body>
 
 <header>
-  <h1>سمارت لايف • المقالات</h1>
-  <p>صفحة تجريبية لعرض المقالات</p>
+  <h2 id="pageTitle">سمارت لايف</h2>
+  <button id="dirToggleBtn" class="dir-toggle">🌐 English</button>
 </header>
 
 <main>
-  <h2>مرحبًا بك 👋</h2>
-  <p>يمكنك تصفح المقالات، أو الضغط على زر تواصل معنا للتحدث مع الدعم.</p>
+  <h1 id="headline">مرحبًا بك 👋</h1>
+  <p id="desc">اضغط على زر تبديل الاتجاه لترى كيف تتغير جهة الصفحة وزر الشات.</p>
 </main>
 
 <!-- CHAT BUTTON -->
@@ -93,13 +119,44 @@
           stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
   </svg>
 
-  تواصل معنا
+  <span id="chatText">تواصل معنا</span>
 </button>
-  <script
-	src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
-	data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62"
-></script>
+
+<script>
+const toggleBtn = document.getElementById("dirToggleBtn");
+const html = document.documentElement;
+
+function updateDirection(dir){
+  html.setAttribute("dir", dir);
+  html.setAttribute("lang", dir === "rtl" ? "ar" : "en");
+
+  if(dir === "rtl"){
+    toggleBtn.textContent = "🌐 English";
+    document.getElementById("headline").textContent = "مرحبًا بك 👋";
+    document.getElementById("desc").textContent = "اضغط على زر تبديل الاتجاه لترى كيف تتغير جهة الصفحة وزر الشات.";
+    document.getElementById("chatText").textContent = "تواصل معنا";
+  } else {
+    toggleBtn.textContent = "🌐 عربي";
+    document.getElementById("headline").textContent = "Welcome 👋";
+    document.getElementById("desc").textContent = "Click the toggle button to see the page and chat direction change.";
+    document.getElementById("chatText").textContent = "Contact Us";
+  }
+
+  localStorage.setItem("site_direction", dir);
+}
+
+// Load saved direction
+const savedDir = localStorage.getItem("site_direction");
+if(savedDir){
+  updateDirection(savedDir);
+}
+
+toggleBtn.addEventListener("click", ()=>{
+  const currentDir = html.getAttribute("dir");
+  const newDir = currentDir === "rtl" ? "ltr" : "rtl";
+  updateDirection(newDir);
+});
+</script>
+
 </body>
 </html>
-
-
