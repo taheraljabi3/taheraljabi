@@ -5,7 +5,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>سمارت لايف | المقالات</title>
   <meta name="description" content="صفحة مقالات عربية بتصميم احترافي مع بحث وفلترة ووضع ليلي ومفضلة ومشاركة." />
-
+<script
+  src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
+  data-config-url="PUT-YOUR-DATA-CONFIG-URL-HERE"
+></script>
+  
   <style>
     :root{
       --bg: #0b1220;
@@ -613,7 +617,53 @@
       </div>
     </div>
   </header>
+<style>
+  .contact-chat-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+  }
 
+  .contact-chat-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+  }
+
+  .contact-chat-wrapper {
+    text-align: center;
+    margin: 40px 0;
+  }
+</style>
+
+<div class="contact-chat-wrapper">
+  <button 
+    class="contact-chat-btn"
+    data-mbchat-trigger="YOUR-PROJECT-ID">
+    💬 تواصل معنا
+  </button>
+</div>
+
+<script>
+  // Auto detect direction
+  const html = document.documentElement;
+  const isRTL = html.dir === "rtl" || html.lang === "ar";
+
+  if (isRTL) {
+    document.querySelector(".contact-chat-btn").style.direction = "rtl";
+  } else {
+    document.querySelector(".contact-chat-btn").style.direction = "ltr";
+  }
+</script>
   <!-- HERO + CONTROLS -->
   <main class="container hero">
     <div class="hero-grid">
@@ -1547,11 +1597,8 @@
     init();
   </script>
 
-  <!-- Bird SDK: كان مكرر 3 مرات — خليته مرة واحدة ✅ -->
-  <script
-    src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
-    data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62">
-  </script>
+
 </body>
 </html>
+
 
