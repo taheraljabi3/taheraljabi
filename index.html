@@ -1,117 +1,181 @@
 <!doctype html>
-<html>
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RTL / LTR Test</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Smart Life Direction + Bird Fix</title>
+
+<!-- BIRD SDK -->
+<script
+  src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
+  data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62"
+  defer>
+</script>
 
 <style>
 body{
   margin:0;
-  font-family:Arial, sans-serif;
+  font-family:system-ui,-apple-system,"Segoe UI","Cairo",sans-serif;
   background:#0b1220;
   color:#fff;
-  transition:.3s;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  transition:.3s ease;
 }
 
-/* ===== Direction Classes ===== */
+/* ===== HEADER ===== */
+header{
+  padding:20px;
+  border-bottom:1px solid rgba(255,255,255,.1);
+  display:flex;
+  align-items:center;
+}
 
-body.rtl{
-  direction:rtl;
+html[dir="rtl"] header{
+  flex-direction:row;
+  justify-content:space-between;
+}
+
+html[dir="ltr"] header{
+  flex-direction:row-reverse;
+  justify-content:space-between;
+}
+
+/* ===== MAIN ===== */
+main{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:40px;
+}
+
+html[dir="rtl"] main{
   text-align:right;
 }
 
-body.ltr{
-  direction:ltr;
+html[dir="ltr"] main{
   text-align:left;
 }
 
-/* Header */
-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:20px;
-  border-bottom:1px solid rgba(255,255,255,.2);
-}
-
-/* Force reverse layout */
-body.ltr header{
-  flex-direction:row-reverse;
-}
-
-body.rtl header{
-  flex-direction:row;
-}
-
-/* Chat button */
-.chat-btn{
-  position:fixed;
-  bottom:24px;
-  right:24px;
-  padding:14px 20px;
-  border:none;
+/* ===== Toggle Button ===== */
+.dir-toggle{
+  padding:8px 14px;
   border-radius:999px;
-  background:linear-gradient(135deg,#4f46e5,#7c3aed);
+  border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.08);
   color:#fff;
   cursor:pointer;
-  font-weight:bold;
-  transition:.2s;
+  font-weight:600;
 }
 
-body.ltr .chat-btn{
-  right:auto;
-  left:24px;
+/* ===== Custom Chat Button ===== */
+.sl-chat-btn{
+  position:fixed;
+  bottom:24px;
+  inset-inline-end:24px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:14px 20px;
+  border-radius:999px;
+  border:none;
+  cursor:pointer;
+  font-size:15px;
+  font-weight:700;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);
+  color:#fff;
+  box-shadow:0 12px 30px rgba(0,0,0,.35);
+  transition:.25s;
+  z-index:9999;
 }
 
-.chat-btn:hover{
+.sl-chat-btn:hover{
   transform:translateY(-3px);
 }
 </style>
 </head>
 
-<body class="rtl">
+<body>
 
 <header>
   <h2 id="title">سمارت لايف</h2>
-  <button id="toggleBtn">🌐 English</button>
+  <button id="dirToggleBtn" class="dir-toggle">🌐 English</button>
 </header>
 
-<main style="padding:40px;">
+<main>
   <h1 id="headline">مرحبًا بك 👋</h1>
-  <p id="desc">اضغط على الزر لرؤية انعكاس الصفحة.</p>
+  <p id="desc">بدّل الاتجاه لترى الشات يتحرك فعليًا.</p>
 </main>
 
-<button class="chat-btn" id="chatText">تواصل معنا</button>
+<button 
+  class="sl-chat-btn"
+  data-mbchat-trigger="e745248e-02fc-4580-83ba-7224c55a7327">
+  <span id="chatText">تواصل معنا</span>
+</button>
 
 <script>
-const toggleBtn = document.getElementById("toggleBtn");
-const body = document.body;
+const html = document.documentElement;
+const toggleBtn = document.getElementById("dirToggleBtn");
 
-function setRTL(){
-  body.classList.remove("ltr");
-  body.classList.add("rtl");
-  toggleBtn.textContent = "🌐 English";
-  document.getElementById("headline").textContent = "مرحبًا بك 👋";
-  document.getElementById("desc").textContent = "اضغط على الزر لرؤية انعكاس الصفحة.";
-  document.getElementById("chatText").textContent = "تواصل معنا";
-}
+/* ===== Update Direction ===== */
+function updateDirection(dir){
+  html.setAttribute("dir", dir);
+  html.setAttribute("lang", dir === "rtl" ? "ar" : "en");
 
-function setLTR(){
-  body.classList.remove("rtl");
-  body.classList.add("ltr");
-  toggleBtn.textContent = "🌐 عربي";
-  document.getElementById("headline").textContent = "Welcome 👋";
-  document.getElementById("desc").textContent = "Click the button to reverse layout.";
-  document.getElementById("chatText").textContent = "Contact Us";
-}
-
-toggleBtn.addEventListener("click", ()=>{
-  if(body.classList.contains("rtl")){
-    setLTR();
+  if(dir === "rtl"){
+    toggleBtn.textContent = "🌐 English";
+    document.getElementById("headline").textContent = "مرحبًا بك 👋";
+    document.getElementById("desc").textContent = "بدّل الاتجاه لترى الشات يتحرك فعليًا.";
+    document.getElementById("chatText").textContent = "تواصل معنا";
   } else {
-    setRTL();
+    toggleBtn.textContent = "🌐 عربي";
+    document.getElementById("headline").textContent = "Welcome 👋";
+    document.getElementById("desc").textContent = "Switch direction to see chat move properly.";
+    document.getElementById("chatText").textContent = "Contact Us";
   }
+
+  localStorage.setItem("site_direction", dir);
+  repositionBirdWidget();
+}
+
+/* ===== Reposition Bird Widget ===== */
+function repositionBirdWidget(){
+  const iframes = document.querySelectorAll("iframe");
+  iframes.forEach(frame=>{
+    if(frame.src && frame.src.includes("bird")){
+      frame.style.left = "";
+      frame.style.right = "";
+      frame.style.bottom = "24px";
+      frame.style.position = "fixed";
+      frame.style.zIndex = "9998";
+
+      if(html.getAttribute("dir") === "rtl"){
+        frame.style.right = "24px";
+      } else {
+        frame.style.left = "24px";
+      }
+    }
+  });
+}
+
+/* ===== Observe DOM for Bird Injection ===== */
+const observer = new MutationObserver(()=>{
+  repositionBirdWidget();
+});
+observer.observe(document.body, { childList:true, subtree:true });
+
+/* ===== Load Saved Direction ===== */
+const saved = localStorage.getItem("site_direction");
+if(saved){
+  updateDirection(saved);
+}
+
+/* ===== Toggle Click ===== */
+toggleBtn.addEventListener("click", ()=>{
+  const current = html.getAttribute("dir");
+  updateDirection(current === "rtl" ? "ltr" : "rtl");
 });
 </script>
 
