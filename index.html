@@ -14,17 +14,14 @@ body{
   min-height:100vh;
   display:flex;
   flex-direction:column;
-  transition:.3s ease;
 }
 header{
   padding:20px;
   border-bottom:1px solid rgba(255,255,255,.1);
   display:flex;
+  justify-content:space-between;
   align-items:center;
 }
-html[dir="rtl"] header{ flex-direction:row; justify-content:space-between; }
-html[dir="ltr"] header{ flex-direction:row-reverse; justify-content:space-between; }
-
 main{
   flex:1;
   display:flex;
@@ -32,9 +29,6 @@ main{
   justify-content:center;
   padding:40px;
 }
-html[dir="rtl"] main{ text-align:right; }
-html[dir="ltr"] main{ text-align:left; }
-
 .dir-toggle{
   padding:8px 14px;
   border-radius:999px;
@@ -45,6 +39,64 @@ html[dir="ltr"] main{ text-align:left; }
   font-weight:600;
 }
 </style>
+
+<script>
+/* ========= توليد رقم ثابت لكل جهاز ========= */
+function getOrCreateErpId(){
+  const key = "sl_erp_identity";
+  let id = localStorage.getItem(key);
+
+  if(!id){
+    // رقم عشوائي من 01 إلى 99
+    const num = Math.floor(Math.random()*99 + 1).toString().padStart(2,"0");
+    id = "ERP-mawared-" + num;
+    localStorage.setItem(key,id);
+  }
+
+  return id;
+}
+
+function buildProfile(){
+  const erpId = getOrCreateErpId();
+  const email = erpId + "@smartlife.local";
+
+  return {
+    erpId,
+    email,
+    displayName: erpId,
+    subscribedAppInbox: true
+  };
+}
+
+/* ========= Identify قبل تشغيل الودجت ========= */
+window.birdAsyncInit = async function (sdk, conf) {
+
+  await sdk.init({ config: conf });
+
+  const p = buildProfile();
+
+  await sdk.contact.identify(
+    {
+      strategy: "Visitor",
+      identifier: { key: "emailaddress", value: p.email }
+    },
+    {
+      displayName: p.displayName,
+      subscribedAppInbox: p.subscribedAppInbox
+    }
+  );
+
+  if (sdk.contact.updateCurrent) {
+    await sdk.contact.updateCurrent({
+      displayName: p.displayName,
+      subscribedAppInbox: p.subscribedAppInbox
+    });
+  }
+
+  console.log("Bird Identified as:", p.displayName);
+};
+</script>
+
 </head>
 
 <body>
@@ -55,61 +107,25 @@ html[dir="ltr"] main{ text-align:left; }
 </header>
 
 <main>
-  <h1 id="headline">مرحبًا بك 👋</h1>
-  <p id="desc">تجربة تحديث Contact Attributes</p>
+  <h1>مرحبًا بك 👋</h1>
+  <p>الآن الاسم الظاهر في الشات هو ERP-mawared-XX</p>
 </main>
 
-<!-- ✅ Bird SDK مرة واحدة فقط -->
+<!-- تحميل SDK مرة واحدة فقط -->
 <script
+  async
   src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
-  data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62"
+  data-config-url="PUT_WIDGET_CONFIG_URL_HERE"
 ></script>
 
 <script>
-/* =========================
-   تحديث Contact Attributes
-   ========================= */
-
-Bird.eventTarget.addEventListener('bird-sdk-initialized', async () => {
-  try {
-
-    await Bird.contact.putAttributes({
-      displayName: "Roy Glass",
-      customName: "SmartLife Visitor",
-      subscribedAppInbox: true,
-      subscribedPush: true,
-      testFlag: "TEST_001"
-    });
-
-    console.log("✅ Contact Attributes updated successfully");
-
-  } catch (error) {
-    console.error("❌ Error updating attributes:", error);
-  }
-});
-
-
-/* ======== تبديل اللغة (بدون إعادة تحميل SDK) ======== */
 const toggleBtn = document.getElementById("dirToggleBtn");
 const html = document.documentElement;
 
 function updateDirection(dir){
-  const lang = dir === "rtl" ? "ar" : "en";
-
   html.setAttribute("dir", dir);
-  html.setAttribute("lang", lang);
-
-  if(lang === "ar"){
-    toggleBtn.textContent = "🌐 English";
-    document.getElementById("headline").textContent = "مرحبًا بك 👋";
-    document.getElementById("desc").textContent = "تجربة تحديث Contact Attributes";
-  } else {
-    toggleBtn.textContent = "🌐 عربي";
-    document.getElementById("headline").textContent = "Welcome 👋";
-    document.getElementById("desc").textContent = "Testing Contact Attributes";
-  }
-
-  localStorage.setItem("site_lang", lang);
+  toggleBtn.textContent = dir === "rtl" ? "🌐 English" : "🌐 عربي";
+  localStorage.setItem("site_lang", dir === "rtl" ? "ar" : "en");
 }
 
 const savedLang = localStorage.getItem("site_lang") || "ar";
