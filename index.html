@@ -3,13 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Smart Life Direction + Bird Fix</title>
+<title>Smart Life Multi-Language Chat</title>
 
-<!-- BIRD SDK -->
-<script
-	src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
-	data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62"
-></script>
 <style>
 body{
   margin:0;
@@ -22,7 +17,7 @@ body{
   transition:.3s ease;
 }
 
-/* ===== HEADER ===== */
+/* HEADER */
 header{
   padding:20px;
   border-bottom:1px solid rgba(255,255,255,.1);
@@ -40,7 +35,7 @@ html[dir="ltr"] header{
   justify-content:space-between;
 }
 
-/* ===== MAIN ===== */
+/* MAIN */
 main{
   flex:1;
   display:flex;
@@ -49,15 +44,10 @@ main{
   padding:40px;
 }
 
-html[dir="rtl"] main{
-  text-align:right;
-}
+html[dir="rtl"] main{ text-align:right; }
+html[dir="ltr"] main{ text-align:left; }
 
-html[dir="ltr"] main{
-  text-align:left;
-}
-
-/* ===== Toggle Button ===== */
+/* LANGUAGE BUTTON */
 .dir-toggle{
   padding:8px 14px;
   border-radius:999px;
@@ -66,31 +56,6 @@ html[dir="ltr"] main{
   color:#fff;
   cursor:pointer;
   font-weight:600;
-}
-
-/* ===== Custom Chat Button ===== */
-.sl-chat-btn{
-  position:fixed;
-  bottom:24px;
-  inset-inline-end:24px;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:14px 20px;
-  border-radius:999px;
-  border:none;
-  cursor:pointer;
-  font-size:15px;
-  font-weight:700;
-  background:linear-gradient(135deg,#4f46e5,#7c3aed);
-  color:#fff;
-  box-shadow:0 12px 30px rgba(0,0,0,.35);
-  transition:.25s;
-  z-index:9999;
-}
-
-.sl-chat-btn:hover{
-  transform:translateY(-3px);
 }
 </style>
 </head>
@@ -104,79 +69,77 @@ html[dir="ltr"] main{
 
 <main>
   <h1 id="headline">مرحبًا بك 👋</h1>
-  <p id="desc">بدّل الاتجاه لترى الشات يتحرك فعليًا.</p>
+  <p id="desc">الآن سيتم تغيير تموضع الشات عند تغيير اللغة.</p>
 </main>
 
-<button 
-  class="sl-chat-btn"
-  data-mbchat-trigger="e745248e-02fc-4580-83ba-7224c55a7327">
-  <span id="chatText">تواصل معنا</span>
-</button>
-
+<!-- Bird dynamic loader -->
 <script>
-const html = document.documentElement;
+/* ======== ضع هنا روابط الويدجت ======== */
+const AR_WIDGET_URL = "PUT_ARABIC_WIDGET_CONFIG_URL_HERE";
+const EN_WIDGET_URL = "PUT_ENGLISH_WIDGET_CONFIG_URL_HERE";
+/* ===================================== */
+
+let currentScript = null;
+
+function loadBirdWidget(locale){
+
+  // حذف السكربت القديم إن وجد
+  if(currentScript){
+    currentScript.remove();
+  }
+
+  // حذف أي iframe سابق
+  document.querySelectorAll("iframe").forEach(f=>{
+    if(f.src && f.src.includes("bird")){
+      f.remove();
+    }
+  });
+
+  const script = document.createElement("script");
+  script.src = "https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js";
+  script.setAttribute("data-config-url",
+    locale === "ar" ? AR_WIDGET_URL : EN_WIDGET_URL
+  );
+  script.defer = true;
+
+  document.head.appendChild(script);
+  currentScript = script;
+}
+
+/* ======== تبديل الاتجاه ======== */
 const toggleBtn = document.getElementById("dirToggleBtn");
+const html = document.documentElement;
 
-/* ===== Update Direction ===== */
 function updateDirection(dir){
-  html.setAttribute("dir", dir);
-  html.setAttribute("lang", dir === "rtl" ? "ar" : "en");
+  const lang = dir === "rtl" ? "ar" : "en";
 
-  if(dir === "rtl"){
+  html.setAttribute("dir", dir);
+  html.setAttribute("lang", lang);
+
+  if(lang === "ar"){
     toggleBtn.textContent = "🌐 English";
     document.getElementById("headline").textContent = "مرحبًا بك 👋";
-    document.getElementById("desc").textContent = "بدّل الاتجاه لترى الشات يتحرك فعليًا.";
-    document.getElementById("chatText").textContent = "تواصل معنا";
+    document.getElementById("desc").textContent = "الآن سيتم تغيير تموضع الشات عند تغيير اللغة.";
   } else {
     toggleBtn.textContent = "🌐 عربي";
     document.getElementById("headline").textContent = "Welcome 👋";
-    document.getElementById("desc").textContent = "Switch direction to see chat move properly.";
-    document.getElementById("chatText").textContent = "Contact Us";
+    document.getElementById("desc").textContent = "Chat position now changes correctly.";
   }
 
-  localStorage.setItem("site_direction", dir);
-  repositionBirdWidget();
+  localStorage.setItem("site_lang", lang);
+  loadBirdWidget(lang);
 }
 
-/* ===== Reposition Bird Widget ===== */
-function repositionBirdWidget(){
-  const iframes = document.querySelectorAll("iframe");
-  iframes.forEach(frame=>{
-    if(frame.src && frame.src.includes("bird")){
-      frame.style.left = "";
-      frame.style.right = "";
-      frame.style.bottom = "24px";
-      frame.style.position = "fixed";
-      frame.style.zIndex = "9998";
+/* ======== تحميل اللغة المحفوظة ======== */
+const savedLang = localStorage.getItem("site_lang") || "ar";
+updateDirection(savedLang === "ar" ? "rtl" : "ltr");
 
-      if(html.getAttribute("dir") === "rtl"){
-        frame.style.right = "24px";
-      } else {
-        frame.style.left = "24px";
-      }
-    }
-  });
-}
-
-/* ===== Observe DOM for Bird Injection ===== */
-const observer = new MutationObserver(()=>{
-  repositionBirdWidget();
-});
-observer.observe(document.body, { childList:true, subtree:true });
-
-/* ===== Load Saved Direction ===== */
-const saved = localStorage.getItem("site_direction");
-if(saved){
-  updateDirection(saved);
-}
-
-/* ===== Toggle Click ===== */
+/* ======== حدث الزر ======== */
 toggleBtn.addEventListener("click", ()=>{
-  const current = html.getAttribute("dir");
-  updateDirection(current === "rtl" ? "ltr" : "rtl");
+  const currentDir = html.getAttribute("dir");
+  updateDirection(currentDir === "rtl" ? "ltr" : "rtl");
 });
 </script>
 
 </body>
 </html>
-
