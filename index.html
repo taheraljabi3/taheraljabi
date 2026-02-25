@@ -16,26 +16,15 @@ body{
   flex-direction:column;
   transition:.3s ease;
 }
-
-/* HEADER */
 header{
   padding:20px;
   border-bottom:1px solid rgba(255,255,255,.1);
   display:flex;
   align-items:center;
 }
+html[dir="rtl"] header{ flex-direction:row; justify-content:space-between; }
+html[dir="ltr"] header{ flex-direction:row-reverse; justify-content:space-between; }
 
-html[dir="rtl"] header{
-  flex-direction:row;
-  justify-content:space-between;
-}
-
-html[dir="ltr"] header{
-  flex-direction:row-reverse;
-  justify-content:space-between;
-}
-
-/* MAIN */
 main{
   flex:1;
   display:flex;
@@ -43,11 +32,9 @@ main{
   justify-content:center;
   padding:40px;
 }
-
 html[dir="rtl"] main{ text-align:right; }
 html[dir="ltr"] main{ text-align:left; }
 
-/* LANGUAGE BUTTON */
 .dir-toggle{
   padding:8px 14px;
   border-radius:999px;
@@ -72,20 +59,18 @@ html[dir="ltr"] main{ text-align:left; }
   <p id="desc">الآن سيتم تغيير تموضع الشات عند تغيير اللغة.</p>
 </main>
 
+<!-- ✅ Bird SDK (مرة واحدة فقط) -->
+<script
+  src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
+  data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62"
+></script>
+
 <script>
-/* ======== ضع هنا روابط الويدجت ======== */
-const AR_WIDGET_URL = "https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62";
-const EN_WIDGET_URL = "https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62";
-/* ===================================== */
-
-let currentScript = null;
-
-/* ========= أدوات ID ثابت للزائر ========= */
-function getOrCreateStableVisitorId(){
-  const key = "sl_bird_external_id";
+/* ========= زائر افتراضي ثابت ========= */
+function getOrCreateStableId(){
+  const key = "sl_stable_visitor_id";
   let id = localStorage.getItem(key);
   if(!id){
-    // crypto.randomUUID مدعومة في أغلب المتصفحات الحديثة
     id = (crypto?.randomUUID?.() || ("sl_" + Date.now() + "_" + Math.random().toString(16).slice(2)));
     localStorage.setItem(key, id);
   }
@@ -93,78 +78,58 @@ function getOrCreateStableVisitorId(){
 }
 
 function buildVisitorProfile(lang){
-  const externalId = getOrCreateStableVisitorId();
-  const short = externalId.slice(-6).toUpperCase();
+  const stableId = getOrCreateStableId();
+  const short = stableId.slice(-6).toLowerCase();
 
   return {
-    externalId,
-    displayName: lang === "ar" ? `زائر سمارت لايف #${short}` : `SmartLife Visitor #${short}`,
-    // ايميل افتراضي (اختياري) - تقدر تشيله إذا ما تبغاه
-    email: `visitor.${short.toLowerCase()}@example.com`,
+    stableId,
+    // نستخدم emailaddress لأنه identifier رسمي حسب الدوك
+    email: `visitor.${short}@smartlife.local`,
+    displayName: (lang === "ar") ? `زائر سمارت لايف #${short.toUpperCase()}` : `SmartLife Visitor #${short.toUpperCase()}`,
     language: lang,
     subscribedAppInbox: true
   };
 }
 
-/* ========= تحميل Bird SDK بشكل ديناميكي ========= */
-function loadBirdWidget(locale){
-  const lang = (locale === "ar") ? "ar" : "en";
-  const profile = buildVisitorProfile(lang);
+/* ✅ Identify فور تهيئة الـ SDK */
+Bird.eventTarget.addEventListener('bird-sdk-initialized', async () => {
+  try {
+    const lang = localStorage.getItem("site_lang") || "ar";
+    const profile = buildVisitorProfile(lang);
 
-  // تعريف birdAsyncInit قبل تحميل السكربت
-  window.birdAsyncInit = async function (sdk) {
-    try {
-      // 1) Identify بهوية ثابتة
-      await sdk.contact.identify({
-        strategy: "Visitor",
-        identifier: { key: "external_id", value: profile.externalId }
+    await Bird.contact.identify({
+      strategy: 'Visitor',
+      identifier: { key: 'emailaddress', value: profile.email },
+    });
+
+    // إرسال Attributes (قد لا تظهر في webhook sender.displayName لكن ستظهر في Contact داخل CRM)
+    if (Bird.contact.putAttributes) {
+      // بعض الوثائق/SDK تستخدم putAttributes
+      await Bird.contact.putAttributes({
+        displayName: profile.displayName,
+        language: profile.language,
+        subscribedAppInbox: profile.subscribedAppInbox,
+        stableVisitorId: profile.stableId,
+        source: "website_widget"
       });
-
-      // 2) إرسال بيانات افتراضية + الاشتراك في App Inbox
-      // ملاحظة: بعض الإصدارات تستخدم putAttributes بدل updateCurrent
-      if (sdk.contact.updateCurrent) {
-        await sdk.contact.updateCurrent({
-          displayName: profile.displayName,
-          email: profile.email,
-          language: profile.language,
-          subscribedAppInbox: profile.subscribedAppInbox,
-          source: "website_widget"
-        });
-      } else if (sdk.contact.putAttributes) {
-        await sdk.contact.putAttributes({
-          displayName: profile.displayName,
-          email: profile.email,
-          language: profile.language,
-          subscribedAppInbox: profile.subscribedAppInbox,
-          source: "website_widget"
-        });
-      }
-
-      // Debug (اختياري)
-      console.log("[Bird] Identified as:", profile.externalId, profile.displayName);
-    } catch (e) {
-      console.warn("[Bird] Identify/Update failed:", e);
+    } else if (Bird.contact.updateCurrent) {
+      // وبعضها تستخدم updateCurrent
+      await Bird.contact.updateCurrent({
+        displayName: profile.displayName,
+        language: profile.language,
+        subscribedAppInbox: profile.subscribedAppInbox,
+        stableVisitorId: profile.stableId,
+        source: "website_widget"
+      });
     }
-  };
 
-  // حذف السكربت القديم إن وجد
-  if(currentScript) currentScript.remove();
+    console.log("[Bird] Identified:", profile.email, profile.displayName);
+  } catch (e) {
+    console.warn("[Bird] Identify/Attributes failed:", e);
+  }
+});
 
-  // حذف أي iframe سابق (احتياطي)
-  document.querySelectorAll("iframe").forEach(f=>{
-    if(f.src && f.src.includes("bird")) f.remove();
-  });
-
-  const script = document.createElement("script");
-  script.src = "https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js";
-  script.setAttribute("data-config-url", lang === "ar" ? AR_WIDGET_URL : EN_WIDGET_URL);
-  script.async = true;
-
-  document.head.appendChild(script);
-  currentScript = script;
-}
-
-/* ======== تبديل الاتجاه ======== */
+/* ======== تبديل الاتجاه (بدون إعادة تحميل الـ SDK) ======== */
 const toggleBtn = document.getElementById("dirToggleBtn");
 const html = document.documentElement;
 
@@ -186,15 +151,19 @@ function updateDirection(dir){
 
   localStorage.setItem("site_lang", lang);
 
-  // تحميل الويدجت مع نفس هوية الزائر الثابتة
-  loadBirdWidget(lang);
+  // (اختياري) تحديث Attributes عند تغيير اللغة إذا تبغى
+  if (window.Bird?.contact?.putAttributes) {
+    const p = buildVisitorProfile(lang);
+    Bird.contact.putAttributes({ language: p.language, displayName: p.displayName });
+  } else if (window.Bird?.contact?.updateCurrent) {
+    const p = buildVisitorProfile(lang);
+    Bird.contact.updateCurrent({ language: p.language, displayName: p.displayName });
+  }
 }
 
-/* ======== تحميل اللغة المحفوظة ======== */
 const savedLang = localStorage.getItem("site_lang") || "ar";
 updateDirection(savedLang === "ar" ? "rtl" : "ltr");
 
-/* ======== حدث الزر ======== */
 toggleBtn.addEventListener("click", ()=>{
   const currentDir = html.getAttribute("dir");
   updateDirection(currentDir === "rtl" ? "ltr" : "rtl");
