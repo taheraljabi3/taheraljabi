@@ -1,3 +1,78 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Smart Life Multi-Language Chat</title>
+
+<style>
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,"Segoe UI","Cairo",sans-serif;
+  background:#0b1220;
+  color:#fff;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  transition:.3s ease;
+}
+
+/* HEADER */
+header{
+  padding:20px;
+  border-bottom:1px solid rgba(255,255,255,.1);
+  display:flex;
+  align-items:center;
+}
+
+html[dir="rtl"] header{
+  flex-direction:row;
+  justify-content:space-between;
+}
+
+html[dir="ltr"] header{
+  flex-direction:row-reverse;
+  justify-content:space-between;
+}
+
+/* MAIN */
+main{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:40px;
+}
+
+html[dir="rtl"] main{ text-align:right; }
+html[dir="ltr"] main{ text-align:left; }
+
+/* LANGUAGE BUTTON */
+.dir-toggle{
+  padding:8px 14px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  cursor:pointer;
+  font-weight:600;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2 id="title">سمارت لايف</h2>
+  <button id="dirToggleBtn" class="dir-toggle">🌐 English</button>
+</header>
+
+<main>
+  <h1 id="headline">مرحبًا بك 👋</h1>
+  <p id="desc">الآن سيتم تغيير تموضع الشات عند تغيير اللغة.</p>
+</main>
+
+<!-- Bird dynamic loader -->
 <script>
 /* ======== ضع هنا روابط الويدجت ======== */
 const AR_WIDGET_URL = "PUT_ARABIC_WIDGET_CONFIG_URL_HERE";
@@ -6,71 +81,26 @@ const EN_WIDGET_URL = "PUT_ENGLISH_WIDGET_CONFIG_URL_HERE";
 
 let currentScript = null;
 
-/** توليد ID بسيط (بدون مكتبات) */
-function genId(prefix="guest"){
-  return `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-}
+function loadBirdWidget(locale){
 
-/** جهّز “مستخدم افتراضي” ثابت */
-function getOrCreateFakeUser(lang){
-  const key = "fake_bird_user";
-  const existing = localStorage.getItem(key);
-  if (existing) {
-    try { return JSON.parse(existing); } catch(e) {}
+  // حذف السكربت القديم إن وجد
+  if(currentScript){
+    currentScript.remove();
   }
 
-  const id = genId("sl");
-  const user = {
-    externalId: id,
-    displayName: lang === "ar" ? `زائر سمارت لايف ${id.slice(-4)}` : `SmartLife Visitor ${id.slice(-4)}`,
-    email: `visitor.${id.slice(-6)}@example.com`,
-    language: lang
-  };
-
-  localStorage.setItem(key, JSON.stringify(user));
-  return user;
-}
-
-/** نحمّل الـ SDK + نعرّف المستخدم + نرسل Attributes */
-function loadBirdWidget(locale){
-  // حذف السكربت القديم إن وجد
-  if (currentScript) currentScript.remove();
-
-  // حذف أي iframe سابق (اختياري)
+  // حذف أي iframe سابق
   document.querySelectorAll("iframe").forEach(f=>{
-    if (f.src && f.src.includes("bird")) f.remove();
+    if(f.src && f.src.includes("bird")){
+      f.remove();
+    }
   });
-
-  // مهم: قبل تحميل السكربت، جهّز birdAsyncInit عشان تشتغل أول ما يجهز الـ SDK
-  window.birdAsyncInit = async function (sdk, conf) {
-    // غالباً السكربت يـ init نفسه، لكن هذا مثال لو تبغى تعدّل config
-    // await sdk.init({ config: conf });
-
-    const fake = getOrCreateFakeUser(locale);
-
-    // 1) Identify بهوية ثابتة (بدل anonymousId)
-    // لاحظ: identify يقبل claim + (اختياري) contactAttributes حسب الدوك :contentReference[oaicite:2]{index=2}
-    await sdk.contact.identify(
-      {
-        strategy: "Visitor",
-        identifier: { key: "external_id", value: fake.externalId }
-      }
-      // بعض البيئات تدعم تمرير contactAttributes هنا، لكن عشان يكون مضمون نخليها عبر updateCurrent
-    );
-
-    // 2) Attributes تظهر عادة ضمن بيانات الـ Contact للموظف
-    await sdk.contact.updateCurrent({
-      displayName: fake.displayName,
-      email: fake.email,
-      language: fake.language,
-      source: "website_widget"
-    });
-  };
 
   const script = document.createElement("script");
   script.src = "https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js";
-  script.setAttribute("data-config-url", locale === "ar" ? AR_WIDGET_URL : EN_WIDGET_URL);
-  script.async = true;
+  script.setAttribute("data-config-url",
+    locale === "ar" ? AR_WIDGET_URL : EN_WIDGET_URL
+  );
+  script.defer = true;
 
   document.head.appendChild(script);
   currentScript = script;
@@ -100,11 +130,19 @@ function updateDirection(dir){
   loadBirdWidget(lang);
 }
 
+/* ======== تحميل اللغة المحفوظة ======== */
 const savedLang = localStorage.getItem("site_lang") || "ar";
 updateDirection(savedLang === "ar" ? "rtl" : "ltr");
 
+/* ======== حدث الزر ======== */
 toggleBtn.addEventListener("click", ()=>{
   const currentDir = html.getAttribute("dir");
   updateDirection(currentDir === "rtl" ? "ltr" : "rtl");
 });
 </script>
+<script
+	src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
+	data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62"
+></script>
+</body>
+</html>
