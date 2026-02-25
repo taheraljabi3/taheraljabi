@@ -50,16 +50,16 @@ html[dir="ltr"] main{ text-align:left; }
 <body>
 
 <header>
-  <h2 id="title">سمارت لايف</h2>
+  <h2>سمارت لايف</h2>
   <button id="dirToggleBtn" class="dir-toggle">🌐 English</button>
 </header>
 
 <main>
   <h1 id="headline">مرحبًا بك 👋</h1>
-  <p id="desc">الآن سيتم تغيير تموضع الشات عند تغيير اللغة.</p>
+  <p id="desc">تجربة تحديث Contact Attributes</p>
 </main>
 
-<!-- ✅ Bird SDK (مرة واحدة فقط) -->
+<!-- ✅ Bird SDK مرة واحدة فقط -->
 <script
   src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
   data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62"
@@ -67,7 +67,7 @@ html[dir="ltr"] main{ text-align:left; }
 
 <script>
 /* =========================
-   تحديد displayName كتجربة
+   تحديث Contact Attributes
    ========================= */
 
 Bird.eventTarget.addEventListener('bird-sdk-initialized', async () => {
@@ -75,18 +75,21 @@ Bird.eventTarget.addEventListener('bird-sdk-initialized', async () => {
 
     await Bird.contact.putAttributes({
       displayName: "Roy Glass",
+      customName: "SmartLife Visitor",
       subscribedAppInbox: true,
-      customTestField: "SmartLife Test"
+      subscribedPush: true,
+      testFlag: "TEST_001"
     });
 
-    console.log("✅ Attributes sent to Bird");
+    console.log("✅ Contact Attributes updated successfully");
 
   } catch (error) {
-    console.error("❌ Error sending attributes:", error);
+    console.error("❌ Error updating attributes:", error);
   }
 });
 
-/* ======== تبديل الاتجاه (بدون إعادة تحميل SDK) ======== */
+
+/* ======== تبديل اللغة (بدون إعادة تحميل SDK) ======== */
 const toggleBtn = document.getElementById("dirToggleBtn");
 const html = document.documentElement;
 
@@ -99,11 +102,11 @@ function updateDirection(dir){
   if(lang === "ar"){
     toggleBtn.textContent = "🌐 English";
     document.getElementById("headline").textContent = "مرحبًا بك 👋";
-    document.getElementById("desc").textContent = "الآن سيتم تغيير تموضع الشات عند تغيير اللغة.";
+    document.getElementById("desc").textContent = "تجربة تحديث Contact Attributes";
   } else {
     toggleBtn.textContent = "🌐 عربي";
     document.getElementById("headline").textContent = "Welcome 👋";
-    document.getElementById("desc").textContent = "Chat position now changes correctly.";
+    document.getElementById("desc").textContent = "Testing Contact Attributes";
   }
 
   localStorage.setItem("site_lang", lang);
