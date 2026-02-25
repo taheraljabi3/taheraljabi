@@ -72,35 +72,93 @@ html[dir="ltr"] main{ text-align:left; }
   <p id="desc">الآن سيتم تغيير تموضع الشات عند تغيير اللغة.</p>
 </main>
 
-<!-- Bird dynamic loader -->
 <script>
 /* ======== ضع هنا روابط الويدجت ======== */
-const AR_WIDGET_URL = "PUT_ARABIC_WIDGET_CONFIG_URL_HERE";
-const EN_WIDGET_URL = "PUT_ENGLISH_WIDGET_CONFIG_URL_HERE";
+const AR_WIDGET_URL = "https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62";
+const EN_WIDGET_URL = "https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62";
 /* ===================================== */
 
 let currentScript = null;
 
+/* ========= أدوات ID ثابت للزائر ========= */
+function getOrCreateStableVisitorId(){
+  const key = "sl_bird_external_id";
+  let id = localStorage.getItem(key);
+  if(!id){
+    // crypto.randomUUID مدعومة في أغلب المتصفحات الحديثة
+    id = (crypto?.randomUUID?.() || ("sl_" + Date.now() + "_" + Math.random().toString(16).slice(2)));
+    localStorage.setItem(key, id);
+  }
+  return id;
+}
+
+function buildVisitorProfile(lang){
+  const externalId = getOrCreateStableVisitorId();
+  const short = externalId.slice(-6).toUpperCase();
+
+  return {
+    externalId,
+    displayName: lang === "ar" ? `زائر سمارت لايف #${short}` : `SmartLife Visitor #${short}`,
+    // ايميل افتراضي (اختياري) - تقدر تشيله إذا ما تبغاه
+    email: `visitor.${short.toLowerCase()}@example.com`,
+    language: lang,
+    subscribedAppInbox: true
+  };
+}
+
+/* ========= تحميل Bird SDK بشكل ديناميكي ========= */
 function loadBirdWidget(locale){
+  const lang = (locale === "ar") ? "ar" : "en";
+  const profile = buildVisitorProfile(lang);
+
+  // تعريف birdAsyncInit قبل تحميل السكربت
+  window.birdAsyncInit = async function (sdk) {
+    try {
+      // 1) Identify بهوية ثابتة
+      await sdk.contact.identify({
+        strategy: "Visitor",
+        identifier: { key: "external_id", value: profile.externalId }
+      });
+
+      // 2) إرسال بيانات افتراضية + الاشتراك في App Inbox
+      // ملاحظة: بعض الإصدارات تستخدم putAttributes بدل updateCurrent
+      if (sdk.contact.updateCurrent) {
+        await sdk.contact.updateCurrent({
+          displayName: profile.displayName,
+          email: profile.email,
+          language: profile.language,
+          subscribedAppInbox: profile.subscribedAppInbox,
+          source: "website_widget"
+        });
+      } else if (sdk.contact.putAttributes) {
+        await sdk.contact.putAttributes({
+          displayName: profile.displayName,
+          email: profile.email,
+          language: profile.language,
+          subscribedAppInbox: profile.subscribedAppInbox,
+          source: "website_widget"
+        });
+      }
+
+      // Debug (اختياري)
+      console.log("[Bird] Identified as:", profile.externalId, profile.displayName);
+    } catch (e) {
+      console.warn("[Bird] Identify/Update failed:", e);
+    }
+  };
 
   // حذف السكربت القديم إن وجد
-  if(currentScript){
-    currentScript.remove();
-  }
+  if(currentScript) currentScript.remove();
 
-  // حذف أي iframe سابق
+  // حذف أي iframe سابق (احتياطي)
   document.querySelectorAll("iframe").forEach(f=>{
-    if(f.src && f.src.includes("bird")){
-      f.remove();
-    }
+    if(f.src && f.src.includes("bird")) f.remove();
   });
 
   const script = document.createElement("script");
   script.src = "https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js";
-  script.setAttribute("data-config-url",
-    locale === "ar" ? AR_WIDGET_URL : EN_WIDGET_URL
-  );
-  script.defer = true;
+  script.setAttribute("data-config-url", lang === "ar" ? AR_WIDGET_URL : EN_WIDGET_URL);
+  script.async = true;
 
   document.head.appendChild(script);
   currentScript = script;
@@ -127,6 +185,8 @@ function updateDirection(dir){
   }
 
   localStorage.setItem("site_lang", lang);
+
+  // تحميل الويدجت مع نفس هوية الزائر الثابتة
   loadBirdWidget(lang);
 }
 
@@ -140,9 +200,6 @@ toggleBtn.addEventListener("click", ()=>{
   updateDirection(currentDir === "rtl" ? "ltr" : "rtl");
 });
 </script>
-<script
-	src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
-	data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62"
-></script>
+
 </body>
 </html>
