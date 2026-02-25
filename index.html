@@ -45,6 +45,89 @@ html[dir="ltr"] main{ text-align:left; }
   font-weight:600;
 }
 </style>
+
+<script>
+/** ===== زائر افتراضي ثابت 100% ===== */
+function getOrCreateStableVisitor() {
+  const key = "sl_stable_visitor";
+  const saved = localStorage.getItem(key);
+  if (saved) return JSON.parse(saved);
+
+  const id = (crypto?.randomUUID?.() || ("sl_" + Date.now() + "_" + Math.random().toString(16).slice(2)));
+  const short = id.slice(-6).toLowerCase();
+
+  const v = {
+    id,
+    email: `visitor.${short}@smartlife.local`,
+  };
+
+  localStorage.setItem(key, JSON.stringify(v));
+  return v;
+}
+
+function getLang(){
+  return localStorage.getItem("site_lang") || "ar";
+}
+
+function buildProfile(){
+  const v = getOrCreateStableVisitor();
+  const lang = getLang();
+  const short = v.id.slice(-6).toUpperCase();
+
+  return {
+    email: v.email,
+    displayName: lang === "ar" ? `زائر سمارت لايف #${short}` : `SmartLife Visitor #${short}`,
+    language: lang,
+    subscribedAppInbox: true,
+    visitorId: v.id
+  };
+}
+
+/**
+ * ✅ أهم جزء: ننفّذ identify/attributes أثناء تهيئة الـ SDK
+ * هذا يساعد أن الـ Widget يبدأ وهو أصلاً “عارف” الزائر.
+ */
+window.birdAsyncInit = async function (sdk, conf) {
+  // الدوك تقول init يتم تلقائياً، لكن birdAsyncInit يسمح بتخصيص/init مبكر :contentReference[oaicite:3]{index=3}
+  await sdk.init({ config: conf });
+
+  const p = buildProfile();
+
+  // identify + (contactAttributes كـ parameter ثاني) :contentReference[oaicite:4]{index=4}
+  await sdk.contact.identify(
+    {
+      strategy: "Visitor",
+      identifier: { key: "emailaddress", value: p.email }
+    },
+    {
+      displayName: p.displayName,
+      language: p.language,
+      subscribedAppInbox: p.subscribedAppInbox,
+      visitorId: p.visitorId
+    }
+  );
+
+  // تعزيز: updateCurrent (موجود في الـ IdentityManager) :contentReference[oaicite:5]{index=5}
+  await sdk.contact.updateCurrent({
+    displayName: p.displayName,
+    language: p.language,
+    subscribedAppInbox: p.subscribedAppInbox,
+    visitorId: p.visitorId
+  });
+
+  // (اختياري) لو تحب تستخدم putAttributes كما في App Inbox docs :contentReference[oaicite:6]{index=6}
+  if (sdk.contact.putAttributes) {
+    await sdk.contact.putAttributes({
+      displayName: p.displayName,
+      subscribedAppInbox: p.subscribedAppInbox,
+      language: p.language,
+      visitorId: p.visitorId
+    });
+  }
+
+  console.log("[Bird] Identified before widget:", p.email, p.displayName);
+};
+</script>
 </head>
 
 <body>
@@ -59,83 +142,20 @@ html[dir="ltr"] main{ text-align:left; }
   <p id="desc">الآن سيتم تغيير تموضع الشات عند تغيير اللغة.</p>
 </main>
 
-<!-- ✅ Bird SDK (مرة واحدة فقط) -->
+<!-- ✅ SDK مرة واحدة فقط -->
 <script
+  async
   src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
-  data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62"
+  data-config-url="PUT_WIDGET_CONFIG_URL_HERE"
 ></script>
 
 <script>
-/* ========= زائر افتراضي ثابت ========= */
-function getOrCreateStableId(){
-  const key = "sl_stable_visitor_id";
-  let id = localStorage.getItem(key);
-  if(!id){
-    id = (crypto?.randomUUID?.() || ("sl_" + Date.now() + "_" + Math.random().toString(16).slice(2)));
-    localStorage.setItem(key, id);
-  }
-  return id;
-}
-
-function buildVisitorProfile(lang){
-  const stableId = getOrCreateStableId();
-  const short = stableId.slice(-6).toLowerCase();
-
-  return {
-    stableId,
-    // نستخدم emailaddress لأنه identifier رسمي حسب الدوك
-    email: `visitor.${short}@smartlife.local`,
-    displayName: (lang === "ar") ? `زائر سمارت لايف #${short.toUpperCase()}` : `SmartLife Visitor #${short.toUpperCase()}`,
-    language: lang,
-    subscribedAppInbox: true
-  };
-}
-
-/* ✅ Identify فور تهيئة الـ SDK */
-Bird.eventTarget.addEventListener('bird-sdk-initialized', async () => {
-  try {
-    const lang = localStorage.getItem("site_lang") || "ar";
-    const profile = buildVisitorProfile(lang);
-
-    await Bird.contact.identify({
-      strategy: 'Visitor',
-      identifier: { key: 'emailaddress', value: profile.email },
-    });
-
-    // إرسال Attributes (قد لا تظهر في webhook sender.displayName لكن ستظهر في Contact داخل CRM)
-    if (Bird.contact.putAttributes) {
-      // بعض الوثائق/SDK تستخدم putAttributes
-      await Bird.contact.putAttributes({
-        displayName: profile.displayName,
-        language: profile.language,
-        subscribedAppInbox: profile.subscribedAppInbox,
-        stableVisitorId: profile.stableId,
-        source: "website_widget"
-      });
-    } else if (Bird.contact.updateCurrent) {
-      // وبعضها تستخدم updateCurrent
-      await Bird.contact.updateCurrent({
-        displayName: profile.displayName,
-        language: profile.language,
-        subscribedAppInbox: profile.subscribedAppInbox,
-        stableVisitorId: profile.stableId,
-        source: "website_widget"
-      });
-    }
-
-    console.log("[Bird] Identified:", profile.email, profile.displayName);
-  } catch (e) {
-    console.warn("[Bird] Identify/Attributes failed:", e);
-  }
-});
-
-/* ======== تبديل الاتجاه (بدون إعادة تحميل الـ SDK) ======== */
+/* ======== تبديل الاتجاه (بدون إعادة تحميل SDK) ======== */
 const toggleBtn = document.getElementById("dirToggleBtn");
 const html = document.documentElement;
 
 function updateDirection(dir){
   const lang = dir === "rtl" ? "ar" : "en";
-
   html.setAttribute("dir", dir);
   html.setAttribute("lang", lang);
 
@@ -151,13 +171,10 @@ function updateDirection(dir){
 
   localStorage.setItem("site_lang", lang);
 
-  // (اختياري) تحديث Attributes عند تغيير اللغة إذا تبغى
-  if (window.Bird?.contact?.putAttributes) {
-    const p = buildVisitorProfile(lang);
-    Bird.contact.putAttributes({ language: p.language, displayName: p.displayName });
-  } else if (window.Bird?.contact?.updateCurrent) {
-    const p = buildVisitorProfile(lang);
-    Bird.contact.updateCurrent({ language: p.language, displayName: p.displayName });
+  // (اختياري) حدّث الاسم/اللغة للـ contact الحالي بعد تغيير اللغة
+  if (window.Bird?.contact?.updateCurrent) {
+    const p = buildProfile();
+    Bird.contact.updateCurrent({ displayName: p.displayName, language: p.language });
   }
 }
 
