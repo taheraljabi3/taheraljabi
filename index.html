@@ -129,7 +129,7 @@ function updateDirection(dir){
 }
 
 const savedLang = localStorage.getItem("site_lang") || "ar";
-updateDirection(savedLang === "ar" ? "rtl" : "rtl");
+updateDirection(savedLang === "en" ? "rtl" : "rtl");
 
 toggleBtn.addEventListener("click", ()=>{
   const currentDir = html.getAttribute("dir");
@@ -139,6 +139,7 @@ toggleBtn.addEventListener("click", ()=>{
 
 </body>
 </html>
+
 
 
 
