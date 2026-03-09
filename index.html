@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ar" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -58,7 +58,7 @@ function getOrCreateErpId(){
 
 function buildProfile(){
   const erpId = getOrCreateErpId();
-  const email = erpId + "@smaltrife.local";
+  const email = erpId + "@smartlife.local";
 
   return {
     erpId,
@@ -124,21 +124,22 @@ const html = document.documentElement;
 
 function updateDirection(dir){
   html.setAttribute("dir", dir);
-  toggleBtn.textContent = dir === "ltr" ? "🌐 English" : "🌐 عربي";
-  localStorage.setItem("site_lang", dir === "ltr" ? "ar" : "en");
+  toggleBtn.textContent = dir === "rtl" ? "🌐 English" : "🌐 عربي";
+  localStorage.setItem("site_lang", dir === "rtl" ? "ar" : "en");
 }
 
 const savedLang = localStorage.getItem("site_lang") || "ar";
-updateDirection(savedLang === "ar" ? "ltr" : "ltr");
+updateDirection(savedLang === "ar" ? "rtl" : "rtl");
 
 toggleBtn.addEventListener("click", ()=>{
   const currentDir = html.getAttribute("dir");
-  updateDirection(currentDir === "ltr" ? "ltr" : "ltr");
+  updateDirection(currentDir === "rtl" ? "rtl" : "rtl");
 });
 </script>
 
 </body>
 </html>
+
 
 
 
