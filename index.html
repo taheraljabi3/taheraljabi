@@ -58,7 +58,7 @@ function getOrCreateErpId(){
 
 function buildProfile(){
   const erpId = getOrCreateErpId();
-  const email = erpId + "@smartlife.local";
+  const email = erpId + "@smaltrife.local";
 
   return {
     erpId,
@@ -124,21 +124,22 @@ const html = document.documentElement;
 
 function updateDirection(dir){
   html.setAttribute("dir", dir);
-  toggleBtn.textContent = dir === "rtl" ? "🌐 English" : "🌐 عربي";
-  localStorage.setItem("site_lang", dir === "rtl" ? "ar" : "en");
+  toggleBtn.textContent = dir === "ltr" ? "🌐 English" : "🌐 عربي";
+  localStorage.setItem("site_lang", dir === "ltr" ? "ar" : "en");
 }
 
 const savedLang = localStorage.getItem("site_lang") || "ar";
-updateDirection(savedLang === "ar" ? "rtl" : "ltr");
+updateDirection(savedLang === "ar" ? "ltr" : "ltr");
 
 toggleBtn.addEventListener("click", ()=>{
   const currentDir = html.getAttribute("dir");
-  updateDirection(currentDir === "rtl" ? "ltr" : "rtl");
+  updateDirection(currentDir === "ltr" ? "ltr" : "ltr");
 });
 </script>
 
 </body>
 </html>
+
 
 
 
