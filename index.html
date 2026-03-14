@@ -1,421 +1,1216 @@
-import express from 'express';
-import cors from 'cors';
-import fs from 'fs/promises';
-import path from 'path';
-import crypto from 'crypto';
-import { fileURLToPath } from 'url';
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Smart Life • Bird Chat Identity + Customer History</title>
+  <meta name="description" content="Smart Life Bird Chat integration with stable identity and persistent customer history." />
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+  <style>
+    :root{
+      --bg: #08111f;
+      --bg-soft: #0d1728;
+      --card: rgba(255,255,255,.06);
+      --card-border: rgba(255,255,255,.12);
+      --text: #f5f7fb;
+      --muted: #9fb0c8;
+      --primary: #4f8cff;
+      --primary-soft: rgba(79,140,255,.14);
+      --success: #2dd4bf;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --shadow: 0 20px 50px rgba(0,0,0,.35);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --container: 1200px;
+    }
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+    * { box-sizing: border-box; }
 
-const DATA_DIR = path.join(__dirname, 'data');
-const STORE_FILE = path.join(DATA_DIR, 'chat-store.json');
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at top right, rgba(79,140,255,.18), transparent 28%),
+        radial-gradient(circle at left center, rgba(45,212,191,.10), transparent 22%),
+        linear-gradient(180deg, #07101d 0%, #0b1220 100%);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", "Cairo", sans-serif;
+    }
 
-// ضع هذا إذا أردت لاحقًا التحقق من توقيع Bird webhook
-const BIRD_WEBHOOK_SIGNING_KEY = process.env.BIRD_WEBHOOK_SIGNING_KEY || '';
+    body {
+      display: flex;
+      flex-direction: column;
+    }
 
-app.use(cors());
-app.use(express.json({ limit: '2mb' }));
+    .container {
+      width: min(100% - 32px, var(--container));
+      margin-inline: auto;
+    }
 
-function nowIso() {
-  return new Date().toISOString();
-}
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(16px);
+      background: rgba(8,17,31,.72);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
 
-function createId(prefix = 'id') {
-  return `${prefix}_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
-}
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 78px;
+    }
 
-async function ensureStore() {
-  await fs.mkdir(DATA_DIR, { recursive: true });
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
 
-  try {
-    await fs.access(STORE_FILE);
-  } catch {
-    const initial = {
-      customers: [],
-      histories: {},
-      sessions: [],
-      webhookEvents: []
+    .brand-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--primary), #76a7ff);
+      box-shadow: 0 12px 30px rgba(79,140,255,.35);
+      font-weight: 800;
+      letter-spacing: .3px;
+    }
+
+    .brand-copy h1 {
+      margin: 0;
+      font-size: 1.05rem;
+      line-height: 1.2;
+    }
+
+    .brand-copy p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 12px 16px;
+      font-size: .94rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .22s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.09);
+      border-color: rgba(255,255,255,.18);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #76a7ff);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 12px 28px rgba(79,140,255,.28);
+    }
+
+    .hero {
+      padding: 44px 0 22px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.3fr .7fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-card {
+      padding: 30px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: .85rem;
+      font-weight: 700;
+      color: #dbeafe;
+      background: var(--primary-soft);
+      border: 1px solid rgba(79,140,255,.22);
+    }
+
+    .hero-card h2 {
+      margin: 18px 0 12px;
+      font-size: clamp(1.7rem, 3vw, 3rem);
+      line-height: 1.15;
+      letter-spacing: -.02em;
+    }
+
+    .hero-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.8;
+      max-width: 70ch;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .stats-card {
+      padding: 24px;
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: .88rem;
+      font-weight: 800;
+      letter-spacing: .01em;
+      background: rgba(45,212,191,.10);
+      color: #99f6e4;
+      border: 1px solid rgba(45,212,191,.24);
+    }
+
+    .status-pill.warning {
+      background: rgba(245,158,11,.10);
+      color: #fcd34d;
+      border-color: rgba(245,158,11,.24);
+    }
+
+    .status-pill.error {
+      background: rgba(239,68,68,.10);
+      color: #fecaca;
+      border-color: rgba(239,68,68,.22);
+    }
+
+    .metrics {
+      display: grid;
+      gap: 14px;
+    }
+
+    .metric {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: .88rem;
+      margin-bottom: 8px;
+    }
+
+    .metric-value {
+      font-size: 1rem;
+      font-weight: 800;
+      word-break: break-word;
+    }
+
+    .content {
+      padding: 10px 0 36px;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    .section-card {
+      padding: 24px;
+    }
+
+    .section-card h3 {
+      margin: 0 0 14px;
+      font-size: 1.12rem;
+    }
+
+    .section-card p,
+    .section-card li {
+      color: var(--muted);
+      line-height: 1.8;
+      margin: 0;
+    }
+
+    .list {
+      display: grid;
+      gap: 12px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .list li {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+    }
+
+    .code-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      color: var(--text);
+      font-size: .88rem;
+      font-weight: 700;
+    }
+
+    .history-list {
+      display: grid;
+      gap: 12px;
+      max-height: 520px;
+      overflow: auto;
+      padding-inline-end: 4px;
+    }
+
+    .history-item {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 16px;
+      padding: 14px 16px;
+    }
+
+    .history-item .meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: .82rem;
+    }
+
+    .history-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: .78rem;
+      font-weight: 700;
+      background: rgba(79,140,255,.14);
+      border: 1px solid rgba(79,140,255,.24);
+      color: #dbeafe;
+    }
+
+    .history-body {
+      color: var(--text);
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .empty-state {
+      color: var(--muted);
+      text-align: center;
+      padding: 24px 14px;
+      border: 1px dashed rgba(255,255,255,.12);
+      border-radius: 16px;
+      background: rgba(255,255,255,.02);
+    }
+
+    .footer {
+      padding: 0 0 28px;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .footer .panel {
+      padding: 18px 22px;
+      border-radius: var(--radius-lg);
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar-inner {
+        min-height: 70px;
+        flex-wrap: wrap;
+        padding-block: 12px;
+      }
+
+      .hero-card,
+      .stats-card,
+      .section-card {
+        padding: 20px;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .actions {
+        width: 100%;
+      }
+    }
+  </style>
+
+  <script>
+    /**
+     * ===============================================================
+     * Smart Life → Bird widget + persistent customer history
+     * ---------------------------------------------------------------
+     * IMPORTANT:
+     * - This page keeps a LOCAL fallback history in localStorage.
+     * - The REAL persistent history for all customers must be stored
+     *   in your backend through /api endpoints + /webhooks/bird.
+     * - Frontend alone cannot guarantee a full server-grade transcript.
+     * ===============================================================
+     */
+
+    const APP_CONFIG = Object.freeze({
+      appName: 'Smart Life',
+      companyName: 'Smart Life',
+      apiBaseUrl: 'http://localhost:3000', // <-- عدل هذا للرابط الصحيح للباك إند
+      storageKeys: {
+        locale: 'sl_site_locale',
+        demoIdentity: 'sl_bird_demo_identity',
+        historyPrefix: 'sl_customer_history'
+      }
+    });
+
+    const I18N = {
+      ar: {
+        htmlLang: 'ar',
+        dir: 'rtl',
+        title: 'سمارت لايف • هوية مستقرة + سجل العميل',
+        subtitle: 'تكامل احترافي مع Bird وحفظ لسجل العميل',
+        eyebrow: 'Bird Chat • Persistent Customer Record',
+        heroTitle: 'هوية ثابتة للعميل، وسجل محفوظ، وتجربة شات أكثر استقرارًا.',
+        heroBody:
+          'هذه الصفحة تثبّت هوية العميل، وتفتح الشات، وتعرض سجلًا محفوظًا من الباك إند مع نسخة احتياطية محلية عند الحاجة.',
+        toggle: '🌐 English',
+        openChat: 'افتح الشات',
+        refreshIdentity: 'تحديث الهوية',
+        refreshHistory: 'تحديث السجل',
+        statusReady: 'تم تهيئة Bird بنجاح',
+        statusPending: 'بانتظار تهيئة Bird',
+        statusError: 'حدث خطأ أثناء التهيئة',
+        metricMode: 'وضع الهوية',
+        metricName: 'الاسم الظاهر',
+        metricEmail: 'المعرّف المستخدم',
+        metricLocale: 'اللغة الحالية',
+        metricHistory: 'عدد السجلات المحفوظة',
+        section1Title: 'ما الذي يفعله هذا التكامل؟',
+        section1List1: 'يربط العميل بهوية مستقرة بدل إنشاء زائر جديد كل مرة.',
+        section1List2: 'يحفظ سجل العميل في الباك إند عندكم، مع نسخة محلية احتياطية.',
+        section1List3: 'يعرض سجل العميل مباشرة في الصفحة حتى لو أغلق نافذة الشات.',
+        section1List4: 'يهيّئ الصفحة لاستخدام Signed Identity لاحقًا بدون إعادة بناء التكامل.',
+        section2Title: 'تنبيه مهم',
+        section2List1: 'إذا لم تشغّل الباك إند وWebhook فلن تحصل على سجل رسائل كامل لجميع العملاء.',
+        section2List2: 'الواجهة وحدها تستطيع حفظ سجل محلي لهذا المتصفح فقط.',
+        section2List3: 'لكي يُحفظ سجل العميل الحقيقي، اربط /webhooks/bird مع Bird واحفظ الأحداث في قاعدة بياناتكم.',
+        section2List4: 'مرّر هوية العميل الحقيقية بعد تسجيل الدخول بدل Demo identity.',
+        footer:
+          'الآن الصفحة تحفظ هوية العميل وتعرض السجل من الباك إند. شغّل server.js المرفق بالأسفل.',
+        modeDemo: 'Demo / Local browser only',
+        modeLive: 'Authenticated / Stable app identity',
+        unknown: 'غير متوفر',
+        emptyHistory: 'لا يوجد سجل محفوظ لهذا العميل حتى الآن.',
+        backendLabel: 'مصدر السجل: الباك إند',
+        localLabel: 'مصدر السجل: محلي',
+        syncOk: 'تمت مزامنة السجل',
+        syncFail: 'تعذر جلب السجل من الباك إند، تم عرض النسخة المحلية'
+      },
+      en: {
+        htmlLang: 'en',
+        dir: 'ltr',
+        title: 'Smart Life • Stable Identity + Customer History',
+        subtitle: 'Professional Bird integration with persistent customer history',
+        eyebrow: 'Bird Chat • Persistent Customer Record',
+        heroTitle: 'Stable customer identity, saved history, and a more reliable chat experience.',
+        heroBody:
+          'This page identifies the customer, opens the chat widget, and renders a saved customer history from your backend with a local fallback.',
+        toggle: '🌐 العربية',
+        openChat: 'Open Chat',
+        refreshIdentity: 'Refresh Identity',
+        refreshHistory: 'Refresh History',
+        statusReady: 'Bird initialized successfully',
+        statusPending: 'Waiting for Bird initialization',
+        statusError: 'Bird initialization failed',
+        metricMode: 'Identity mode',
+        metricName: 'Displayed name',
+        metricEmail: 'Primary identifier',
+        metricLocale: 'Current locale',
+        metricHistory: 'Saved history count',
+        section1Title: 'What this integration does',
+        section1List1: 'Binds the customer to a stable identity instead of creating a new visitor every time.',
+        section1List2: 'Stores customer history in your backend with a local backup fallback.',
+        section1List3: 'Shows the saved customer history directly on the page even after the widget closes.',
+        section1List4: 'Keeps the page ready for Signed Identity later without rebuilding the integration.',
+        section2Title: 'Important note',
+        section2List1: 'If you do not run the backend and webhook, you will not get a complete message history for all customers.',
+        section2List2: 'Frontend alone can only keep a local history for the same browser.',
+        section2List3: 'To persist the real customer record, connect /webhooks/bird and store events in your database.',
+        section2List4: 'Pass the real authenticated user after login instead of a demo identity.',
+        footer:
+          'The page now keeps the customer identity and renders history from your backend. Run the attached server.js below.',
+        modeDemo: 'Demo / Local browser only',
+        modeLive: 'Authenticated / Stable app identity',
+        unknown: 'Unavailable',
+        emptyHistory: 'No saved history exists for this customer yet.',
+        backendLabel: 'History source: backend',
+        localLabel: 'History source: local',
+        syncOk: 'History synced successfully',
+        syncFail: 'Failed to load backend history, local fallback rendered'
+      }
     };
-    await fs.writeFile(STORE_FILE, JSON.stringify(initial, null, 2), 'utf8');
-  }
-}
 
-async function readStore() {
-  await ensureStore();
-  const raw = await fs.readFile(STORE_FILE, 'utf8');
-  return JSON.parse(raw);
-}
+    function safeStorageGet(key) {
+      try { return localStorage.getItem(key); } catch (_) { return null; }
+    }
 
-async function writeStore(store) {
-  await fs.writeFile(STORE_FILE, JSON.stringify(store, null, 2), 'utf8');
-}
+    function safeStorageSet(key, value) {
+      try { localStorage.setItem(key, value); } catch (_) {}
+    }
 
-function sanitizeText(value) {
-  if (value == null) return '';
-  return String(value).trim();
-}
+    function safeStorageRemove(key) {
+      try { localStorage.removeItem(key); } catch (_) {}
+    }
 
-function normalizeCustomer(payload = {}) {
-  return {
-    id: sanitizeText(payload.id),
-    email: sanitizeText(payload.email),
-    displayName: sanitizeText(payload.displayName),
-    locale: sanitizeText(payload.locale || 'ar'),
-    companyName: sanitizeText(payload.companyName || 'Smart Life'),
-    mode: sanitizeText(payload.mode || 'live'),
-    createdAt: payload.createdAt || nowIso(),
-    updatedAt: nowIso()
-  };
-}
+    function getSavedLocale() {
+      return safeStorageGet(APP_CONFIG.storageKeys.locale) === 'en' ? 'en' : 'ar';
+    }
 
-function normalizeEntry(payload = {}) {
-  return {
-    id: sanitizeText(payload.id) || createId('entry'),
-    type: sanitizeText(payload.type || 'event'),
-    source: sanitizeText(payload.source || 'system'),
-    text: sanitizeText(payload.text),
-    payload: payload.payload ?? null,
-    createdAt: payload.createdAt || nowIso()
-  };
-}
+    function saveLocale(locale) {
+      safeStorageSet(APP_CONFIG.storageKeys.locale, locale === 'en' ? 'en' : 'ar');
+    }
 
-function getHistory(store, customerId) {
-  if (!store.histories[customerId]) {
-    store.histories[customerId] = [];
-  }
-  return store.histories[customerId];
-}
+    function randomIdSegment(length = 10) {
+      try {
+        return crypto.randomUUID().replace(/-/g, '').slice(0, length);
+      } catch (_) {
+        return Math.random().toString(36).slice(2, 2 + length);
+      }
+    }
 
-function upsertCustomer(store, customerPayload) {
-  const customer = normalizeCustomer(customerPayload);
-  if (!customer.id) {
-    throw new Error('customer.id is required');
-  }
+    function createDemoIdentity() {
+      const demoId = `ERP-mawared-${randomIdSegment(8).toUpperCase()}`;
+      return {
+        id: demoId,
+        email: `${demoId.toLowerCase()}@smartlife.local`,
+        displayName: demoId,
+        locale: getSavedLocale(),
+        companyName: APP_CONFIG.companyName,
+        mode: 'demo',
+        subscribedAppInbox: true
+      };
+    }
 
-  const index = store.customers.findIndex(c => c.id === customer.id);
+    function getOrCreateDemoIdentity() {
+      const raw = safeStorageGet(APP_CONFIG.storageKeys.demoIdentity);
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed && parsed.id && parsed.email) {
+            parsed.mode = 'demo';
+            parsed.locale = getSavedLocale();
+            parsed.companyName = parsed.companyName || APP_CONFIG.companyName;
+            parsed.subscribedAppInbox = true;
+            return parsed;
+          }
+        } catch (_) {}
+      }
 
-  if (index >= 0) {
-    store.customers[index] = {
-      ...store.customers[index],
-      ...customer,
-      createdAt: store.customers[index].createdAt || customer.createdAt,
-      updatedAt: nowIso()
-    };
-    return store.customers[index];
-  }
+      const created = createDemoIdentity();
+      safeStorageSet(APP_CONFIG.storageKeys.demoIdentity, JSON.stringify(created));
+      return created;
+    }
 
-  store.customers.push(customer);
-  return customer;
-}
+    function normalizeUser(source) {
+      if (!source || typeof source !== 'object') return null;
 
-function appendHistory(store, customerId, entryPayload) {
-  if (!customerId) {
-    throw new Error('customerId is required');
-  }
+      const id = String(
+        source.id || source.userId || source.erpId || source.externalId || ''
+      ).trim();
 
-  const entry = normalizeEntry(entryPayload);
-  const history = getHistory(store, customerId);
+      const email = String(source.email || '').trim();
+      const name = String(source.name || source.displayName || id || '').trim();
+      const locale = source.locale === 'en' ? 'en' : 'ar';
+      const companyName = String(source.companyName || APP_CONFIG.companyName).trim();
+      const signedIdentity = typeof source.signedIdentity === 'string' && source.signedIdentity.trim()
+        ? source.signedIdentity.trim()
+        : '';
 
-  const exists = history.some(item => item.id === entry.id);
-  if (!exists) {
-    history.push(entry);
-    history.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  }
+      if (!id && !email && !signedIdentity) return null;
 
-  return entry;
-}
+      const stableId = id || email;
+      const stableEmail = email || `${stableId.toLowerCase().replace(/[^a-z0-9._-]/gi, '')}@smartlife.local`;
 
-function findCustomerByIdentifiers(store, identifiers = []) {
-  const normalized = identifiers
-    .map(x => sanitizeText(x).toLowerCase())
-    .filter(Boolean);
+      return {
+        id: stableId,
+        email: stableEmail,
+        displayName: name || stableId,
+        locale,
+        companyName,
+        signedIdentity,
+        mode: 'live',
+        subscribedAppInbox: true
+      };
+    }
 
-  if (!normalized.length) return null;
+    function resolveCurrentUser() {
+      const injected = normalizeUser(window.SMARTLIFE_USER);
+      if (injected) return injected;
+      return getOrCreateDemoIdentity();
+    }
 
-  return store.customers.find(c => {
-    const candidates = [
-      sanitizeText(c.id).toLowerCase(),
-      sanitizeText(c.email).toLowerCase(),
-      sanitizeText(c.displayName).toLowerCase()
-    ];
-    return normalized.some(id => candidates.includes(id));
-  }) || null;
-}
+    let CURRENT_USER = resolveCurrentUser();
+    let CUSTOMER_HISTORY = [];
+    let HISTORY_SOURCE = 'local';
 
-function collectPossibleIdentifiersFromWebhook(body = {}) {
-  const identifiers = new Set();
+    function historyStorageKey(userId) {
+      return `${APP_CONFIG.storageKeys.historyPrefix}:${userId}`;
+    }
 
-  const tryAdd = (value) => {
-    const v = sanitizeText(value);
-    if (v) identifiers.add(v);
-  };
+    function loadLocalHistory(userId) {
+      const raw = safeStorageGet(historyStorageKey(userId));
+      if (!raw) return [];
+      try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (_) {
+        return [];
+      }
+    }
 
-  tryAdd(body.customerId);
-  tryAdd(body.contactId);
-  tryAdd(body.email);
-  tryAdd(body.externalUserId);
+    function saveLocalHistory(userId, entries) {
+      safeStorageSet(historyStorageKey(userId), JSON.stringify(entries));
+    }
 
-  tryAdd(body?.data?.customerId);
-  tryAdd(body?.data?.contactId);
-  tryAdd(body?.data?.email);
-  tryAdd(body?.data?.externalUserId);
-
-  tryAdd(body?.contact?.id);
-  tryAdd(body?.contact?.email);
-  tryAdd(body?.contact?.externalUserId);
-
-  tryAdd(body?.payload?.customerId);
-  tryAdd(body?.payload?.contactId);
-  tryAdd(body?.payload?.email);
-  tryAdd(body?.payload?.externalUserId);
-
-  const nestedIdentifiers = [
-    ...(body?.identity?.identifiers || []),
-    ...(body?.data?.identity?.identifiers || []),
-    ...(body?.payload?.identity?.identifiers || [])
-  ];
-
-  for (const item of nestedIdentifiers) {
-    tryAdd(item?.value);
-  }
-
-  return Array.from(identifiers);
-}
-
-function extractWebhookMessageText(body = {}) {
-  const candidates = [
-    body?.message?.text,
-    body?.message?.body,
-    body?.message?.content?.text,
-    body?.data?.message?.text,
-    body?.data?.message?.body,
-    body?.data?.message?.content?.text,
-    body?.payload?.message?.text,
-    body?.payload?.message?.body,
-    body?.payload?.message?.content?.text
-  ];
-
-  for (const candidate of candidates) {
-    const text = sanitizeText(candidate);
-    if (text) return text;
-  }
-
-  return '';
-}
-
-function extractWebhookEventName(body = {}) {
-  return sanitizeText(
-    body.event ||
-    body.type ||
-    body.name ||
-    body?.data?.event ||
-    body?.data?.type ||
-    body?.payload?.event ||
-    body?.payload?.type ||
-    'bird.webhook'
-  );
-}
-
-function extractWebhookTimestamp(body = {}) {
-  return sanitizeText(
-    body.timestamp ||
-    body.createdAt ||
-    body?.data?.timestamp ||
-    body?.data?.createdAt ||
-    body?.payload?.timestamp ||
-    body?.payload?.createdAt ||
-    nowIso()
-  );
-}
-
-/**
- * هذا التحقق اختياري.
- * إذا فعّلت signingKey في Bird webhook أضف BIRD_WEBHOOK_SIGNING_KEY في env
- * ثم فعّل هذا الجزء لاحقًا.
- */
-function verifyBirdWebhookSignature(req) {
-  if (!BIRD_WEBHOOK_SIGNING_KEY) return true;
-  return true;
-}
-
-app.get('/health', async (_req, res) => {
-  res.json({ ok: true, time: nowIso() });
-});
-
-app.post('/api/chat/customer/upsert', async (req, res) => {
-  try {
-    const store = await readStore();
-    const customer = upsertCustomer(store, req.body?.customer || {});
-    await writeStore(store);
-    res.json({ ok: true, customer });
-  } catch (error) {
-    res.status(400).json({ ok: false, error: error.message });
-  }
-});
-
-app.get('/api/chat/history/:customerId', async (req, res) => {
-  try {
-    const store = await readStore();
-    const customerId = sanitizeText(req.params.customerId);
-    const entries = getHistory(store, customerId);
-    res.json({ ok: true, entries });
-  } catch (error) {
-    res.status(500).json({ ok: false, error: error.message });
-  }
-});
-
-app.post('/api/chat/history/:customerId', async (req, res) => {
-  try {
-    const store = await readStore();
-    const customerId = sanitizeText(req.params.customerId);
-
-    if (!store.customers.find(c => c.id === customerId)) {
-      upsertCustomer(store, {
-        id: customerId,
-        email: req.body?.entry?.payload?.identifier || '',
-        displayName: customerId
+    function uniqueById(items) {
+      const map = new Map();
+      for (const item of items) {
+        const id = item.id || `${item.type || 'event'}-${item.createdAt || ''}-${item.text || ''}`;
+        map.set(id, { ...item, id });
+      }
+      return Array.from(map.values()).sort((a, b) => {
+        const aTime = new Date(a.createdAt || 0).getTime();
+        const bTime = new Date(b.createdAt || 0).getTime();
+        return bTime - aTime;
       });
     }
 
-    const entry = appendHistory(store, customerId, req.body?.entry || {});
-    await writeStore(store);
-    res.json({ ok: true, entry });
-  } catch (error) {
-    res.status(400).json({ ok: false, error: error.message });
-  }
-});
+    async function apiFetch(path, options = {}) {
+      const url = `${APP_CONFIG.apiBaseUrl}${path}`;
+      const res = await fetch(url, {
+        headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+        ...options
+      });
 
-app.post('/api/chat/session/start', async (req, res) => {
-  try {
-    const store = await readStore();
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        throw new Error(`API ${res.status}: ${text || res.statusText}`);
+      }
 
-    const session = {
-      id: createId('session'),
-      customerId: sanitizeText(req.body?.customerId),
-      email: sanitizeText(req.body?.email),
-      displayName: sanitizeText(req.body?.displayName),
-      pageUrl: sanitizeText(req.body?.pageUrl),
-      userAgent: sanitizeText(req.body?.userAgent),
-      startedAt: nowIso(),
-      endedAt: null
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) return res.json();
+      return res.text();
+    }
+
+    async function upsertCustomerToBackend(user) {
+      return apiFetch('/api/chat/customer/upsert', {
+        method: 'POST',
+        body: JSON.stringify({
+          customer: {
+            id: user.id,
+            email: user.email,
+            displayName: user.displayName,
+            locale: user.locale,
+            companyName: user.companyName,
+            mode: user.mode
+          }
+        })
+      });
+    }
+
+    async function pushHistoryToBackend(user, entry) {
+      return apiFetch(`/api/chat/history/${encodeURIComponent(user.id)}`, {
+        method: 'POST',
+        body: JSON.stringify({ entry })
+      });
+    }
+
+    async function loadHistoryFromBackend(user) {
+      return apiFetch(`/api/chat/history/${encodeURIComponent(user.id)}`);
+    }
+
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    }
+
+    function setHtmlDirAndLang(locale) {
+      const t = I18N[locale];
+      document.documentElement.lang = t.htmlLang;
+      document.documentElement.dir = t.dir;
+      document.title = t.title;
+    }
+
+    function updateStatus(type, text) {
+      const el = document.getElementById('birdStatus');
+      if (!el) return;
+      el.classList.remove('warning', 'error');
+      if (type === 'warning') el.classList.add('warning');
+      if (type === 'error') el.classList.add('error');
+      el.textContent = text;
+    }
+
+    function updateIdentityUI(user) {
+      const t = I18N[user.locale] || I18N.ar;
+      setText('metricModeValue', user.mode === 'live' ? t.modeLive : t.modeDemo);
+      setText('metricNameValue', user.displayName || t.unknown);
+      setText('metricEmailValue', user.email || user.id || t.unknown);
+      setText('metricLocaleValue', user.locale.toUpperCase());
+      setText('metricHistoryValue', String(CUSTOMER_HISTORY.length));
+      setText('identityBadge', user.displayName || t.unknown);
+      setText('historySourceBadge', HISTORY_SOURCE === 'backend' ? t.backendLabel : t.localLabel);
+    }
+
+    function formatDate(dateString, locale = 'ar') {
+      const d = new Date(dateString);
+      if (Number.isNaN(d.getTime())) return dateString || '—';
+      try {
+        return new Intl.DateTimeFormat(locale === 'ar' ? 'ar-SA' : 'en-US', {
+          dateStyle: 'medium',
+          timeStyle: 'short'
+        }).format(d);
+      } catch (_) {
+        return d.toLocaleString();
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function renderHistory() {
+      const t = I18N[CURRENT_USER.locale] || I18N.ar;
+      const container = document.getElementById('historyList');
+      if (!container) return;
+
+      updateIdentityUI(CURRENT_USER);
+
+      if (!CUSTOMER_HISTORY.length) {
+        container.innerHTML = `<div class="empty-state">${escapeHtml(t.emptyHistory)}</div>`;
+        return;
+      }
+
+      container.innerHTML = CUSTOMER_HISTORY.map((item) => {
+        const tag = escapeHtml(item.type || 'event');
+        const source = escapeHtml(item.source || 'system');
+        const createdAt = escapeHtml(formatDate(item.createdAt, CURRENT_USER.locale));
+        const body = escapeHtml(item.text || JSON.stringify(item.payload || {}, null, 2));
+
+        return `
+          <article class="history-item">
+            <div class="meta">
+              <span class="history-tag">${tag}</span>
+              <span>${source}</span>
+              <span>•</span>
+              <span>${createdAt}</span>
+            </div>
+            <div class="history-body">${body}</div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    async function appendHistoryEntry(entry, persistRemote = true) {
+      const normalized = {
+        id: entry.id || `evt_${Date.now()}_${randomIdSegment(6)}`,
+        type: entry.type || 'event',
+        source: entry.source || 'system',
+        text: entry.text || '',
+        payload: entry.payload || null,
+        createdAt: entry.createdAt || new Date().toISOString()
+      };
+
+      CUSTOMER_HISTORY = uniqueById([normalized, ...CUSTOMER_HISTORY]);
+      saveLocalHistory(CURRENT_USER.id, CUSTOMER_HISTORY);
+      renderHistory();
+
+      if (persistRemote) {
+        try {
+          await pushHistoryToBackend(CURRENT_USER, normalized);
+          HISTORY_SOURCE = 'backend';
+          renderHistory();
+        } catch (_) {}
+      }
+    }
+
+    async function syncHistory(forceMessage = true) {
+      const t = I18N[CURRENT_USER.locale] || I18N.ar;
+
+      try {
+        const response = await loadHistoryFromBackend(CURRENT_USER);
+        const remoteEntries = Array.isArray(response?.entries) ? response.entries : [];
+        CUSTOMER_HISTORY = uniqueById(remoteEntries.concat(loadLocalHistory(CURRENT_USER.id)));
+        HISTORY_SOURCE = 'backend';
+        saveLocalHistory(CURRENT_USER.id, CUSTOMER_HISTORY);
+        renderHistory();
+
+        if (forceMessage) {
+          await appendHistoryEntry({
+            type: 'system',
+            source: 'frontend',
+            text: t.syncOk
+          }, false);
+        }
+      } catch (error) {
+        CUSTOMER_HISTORY = uniqueById(loadLocalHistory(CURRENT_USER.id));
+        HISTORY_SOURCE = 'local';
+        renderHistory();
+
+        if (forceMessage) {
+          await appendHistoryEntry({
+            type: 'warning',
+            source: 'frontend',
+            text: t.syncFail,
+            payload: { error: String(error.message || error) }
+          }, false);
+        }
+      }
+    }
+
+    function renderLocale(locale) {
+      const t = I18N[locale];
+      setHtmlDirAndLang(locale);
+
+      setText('brandTitle', APP_CONFIG.appName);
+      setText('brandSubtitle', t.subtitle);
+      setText('eyebrow', t.eyebrow);
+      setText('heroTitle', t.heroTitle);
+      setText('heroBody', t.heroBody);
+      setText('toggleLocaleBtn', t.toggle);
+      setText('openChatBtn', t.openChat);
+      setText('refreshIdentityBtn', t.refreshIdentity);
+      setText('refreshHistoryBtn', t.refreshHistory);
+      setText('metricModeLabel', t.metricMode);
+      setText('metricNameLabel', t.metricName);
+      setText('metricEmailLabel', t.metricEmail);
+      setText('metricLocaleLabel', t.metricLocale);
+      setText('metricHistoryLabel', t.metricHistory);
+      setText('section1Title', t.section1Title);
+      setText('section1List1', t.section1List1);
+      setText('section1List2', t.section1List2);
+      setText('section1List3', t.section1List3);
+      setText('section1List4', t.section1List4);
+      setText('section2Title', t.section2Title);
+      setText('section2List1', t.section2List1);
+      setText('section2List2', t.section2List2);
+      setText('section2List3', t.section2List3);
+      setText('section2List4', t.section2List4);
+      setText('footerText', t.footer);
+
+      renderHistory();
+    }
+
+    function toggleLocale() {
+      const next = (CURRENT_USER.locale === 'ar') ? 'en' : 'ar';
+      CURRENT_USER.locale = next;
+      saveLocale(next);
+      syncTemplateContext(CURRENT_USER);
+      renderLocale(next);
+    }
+
+    function buildIdentifyClaim(user) {
+      if (user.signedIdentity) {
+        return {
+          strategy: 'SignedIdentityClaims',
+          signedIdentity: user.signedIdentity
+        };
+      }
+
+      return {
+        strategy: 'Visitor',
+        identifier: {
+          key: 'emailaddress',
+          value: user.email
+        }
+      };
+    }
+
+    window.mbcontext = window.mbcontext || {};
+    window.mbsetcontext = function (attributes) {
+      window.mbcontext = attributes || {};
     };
 
-    store.sessions.push(session);
-
-    if (session.customerId) {
-      appendHistory(store, session.customerId, {
-        type: 'session',
-        source: 'backend',
-        text: 'Customer session started',
-        payload: {
-          pageUrl: session.pageUrl,
-          userAgent: session.userAgent
+    function syncTemplateContext(user) {
+      window.mbsetcontext({
+        user: {
+          id: String(user.id),
+          email: String(user.email),
+          firstName: String(user.displayName).split(' ')[0] || String(user.displayName),
+          displayName: String(user.displayName),
+          locale: String(user.locale)
+        },
+        company: {
+          name: String(user.companyName)
         }
       });
     }
 
-    await writeStore(store);
-    res.json({ ok: true, session });
-  } catch (error) {
-    res.status(500).json({ ok: false, error: error.message });
-  }
-});
+    async function syncBirdContactAttributes(sdk, user) {
+      const attributes = {
+        displayName: user.displayName,
+        subscribedAppInbox: !!user.subscribedAppInbox,
+        locale: user.locale,
+        companyName: user.companyName,
+        externalUserId: user.id
+      };
 
-app.post('/api/chat/session/end', express.json({ type: ['application/json', 'text/plain'] }), async (req, res) => {
-  try {
-    const store = await readStore();
+      if (typeof sdk.contact.putAttributes === 'function') {
+        await sdk.contact.putAttributes(attributes);
+        return;
+      }
 
-    const customerId = sanitizeText(req.body?.customerId);
-    const pageUrl = sanitizeText(req.body?.pageUrl);
-
-    for (let i = store.sessions.length - 1; i >= 0; i--) {
-      const session = store.sessions[i];
-      if (session.customerId === customerId && !session.endedAt) {
-        session.endedAt = req.body?.endedAt || nowIso();
-        break;
+      if (typeof sdk.contact.updateCurrent === 'function') {
+        await sdk.contact.updateCurrent(attributes);
       }
     }
 
-    if (customerId) {
-      appendHistory(store, customerId, {
-        type: 'session',
-        source: 'backend',
-        text: 'Customer session ended',
-        payload: { pageUrl }
+    async function bootstrapBirdIdentity(sdk, conf) {
+      await sdk.init({ config: conf });
+
+      CURRENT_USER = resolveCurrentUser();
+      syncTemplateContext(CURRENT_USER);
+
+      const identifyClaim = buildIdentifyClaim(CURRENT_USER);
+
+      await sdk.contact.identify(identifyClaim, {
+        displayName: CURRENT_USER.displayName,
+        subscribedAppInbox: CURRENT_USER.subscribedAppInbox
       });
+
+      await syncBirdContactAttributes(sdk, CURRENT_USER);
+
+      try {
+        await upsertCustomerToBackend(CURRENT_USER);
+      } catch (_) {}
+
+      const t = I18N[CURRENT_USER.locale] || I18N.ar;
+      updateStatus('success', t.statusReady);
+
+      await appendHistoryEntry({
+        type: 'system',
+        source: 'bird',
+        text: `Bird contact identified: ${CURRENT_USER.displayName}`,
+        payload: {
+          mode: CURRENT_USER.mode,
+          identifier: CURRENT_USER.email
+        }
+      }, true);
+
+      await syncHistory(false);
+      renderLocale(CURRENT_USER.locale);
     }
 
-    await writeStore(store);
-    res.json({ ok: true });
-  } catch (error) {
-    res.status(500).json({ ok: false, error: error.message });
-  }
-});
+    window.birdAsyncInit = async function (sdk, conf) {
+      if (window.__SMARTLIFE_BIRD_INITIALIZED__) return;
+      window.__SMARTLIFE_BIRD_INITIALIZED__ = true;
 
-/**
- * هذا هو endpoint الذي تربطه مع Bird webhook.
- * الفكرة:
- * 1) Bird يرسل حدث inbound / outbound / interaction
- * 2) نحن نربط الحدث بالعميل
- * 3) نحفظه داخل history لذلك العميل
- */
-app.post('/webhooks/bird', async (req, res) => {
-  try {
-    if (!verifyBirdWebhookSignature(req)) {
-      return res.status(401).json({ ok: false, error: 'Invalid webhook signature' });
-    }
+      try {
+        await bootstrapBirdIdentity(sdk, conf);
+      } catch (error) {
+        console.error('[Bird] Initialization failed:', error);
+        const t = I18N[CURRENT_USER.locale] || I18N.ar;
+        updateStatus('error', t.statusError);
 
-    const store = await readStore();
-    const body = req.body || {};
-
-    const eventName = extractWebhookEventName(body);
-    const createdAt = extractWebhookTimestamp(body);
-    const messageText = extractWebhookMessageText(body);
-    const identifiers = collectPossibleIdentifiersFromWebhook(body);
-
-    const matchedCustomer = findCustomerByIdentifiers(store, identifiers);
-
-    const webhookEvent = {
-      id: createId('wh'),
-      eventName,
-      identifiers,
-      createdAt,
-      raw: body
+        await appendHistoryEntry({
+          type: 'error',
+          source: 'bird',
+          text: t.statusError,
+          payload: { error: String(error.message || error) }
+        }, true);
+      }
     };
 
-    store.webhookEvents.push(webhookEvent);
-
-    if (matchedCustomer) {
-      appendHistory(store, matchedCustomer.id, {
-        id: webhookEvent.id,
-        type: 'bird-message',
-        source: 'bird-webhook',
-        text: messageText || `[${eventName}] message received`,
-        payload: {
-          eventName,
-          identifiers,
-          raw: body
-        },
-        createdAt
-      });
+    async function startCustomerSession() {
+      try {
+        await apiFetch('/api/chat/session/start', {
+          method: 'POST',
+          body: JSON.stringify({
+            customerId: CURRENT_USER.id,
+            email: CURRENT_USER.email,
+            displayName: CURRENT_USER.displayName,
+            pageUrl: location.href,
+            userAgent: navigator.userAgent
+          })
+        });
+      } catch (_) {}
     }
 
-    await writeStore(store);
-    res.status(200).json({
-      ok: true,
-      matchedCustomerId: matchedCustomer?.id || null
-    });
-  } catch (error) {
-    console.error('Bird webhook error:', error);
-    res.status(500).json({ ok: false, error: error.message });
-  }
-});
+    function endCustomerSession() {
+      const payload = JSON.stringify({
+        customerId: CURRENT_USER.id,
+        email: CURRENT_USER.email,
+        displayName: CURRENT_USER.displayName,
+        pageUrl: location.href,
+        endedAt: new Date().toISOString()
+      });
 
-app.listen(PORT, async () => {
-  await ensureStore();
-  console.log(`✅ Smart Life chat server running on http://localhost:${PORT}`);
-});
+      try {
+        navigator.sendBeacon(`${APP_CONFIG.apiBaseUrl}/api/chat/session/end`, new Blob([payload], {
+          type: 'application/json'
+        }));
+      } catch (_) {}
+    }
+
+    document.addEventListener('DOMContentLoaded', async function () {
+      CURRENT_USER = resolveCurrentUser();
+      syncTemplateContext(CURRENT_USER);
+
+      CUSTOMER_HISTORY = loadLocalHistory(CURRENT_USER.id);
+      renderLocale(CURRENT_USER.locale);
+
+      const toggleBtn = document.getElementById('toggleLocaleBtn');
+      const refreshBtn = document.getElementById('refreshIdentityBtn');
+      const refreshHistoryBtn = document.getElementById('refreshHistoryBtn');
+      const openChatBtn = document.getElementById('openChatBtn');
+
+      toggleBtn?.addEventListener('click', toggleLocale);
+
+      refreshBtn?.addEventListener('click', async function () {
+        CURRENT_USER = resolveCurrentUser();
+        syncTemplateContext(CURRENT_USER);
+        renderLocale(CURRENT_USER.locale);
+
+        try {
+          await upsertCustomerToBackend(CURRENT_USER);
+        } catch (_) {}
+
+        await appendHistoryEntry({
+          type: 'system',
+          source: 'frontend',
+          text: `Identity refreshed for ${CURRENT_USER.displayName}`
+        }, true);
+      });
+
+      refreshHistoryBtn?.addEventListener('click', async function () {
+        await syncHistory(true);
+      });
+
+      openChatBtn?.addEventListener('click', async function () {
+        try {
+          if (window.mbchat && typeof window.mbchat.open === 'function') {
+            window.mbchat.open();
+          } else if (window.Bird && window.Bird.api && typeof window.Bird.api.openChat === 'function') {
+            window.Bird.api.openChat();
+          }
+
+          await appendHistoryEntry({
+            type: 'widget',
+            source: 'frontend',
+            text: 'Customer opened chat widget'
+          }, true);
+        } catch (error) {
+          await appendHistoryEntry({
+            type: 'error',
+            source: 'frontend',
+            text: 'Failed to open widget',
+            payload: { error: String(error.message || error) }
+          }, true);
+        }
+      });
+
+      const t = I18N[CURRENT_USER.locale] || I18N.ar;
+      updateStatus('warning', t.statusPending);
+
+      try {
+        await upsertCustomerToBackend(CURRENT_USER);
+      } catch (_) {}
+
+      await startCustomerSession();
+
+      await appendHistoryEntry({
+        type: 'session',
+        source: 'frontend',
+        text: 'Customer page session started',
+        payload: { pageUrl: location.href }
+      }, true);
+
+      await syncHistory(false);
+
+      window.addEventListener('beforeunload', endCustomerSession);
+      document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'hidden') endCustomerSession();
+      });
+    });
+  </script>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand">
+        <div class="brand-badge">SL</div>
+        <div class="brand-copy">
+          <h1 id="brandTitle">Smart Life</h1>
+          <p id="brandSubtitle">Professional Bird integration with persistent customer history</p>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="toggleLocaleBtn" class="btn" type="button">🌐 English</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <article class="panel hero-card">
+          <span id="eyebrow" class="eyebrow">Bird Chat • Persistent Customer Record</span>
+          <h2 id="heroTitle">هوية ثابتة للعميل، وسجل محفوظ، وتجربة شات أكثر استقرارًا.</h2>
+          <p id="heroBody">
+            هذه الصفحة تثبّت هوية العميل، وتفتح الشات، وتعرض سجلًا محفوظًا من الباك إند مع نسخة احتياطية محلية عند الحاجة.
+          </p>
+
+          <div class="hero-actions">
+            <button id="openChatBtn" class="btn btn-primary" type="button">افتح الشات</button>
+            <button id="refreshIdentityBtn" class="btn" type="button">تحديث الهوية</button>
+            <button id="refreshHistoryBtn" class="btn" type="button">تحديث السجل</button>
+            <span id="identityBadge" class="code-badge">ERP-mawared-LOCAL</span>
+          </div>
+        </article>
+
+        <aside class="panel stats-card">
+          <span id="birdStatus" class="status-pill warning">بانتظار تهيئة Bird</span>
+          <span id="historySourceBadge" class="code-badge">مصدر السجل: محلي</span>
+
+          <div class="metrics">
+            <div class="metric">
+              <div id="metricModeLabel" class="metric-label">وضع الهوية</div>
+              <div id="metricModeValue" class="metric-value">—</div>
+            </div>
+
+            <div class="metric">
+              <div id="metricNameLabel" class="metric-label">الاسم الظاهر</div>
+              <div id="metricNameValue" class="metric-value">—</div>
+            </div>
+
+            <div class="metric">
+              <div id="metricEmailLabel" class="metric-label">المعرّف المستخدم</div>
+              <div id="metricEmailValue" class="metric-value">—</div>
+            </div>
+
+            <div class="metric">
+              <div id="metricLocaleLabel" class="metric-label">اللغة الحالية</div>
+              <div id="metricLocaleValue" class="metric-value">—</div>
+            </div>
+
+            <div class="metric">
+              <div id="metricHistoryLabel" class="metric-label">عدد السجلات المحفوظة</div>
+              <div id="metricHistoryValue" class="metric-value">0</div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="content">
+      <div class="container content-grid">
+        <article class="panel section-card">
+          <h3 id="section1Title">ما الذي يفعله هذا التكامل؟</h3>
+          <ul class="list">
+            <li id="section1List1">يربط العميل بهوية مستقرة بدل إنشاء زائر جديد كل مرة.</li>
+            <li id="section1List2">يحفظ سجل العميل في الباك إند عندكم، مع نسخة محلية احتياطية.</li>
+            <li id="section1List3">يعرض سجل العميل مباشرة في الصفحة حتى لو أغلق نافذة الشات.</li>
+            <li id="section1List4">يهيّئ الصفحة لاستخدام Signed Identity لاحقًا بدون إعادة بناء التكامل.</li>
+          </ul>
+        </article>
+
+        <article class="panel section-card">
+          <h3 id="section2Title">تنبيه مهم</h3>
+          <ul class="list">
+            <li id="section2List1">إذا لم تشغّل الباك إند وWebhook فلن تحصل على سجل رسائل كامل لجميع العملاء.</li>
+            <li id="section2List2">الواجهة وحدها تستطيع حفظ سجل محلي لهذا المتصفح فقط.</li>
+            <li id="section2List3">لكي يُحفظ سجل العميل الحقيقي، اربط /webhooks/bird مع Bird واحفظ الأحداث في قاعدة بياناتكم.</li>
+            <li id="section2List4">مرّر هوية العميل الحقيقية بعد تسجيل الدخول بدل Demo identity.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="content">
+      <div class="container">
+        <article class="panel section-card">
+          <h3>سجل العميل المحفوظ</h3>
+          <div id="historyList" class="history-list">
+            <div class="empty-state">لا يوجد سجل محفوظ لهذا العميل حتى الآن.</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="footer">
+      <div class="container">
+        <div class="panel">
+          <span id="footerText">الآن الصفحة تحفظ هوية العميل وتعرض السجل من الباك إند. شغّل server.js المرفق بالأسفل.</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script
+    async
+    src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
+    data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62"
+  ></script>
+</body>
+</html>
