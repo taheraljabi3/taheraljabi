@@ -1,35 +1,58 @@
 <!doctype html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Bird Test</title>
+<title>Bird RTL Test</title>
 
 <style>
-/* نجعل الصفحة RTL */
-div{
-  direction: rtl;
+body{
   font-family: Arial, sans-serif;
   margin:0;
+  direction: rtl;
 }
 
-/* هذا العنصر سنجبره LTR */
-
+/* مجرد صندوق اختبار */
+.test-box{
+  padding:20px;
+  border:2px dashed #ccc;
+  margin:20px;
+}
 </style>
 
 </head>
 
 <body>
 
-<div class="test-ltr">
-  This container is forced to LTR direction
+<div class="test-box">
+  صفحة اختبار للـ Bird Widget
 </div>
+
+<script>
+/* نجبر إعادة حساب الاتجاه بعد تحميل الصفحة */
+function forceWidgetReflow(){
+  const html = document.documentElement;
+
+  const current = html.getAttribute("dir");
+
+  html.setAttribute("dir","ltr");
+
+  requestAnimationFrame(()=>{
+    html.setAttribute("dir",current);
+  });
+}
+
+/* تنفيذ بعد تحميل widget */
+window.addEventListener("load",()=>{
+  setTimeout(forceWidgetReflow,500);
+});
+</script>
 
 <script
 async
 src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
-data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62"
-></script>
+data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62">
+</script>
 
 </body>
 </html>
