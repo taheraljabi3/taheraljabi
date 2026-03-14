@@ -1,150 +1,890 @@
 <!doctype html>
-<html lang="en" dir="rtl">
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Smart Life Multi-Language Chat</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Smart Life • Bird Chat Identity</title>
+  <meta name="description" content="Smart Life Bird Chat integration with stable identity, localization, and persistent contact profile." />
 
-<style>
-body{
-  margin:0;
-  font-family:system-ui,-apple-system,"Segoe UI","Cairo",sans-serif;
-  background:#0b1220;
-  color:#fff;
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-}
-header{
-  padding:20px;
-  border-bottom:1px solid rgba(255,255,255,.1);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-main{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  padding:40px;
-}
-.dir-toggle{
-  padding:8px 14px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.2);
-  background:rgba(255,255,255,.08);
-  color:#fff;
-  cursor:pointer;
-  font-weight:600;
-}
-</style>
-
-<script>
-/* ========= توليد رقم ثابت لكل جهاز ========= */
-function getOrCreateErpId(){
-  const key = "sl_erp_identity";
-  let id = localStorage.getItem(key);
-
-  if(!id){
-    // رقم عشوائي من 01 إلى 99
-    const num = Math.floor(Math.random()*99 + 1).toString().padStart(2,"0");
-    id = "ERP-mawared-" + num;
-    localStorage.setItem(key,id);
-  }
-
-  return id;
-}
-
-function buildProfile(){
-  const erpId = getOrCreateErpId();
-  const email = erpId + "@smartlife.local";
-
-  return {
-    erpId,
-    email,
-    displayName: erpId,
-    subscribedAppInbox: true
-  };
-}
-
-/* ========= Identify قبل تشغيل الودجت ========= */
-window.birdAsyncInit = async function (sdk, conf) {
-
-  await sdk.init({ config: conf });
-
-  const p = buildProfile();
-
-  await sdk.contact.identify(
-    {
-      strategy: "Visitor",
-      identifier: { key: "emailaddress", value: p.email }
-    },
-    {
-      displayName: p.displayName,
-      subscribedAppInbox: p.subscribedAppInbox
+  <style>
+    :root{
+      --bg: #08111f;
+      --bg-soft: #0d1728;
+      --card: rgba(255,255,255,.06);
+      --card-border: rgba(255,255,255,.12);
+      --text: #f5f7fb;
+      --muted: #9fb0c8;
+      --primary: #4f8cff;
+      --primary-soft: rgba(79,140,255,.14);
+      --success: #2dd4bf;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --shadow: 0 20px 50px rgba(0,0,0,.35);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --container: 1120px;
     }
-  );
 
-  if (sdk.contact.updateCurrent) {
-    await sdk.contact.updateCurrent({
-      displayName: p.displayName,
-      subscribedAppInbox: p.subscribedAppInbox
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at top right, rgba(79,140,255,.18), transparent 28%),
+        radial-gradient(circle at left center, rgba(45,212,191,.10), transparent 22%),
+        linear-gradient(180deg, #07101d 0%, #0b1220 100%);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", "Cairo", sans-serif;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      width: min(100% - 32px, var(--container));
+      margin-inline: auto;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(16px);
+      background: rgba(8,17,31,.72);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 78px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .brand-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--primary), #76a7ff);
+      box-shadow: 0 12px 30px rgba(79,140,255,.35);
+      font-weight: 800;
+      letter-spacing: .3px;
+    }
+
+    .brand-copy h1 {
+      margin: 0;
+      font-size: 1.05rem;
+      line-height: 1.2;
+    }
+
+    .brand-copy p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 12px 16px;
+      font-size: .94rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .22s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.09);
+      border-color: rgba(255,255,255,.18);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #76a7ff);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 12px 28px rgba(79,140,255,.28);
+    }
+
+    .hero {
+      padding: 44px 0 22px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.4fr .9fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-card {
+      padding: 30px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: .85rem;
+      font-weight: 700;
+      color: #dbeafe;
+      background: var(--primary-soft);
+      border: 1px solid rgba(79,140,255,.22);
+    }
+
+    .hero-card h2 {
+      margin: 18px 0 12px;
+      font-size: clamp(1.8rem, 3vw, 3rem);
+      line-height: 1.15;
+      letter-spacing: -.02em;
+    }
+
+    .hero-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.8;
+      max-width: 70ch;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .stats-card {
+      padding: 24px;
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: .88rem;
+      font-weight: 800;
+      letter-spacing: .01em;
+      background: rgba(45,212,191,.10);
+      color: #99f6e4;
+      border: 1px solid rgba(45,212,191,.24);
+    }
+
+    .status-pill.warning {
+      background: rgba(245,158,11,.10);
+      color: #fcd34d;
+      border-color: rgba(245,158,11,.24);
+    }
+
+    .status-pill.error {
+      background: rgba(239,68,68,.10);
+      color: #fecaca;
+      border-color: rgba(239,68,68,.22);
+    }
+
+    .metrics {
+      display: grid;
+      gap: 14px;
+    }
+
+    .metric {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: .88rem;
+      margin-bottom: 8px;
+    }
+
+    .metric-value {
+      font-size: 1rem;
+      font-weight: 800;
+      word-break: break-word;
+    }
+
+    .content {
+      padding: 10px 0 36px;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    .section-card {
+      padding: 24px;
+    }
+
+    .section-card h3 {
+      margin: 0 0 14px;
+      font-size: 1.12rem;
+    }
+
+    .section-card p,
+    .section-card li {
+      color: var(--muted);
+      line-height: 1.8;
+      margin: 0;
+    }
+
+    .list {
+      display: grid;
+      gap: 12px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .list li {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+    }
+
+    .code-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      color: var(--text);
+      font-size: .88rem;
+      font-weight: 700;
+    }
+
+    .footer {
+      padding: 0 0 28px;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .footer .panel {
+      padding: 18px 22px;
+      border-radius: var(--radius-lg);
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 920px) {
+      .hero-grid,
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        padding-top: 26px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar-inner {
+        min-height: 70px;
+      }
+
+      .hero-card,
+      .stats-card,
+      .section-card {
+        padding: 20px;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .actions {
+        width: 100%;
+      }
+
+      .topbar-inner {
+        flex-wrap: wrap;
+        padding-block: 12px;
+      }
+
+      .actions {
+        justify-content: stretch;
+      }
+    }
+  </style>
+
+  <script>
+    /**
+     * ===============================================================
+     *  Smart Life → Bird Web SDK bootstrap
+     *  - Stable identity for same browser immediately
+     *  - Production-ready hook for real logged-in user
+     *  - Locale + template context support
+     * ===============================================================
+     *
+     *  Production recommendation:
+     *  Inject the real authenticated user BEFORE the Bird script loads:
+     *
+     *  window.SMARTLIFE_USER = {
+     *    id: "cust_102938",
+     *    email: "customer@example.com",
+     *    name: "Taher Al Jabi",
+     *    locale: "ar",
+     *    companyName: "Smart Life",
+     *    signedIdentity: "" // optional, preferred in production when issued by backend
+     *  };
+     */
+
+    const APP_CONFIG = Object.freeze({
+      appName: 'Smart Life',
+      companyName: 'Smart Life',
+      storageKeys: {
+        locale: 'sl_site_locale',
+        demoIdentity: 'sl_bird_demo_identity'
+      }
     });
-  }
 
-  console.log("Bird Identified as:", p.displayName);
-};
-</script>
+    const I18N = {
+      ar: {
+        htmlLang: 'ar',
+        dir: 'rtl',
+        title: 'سمارت لايف • هوية مستقرة لشات Bird',
+        subtitle: 'تكامل احترافي للشات مع تعريف عميل ثابت واستعداد للإنتاج',
+        eyebrow: 'Bird Chat • Stable Identity',
+        heroTitle: 'سجل محادثة أوضح، وهوية عميل أذكى، وتجربة شات أكثر ثباتًا.',
+        heroBody:
+          'هذه الصفحة تربط العميل بمعرّف ثابت بدل الزائر المؤقت، وتجهز البيئة لدعم السجل السابق، التخصيص، وتوسعة التكامل لاحقًا مع المستخدم الحقيقي بعد تسجيل الدخول.',
+        toggle: '🌐 English',
+        openChat: 'افتح الشات',
+        refreshIdentity: 'تحديث الهوية',
+        statusReady: 'تم تهيئة Bird بنجاح',
+        statusPending: 'بانتظار تهيئة Bird',
+        statusError: 'حدث خطأ أثناء التهيئة',
+        metricMode: 'وضع الهوية',
+        metricName: 'الاسم الظاهر',
+        metricEmail: 'المعرّف المستخدم',
+        metricLocale: 'اللغة الحالية',
+        section1Title: 'ما الذي يفعله هذا التكامل؟',
+        section1List1: 'يربط العميل بهوية مستقرة بدل إنشاء زائر جديد كل مرة.',
+        section1List2: 'يجهز بيانات العميل لاستخدامها في الرسائل المخصصة وواجهة الشات.',
+        section1List3: 'يدعم الانتقال لاحقًا إلى Signed Identity من الباك إند بدون إعادة كتابة الصفحة.',
+        section1List4: 'يعرض حالة التكامل وهوية العميل المستخدمة حاليًا بشكل واضح.',
+        section2Title: 'مهم قبل الإطلاق',
+        section2List1: 'إن لم تمرر مستخدمًا حقيقيًا من نظامكم، سيعمل الكود بوضع Demo محفوظ محليًا لنفس المتصفح فقط.',
+        section2List2: 'لضمان نفس السجل عبر الأجهزة، مرّر id أو email حقيقيًا من جلسة تسجيل الدخول.',
+        section2List3: 'الأفضل أمنيًا في الإنتاج: signedIdentity صادرة من الباك إند بعد التحقق من الجلسة.',
+        section2List4: 'لا تضع أي أسرار أو مفاتيح خاصة داخل الواجهة الأمامية.',
+        footer:
+          'جاهز للربط مع نظامكم الحالي. يكفي فقط حقن بيانات المستخدم الحقيقي قبل تحميل Bird script.',
+        modeDemo: 'Demo / Local browser only',
+        modeLive: 'Authenticated / Stable app identity',
+        unknown: 'غير متوفر'
+      },
+      en: {
+        htmlLang: 'en',
+        dir: 'ltr',
+        title: 'Smart Life • Stable Bird Chat Identity',
+        subtitle: 'Professional chat integration with stable customer identity',
+        eyebrow: 'Bird Chat • Stable Identity',
+        heroTitle: 'Cleaner conversation history, smarter identity, and a more reliable chat experience.',
+        heroBody:
+          'This page binds the customer to a stable identifier instead of a temporary visitor and prepares the chat for previous-history continuity, personalization, and future production-grade authentication.',
+        toggle: '🌐 العربية',
+        openChat: 'Open Chat',
+        refreshIdentity: 'Refresh Identity',
+        statusReady: 'Bird initialized successfully',
+        statusPending: 'Waiting for Bird initialization',
+        statusError: 'Bird initialization failed',
+        metricMode: 'Identity mode',
+        metricName: 'Displayed name',
+        metricEmail: 'Primary identifier',
+        metricLocale: 'Current locale',
+        section1Title: 'What this integration does',
+        section1List1: 'Binds the customer to a stable identity instead of creating a new visitor every time.',
+        section1List2: 'Prepares customer data for personalized messaging and chat rendering.',
+        section1List3: 'Keeps the page ready for a later move to backend-issued Signed Identity.',
+        section1List4: 'Shows the active identity and integration status clearly on the page.',
+        section2Title: 'Important before production',
+        section2List1: 'If you do not inject a real authenticated user, the code will run in local demo mode for the same browser only.',
+        section2List2: 'To preserve the same history across devices, pass a real app user id or email after login.',
+        section2List3: 'Best production practice: use backend-issued signedIdentity after session validation.',
+        section2List4: 'Never place private secrets or server-side credentials in the frontend.',
+        footer:
+          'Ready to connect to your existing app. Just inject the real authenticated user before Bird loads.',
+        modeDemo: 'Demo / Local browser only',
+        modeLive: 'Authenticated / Stable app identity',
+        unknown: 'Unavailable'
+      }
+    };
 
+    function safeStorageGet(key) {
+      try {
+        return window.localStorage.getItem(key);
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function safeStorageSet(key, value) {
+      try {
+        window.localStorage.setItem(key, value);
+      } catch (_) {}
+    }
+
+    function getSavedLocale() {
+      const saved = safeStorageGet(APP_CONFIG.storageKeys.locale);
+      return saved === 'en' ? 'en' : 'ar';
+    }
+
+    function saveLocale(locale) {
+      safeStorageSet(APP_CONFIG.storageKeys.locale, locale === 'en' ? 'en' : 'ar');
+    }
+
+    function randomIdSegment(length = 10) {
+      try {
+        return crypto.randomUUID().replace(/-/g, '').slice(0, length);
+      } catch (_) {
+        return Math.random().toString(36).slice(2, 2 + length);
+      }
+    }
+
+    function createDemoIdentity() {
+      const demoId = `ERP-mawared-${randomIdSegment(8).toUpperCase()}`;
+      return {
+        id: demoId,
+        email: `${demoId.toLowerCase()}@smartlife.local`,
+        displayName: demoId,
+        locale: getSavedLocale(),
+        companyName: APP_CONFIG.companyName,
+        mode: 'demo',
+        subscribedAppInbox: true
+      };
+    }
+
+    function getOrCreateDemoIdentity() {
+      const key = APP_CONFIG.storageKeys.demoIdentity;
+      const raw = safeStorageGet(key);
+
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed && parsed.id && parsed.email) {
+            parsed.mode = 'demo';
+            parsed.locale = getSavedLocale();
+            parsed.companyName = parsed.companyName || APP_CONFIG.companyName;
+            parsed.subscribedAppInbox = true;
+            return parsed;
+          }
+        } catch (_) {}
+      }
+
+      const created = createDemoIdentity();
+      safeStorageSet(key, JSON.stringify(created));
+      return created;
+    }
+
+    function normalizeUser(source) {
+      if (!source || typeof source !== 'object') return null;
+
+      const id =
+        String(
+          source.id ||
+          source.userId ||
+          source.erpId ||
+          source.externalId ||
+          ''
+        ).trim();
+
+      const email = String(source.email || '').trim();
+      const name = String(source.name || source.displayName || id || '').trim();
+      const locale = source.locale === 'en' ? 'en' : 'ar';
+      const companyName = String(source.companyName || APP_CONFIG.companyName).trim();
+      const signedIdentity = typeof source.signedIdentity === 'string' && source.signedIdentity.trim()
+        ? source.signedIdentity.trim()
+        : '';
+
+      if (!id && !email && !signedIdentity) return null;
+
+      const stableId = id || email;
+      const stableEmail = email || `${stableId.toLowerCase().replace(/[^a-z0-9._-]/gi, '')}@smartlife.local`;
+
+      return {
+        id: stableId,
+        email: stableEmail,
+        displayName: name || stableId,
+        locale,
+        companyName,
+        signedIdentity,
+        mode: 'live',
+        subscribedAppInbox: true
+      };
+    }
+
+    function resolveCurrentUser() {
+      const injected = normalizeUser(window.SMARTLIFE_USER);
+      if (injected) return injected;
+      return getOrCreateDemoIdentity();
+    }
+
+    let CURRENT_USER = resolveCurrentUser();
+
+    // Template context for welcome message personalization in the widget.
+    // Keep values as strings for maximum compatibility.
+    window.mbcontext = window.mbcontext || {};
+    window.mbsetcontext = function (attributes) {
+      window.mbcontext = attributes || {};
+    };
+
+    function syncTemplateContext(user) {
+      window.mbsetcontext({
+        user: {
+          id: String(user.id),
+          email: String(user.email),
+          firstName: String(user.displayName).split(' ')[0] || String(user.displayName),
+          displayName: String(user.displayName),
+          locale: String(user.locale)
+        },
+        company: {
+          name: String(user.companyName)
+        }
+      });
+    }
+
+    syncTemplateContext(CURRENT_USER);
+
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    }
+
+    function setHtmlDirAndLang(locale) {
+      const t = I18N[locale];
+      document.documentElement.lang = t.htmlLang;
+      document.documentElement.dir = t.dir;
+      document.title = t.title;
+    }
+
+    function renderLocale(locale) {
+      const t = I18N[locale];
+      setHtmlDirAndLang(locale);
+
+      setText('brandTitle', APP_CONFIG.appName);
+      setText('brandSubtitle', t.subtitle);
+      setText('eyebrow', t.eyebrow);
+      setText('heroTitle', t.heroTitle);
+      setText('heroBody', t.heroBody);
+      setText('toggleLocaleBtn', t.toggle);
+      setText('openChatBtn', t.openChat);
+      setText('refreshIdentityBtn', t.refreshIdentity);
+      setText('metricModeLabel', t.metricMode);
+      setText('metricNameLabel', t.metricName);
+      setText('metricEmailLabel', t.metricEmail);
+      setText('metricLocaleLabel', t.metricLocale);
+      setText('section1Title', t.section1Title);
+      setText('section1List1', t.section1List1);
+      setText('section1List2', t.section1List2);
+      setText('section1List3', t.section1List3);
+      setText('section1List4', t.section1List4);
+      setText('section2Title', t.section2Title);
+      setText('section2List1', t.section2List1);
+      setText('section2List2', t.section2List2);
+      setText('section2List3', t.section2List3);
+      setText('section2List4', t.section2List4);
+      setText('footerText', t.footer);
+
+      updateIdentityUI(CURRENT_USER);
+    }
+
+    function updateStatus(type, text) {
+      const el = document.getElementById('birdStatus');
+      if (!el) return;
+
+      el.classList.remove('warning', 'error');
+      if (type === 'warning') el.classList.add('warning');
+      if (type === 'error') el.classList.add('error');
+
+      el.textContent = text;
+    }
+
+    function updateIdentityUI(user) {
+      const t = I18N[user.locale] || I18N.ar;
+      setText('metricModeValue', user.mode === 'live' ? t.modeLive : t.modeDemo);
+      setText('metricNameValue', user.displayName || t.unknown);
+      setText('metricEmailValue', user.email || user.id || t.unknown);
+      setText('metricLocaleValue', user.locale.toUpperCase());
+      setText('identityBadge', user.displayName || t.unknown);
+    }
+
+    function toggleLocale() {
+      const next = (CURRENT_USER.locale === 'ar') ? 'en' : 'ar';
+      CURRENT_USER.locale = next;
+      saveLocale(next);
+      syncTemplateContext(CURRENT_USER);
+      renderLocale(next);
+    }
+
+    function buildIdentifyClaim(user) {
+      if (user.signedIdentity) {
+        return {
+          strategy: 'SignedIdentityClaims',
+          signedIdentity: user.signedIdentity
+        };
+      }
+
+      return {
+        strategy: 'Visitor',
+        identifier: {
+          key: 'emailaddress',
+          value: user.email
+        }
+      };
+    }
+
+    async function syncBirdContactAttributes(sdk, user) {
+      const attributes = {
+        displayName: user.displayName,
+        subscribedAppInbox: !!user.subscribedAppInbox,
+        locale: user.locale,
+        companyName: user.companyName,
+        externalUserId: user.id
+      };
+
+      if (typeof sdk.contact.putAttributes === 'function') {
+        await sdk.contact.putAttributes(attributes);
+        return;
+      }
+
+      if (typeof sdk.contact.updateCurrent === 'function') {
+        await sdk.contact.updateCurrent(attributes);
+      }
+    }
+
+    async function bootstrapBirdIdentity(sdk, conf) {
+      await sdk.init({ config: conf });
+
+      CURRENT_USER = resolveCurrentUser();
+      syncTemplateContext(CURRENT_USER);
+
+      const identifyClaim = buildIdentifyClaim(CURRENT_USER);
+
+      await sdk.contact.identify(identifyClaim, {
+        displayName: CURRENT_USER.displayName,
+        subscribedAppInbox: CURRENT_USER.subscribedAppInbox
+      });
+
+      await syncBirdContactAttributes(sdk, CURRENT_USER);
+      updateIdentityUI(CURRENT_USER);
+
+      const t = I18N[CURRENT_USER.locale] || I18N.ar;
+      updateStatus('success', t.statusReady);
+
+      console.info('[Bird] Contact identified:', {
+        mode: CURRENT_USER.mode,
+        displayName: CURRENT_USER.displayName,
+        identifier: CURRENT_USER.email
+      });
+    }
+
+    window.birdAsyncInit = async function (sdk, conf) {
+      if (window.__SMARTLIFE_BIRD_INITIALIZED__) return;
+      window.__SMARTLIFE_BIRD_INITIALIZED__ = true;
+
+      try {
+        await bootstrapBirdIdentity(sdk, conf);
+      } catch (error) {
+        console.error('[Bird] Initialization failed:', error);
+        const t = I18N[CURRENT_USER.locale] || I18N.ar;
+        updateStatus('error', t.statusError);
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+      CURRENT_USER = resolveCurrentUser();
+      renderLocale(CURRENT_USER.locale);
+
+      const toggleBtn = document.getElementById('toggleLocaleBtn');
+      const refreshBtn = document.getElementById('refreshIdentityBtn');
+      const openChatBtn = document.getElementById('openChatBtn');
+
+      toggleBtn?.addEventListener('click', toggleLocale);
+
+      refreshBtn?.addEventListener('click', function () {
+        CURRENT_USER = resolveCurrentUser();
+        syncTemplateContext(CURRENT_USER);
+        renderLocale(CURRENT_USER.locale);
+      });
+
+      openChatBtn?.addEventListener('click', function () {
+        try {
+          // Common embeddable open hooks; safe fallback if widget auto-renders only.
+          if (window.mbchat && typeof window.mbchat.open === 'function') {
+            window.mbchat.open();
+            return;
+          }
+
+          if (window.Bird && window.Bird.api && typeof window.Bird.api.openChat === 'function') {
+            window.Bird.api.openChat();
+            return;
+          }
+
+          console.info('[Bird] Chat open action is not exposed by the current widget build.');
+        } catch (error) {
+          console.warn('[Bird] Unable to open chat programmatically:', error);
+        }
+      });
+
+      const t = I18N[CURRENT_USER.locale] || I18N.ar;
+      updateStatus('warning', t.statusPending);
+    });
+  </script>
 </head>
 
-<body dir="ltr">
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand">
+        <div class="brand-badge">SL</div>
+        <div class="brand-copy">
+          <h1 id="brandTitle">Smart Life</h1>
+          <p id="brandSubtitle">Professional chat integration with stable customer identity</p>
+        </div>
+      </div>
 
-<header>
-  <h2>سمارت لايف</h2>
-  <button id="dirToggleBtn" class="dir-toggle">🌐 English</button>
-</header>
+      <div class="actions">
+        <button id="toggleLocaleBtn" class="btn" type="button">🌐 English</button>
+      </div>
+    </div>
+  </header>
 
-<main>
-  <h1>مرحبًا بك 👋</h1>
-  <p>الآن الاسم الظاهر في الشات هو ERP-mawared-XX</p>
-</main>
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <article class="panel hero-card">
+          <span id="eyebrow" class="eyebrow">Bird Chat • Stable Identity</span>
+          <h2 id="heroTitle">سجل محادثة أوضح، وهوية عميل أذكى، وتجربة شات أكثر ثباتًا.</h2>
+          <p id="heroBody">
+            هذه الصفحة تربط العميل بمعرّف ثابت بدل الزائر المؤقت، وتجهز البيئة لدعم السجل السابق، التخصيص، وتوسعة التكامل لاحقًا مع المستخدم الحقيقي بعد تسجيل الدخول.
+          </p>
 
-<!-- تحميل SDK مرة واحدة فقط -->
-<script
-  async
-  src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
-  data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62"
-></script>
+          <div class="hero-actions">
+            <button id="openChatBtn" class="btn btn-primary" type="button">افتح الشات</button>
+            <button id="refreshIdentityBtn" class="btn" type="button">تحديث الهوية</button>
+            <span id="identityBadge" class="code-badge">ERP-mawared-LOCAL</span>
+          </div>
+        </article>
 
-<script>
-const toggleBtn = document.getElementById("dirToggleBtn");
-const html = document.documentElement;
+        <aside class="panel stats-card">
+          <span id="birdStatus" class="status-pill warning">بانتظار تهيئة Bird</span>
 
-function updateDirection(dir){
-  html.setAttribute("dir", dir);
-  toggleBtn.textContent = dir === "rtl" ? "🌐 English" : "🌐 عربي";
-  localStorage.setItem("site_lang", dir === "rtl" ? "ar" : "en");
-}
+          <div class="metrics">
+            <div class="metric">
+              <div id="metricModeLabel" class="metric-label">وضع الهوية</div>
+              <div id="metricModeValue" class="metric-value">—</div>
+            </div>
 
-const savedLang = localStorage.getItem("site_lang") || "ar";
-updateDirection(savedLang === "en" ? "rtl" : "rtl");
+            <div class="metric">
+              <div id="metricNameLabel" class="metric-label">الاسم الظاهر</div>
+              <div id="metricNameValue" class="metric-value">—</div>
+            </div>
 
-toggleBtn.addEventListener("click", ()=>{
-  const currentDir = html.getAttribute("dir");
-  updateDirection(currentDir === "rtl" ? "rtl" : "rtl");
-});
-</script>
+            <div class="metric">
+              <div id="metricEmailLabel" class="metric-label">المعرّف المستخدم</div>
+              <div id="metricEmailValue" class="metric-value">—</div>
+            </div>
 
+            <div class="metric">
+              <div id="metricLocaleLabel" class="metric-label">اللغة الحالية</div>
+              <div id="metricLocaleValue" class="metric-value">—</div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="content">
+      <div class="container content-grid">
+        <article class="panel section-card">
+          <h3 id="section1Title">ما الذي يفعله هذا التكامل؟</h3>
+          <ul class="list">
+            <li id="section1List1">يربط العميل بهوية مستقرة بدل إنشاء زائر جديد كل مرة.</li>
+            <li id="section1List2">يجهز بيانات العميل لاستخدامها في الرسائل المخصصة وواجهة الشات.</li>
+            <li id="section1List3">يدعم الانتقال لاحقًا إلى Signed Identity من الباك إند بدون إعادة كتابة الصفحة.</li>
+            <li id="section1List4">يعرض حالة التكامل وهوية العميل المستخدمة حاليًا بشكل واضح.</li>
+          </ul>
+        </article>
+
+        <article class="panel section-card">
+          <h3 id="section2Title">مهم قبل الإطلاق</h3>
+          <ul class="list">
+            <li id="section2List1">إن لم تمرر مستخدمًا حقيقيًا من نظامكم، سيعمل الكود بوضع Demo محفوظ محليًا لنفس المتصفح فقط.</li>
+            <li id="section2List2">لضمان نفس السجل عبر الأجهزة، مرّر id أو email حقيقيًا من جلسة تسجيل الدخول.</li>
+            <li id="section2List3">الأفضل أمنيًا في الإنتاج: signedIdentity صادرة من الباك إند بعد التحقق من الجلسة.</li>
+            <li id="section2List4">لا تضع أي أسرار أو مفاتيح خاصة داخل الواجهة الأمامية.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="footer">
+      <div class="container">
+        <div class="panel">
+          <span id="footerText">جاهز للربط مع نظامكم الحالي. يكفي فقط حقن بيانات المستخدم الحقيقي قبل تحميل Bird script.</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Bird SDK -->
+  <script
+    async
+    src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
+    data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62"
+  ></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
