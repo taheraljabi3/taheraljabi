@@ -1,134 +1,192 @@
+```html
 <!doctype html>
 <html lang="en" dir="rtl">
+
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Smart Life Multi-Language Chat</title>
+<title>Smart Life Chat</title>
 
 <style>
+
 body{
-  margin:0;
-  font-family:system-ui,-apple-system,"Segoe UI","Cairo",sans-serif;
-  background:#0b1220;
-  color:#fff;
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
+margin:0;
+font-family:system-ui,-apple-system,"Segoe UI","Cairo",sans-serif;
+background:#0b1220;
+color:#fff;
+min-height:100vh;
+display:flex;
+flex-direction:column;
 }
 
 header{
-  padding:20px;
-  border-bottom:1px solid rgba(255,255,255,.1);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+padding:20px;
+border-bottom:1px solid rgba(255,255,255,.1);
+display:flex;
+justify-content:space-between;
+align-items:center;
 }
 
 main{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  padding:40px;
+flex:1;
+display:flex;
+flex-direction:column;
+justify-content:center;
+padding:40px;
 }
+
+/* زر اللغة */
 
 .dir-toggle{
-  padding:8px 14px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.2);
-  background:rgba(255,255,255,.08);
-  color:#fff;
-  cursor:pointer;
-  font-weight:600;
+padding:8px 14px;
+border-radius:999px;
+border:1px solid rgba(255,255,255,.2);
+background:rgba(255,255,255,.08);
+color:#fff;
+cursor:pointer;
+font-weight:600;
 }
 
-/* ===== زر فتح الشات ===== */
+/* زر الشات */
 
-.chat-button{
-  position:fixed;
-  bottom:25px;
-  right:25px;
-  background:linear-gradient(135deg,#4f46e5,#6366f1);
-  color:#fff;
-  border:none;
-  border-radius:999px;
-  padding:14px 22px;
-  font-size:15px;
-  font-weight:600;
-  box-shadow:0 10px 25px rgba(0,0,0,.3);
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  transition:all .25s ease;
+.chat-btn{
+
+position:fixed;
+
+bottom:25px;
+
+right:25px;
+
+background:linear-gradient(135deg,#6366f1,#4f46e5);
+
+color:white;
+
+border:none;
+
+padding:14px 22px;
+
+border-radius:999px;
+
+font-size:15px;
+
+font-weight:600;
+
+cursor:pointer;
+
+box-shadow:0 10px 25px rgba(0,0,0,.25);
+
+transition:all .25s ease;
+
+display:flex;
+
+align-items:center;
+
+gap:8px;
+
 }
 
-.chat-button:hover{
-  transform:translateY(-2px);
-  box-shadow:0 14px 30px rgba(0,0,0,.35);
+.chat-btn:hover{
+
+transform:translateY(-2px);
+
+box-shadow:0 15px 30px rgba(0,0,0,.35);
+
 }
 
-.chat-button.hidden{
-  display:none;
+.chat-btn.hidden{
+display:none;
 }
+
 </style>
 
 <script>
-/* ========= توليد رقم ثابت لكل جهاز ========= */
+
+/* ===== توليد رقم ERP ثابت لكل جهاز ===== */
 
 function getOrCreateErpId(){
-  const key = "sl_erp_identity";
-  let id = localStorage.getItem(key);
 
-  if(!id){
-    const num = Math.floor(Math.random()*99 + 1).toString().padStart(2,"0");
-    id = "ERP-mawared-" + num;
-    localStorage.setItem(key,id);
-  }
+const key = "sl_erp_identity";
 
-  return id;
+let id = localStorage.getItem(key);
+
+if(!id){
+
+const num = Math.floor(Math.random()*99 + 1).toString().padStart(2,"0");
+
+id = "ERP-mawared-" + num;
+
+localStorage.setItem(key,id);
+
+}
+
+return id;
+
 }
 
 function buildProfile(){
-  const erpId = getOrCreateErpId();
-  const email = erpId + "@smartlife.local";
 
-  return {
-    erpId,
-    email,
-    displayName: erpId,
-    subscribedAppInbox: true
-  };
+const erpId = getOrCreateErpId();
+
+const email = erpId + "@smartlife.local";
+
+return {
+
+erpId,
+
+email,
+
+displayName: erpId,
+
+subscribedAppInbox: true
+
+};
+
 }
 
-/* ========= Identify قبل تشغيل الودجت ========= */
+/* ===== تعريف المستخدم قبل تشغيل الشات ===== */
 
 window.birdAsyncInit = async function (sdk, conf) {
 
-  await sdk.init({ config: conf });
+await sdk.init({ config: conf });
 
-  const p = buildProfile();
+const p = buildProfile();
 
-  await sdk.contact.identify(
-    {
-      strategy: "Visitor",
-      identifier: { key: "emailaddress", value: p.email }
-    },
-    {
-      displayName: p.displayName,
-      subscribedAppInbox: p.subscribedAppInbox
-    }
-  );
+await sdk.contact.identify(
 
-  if (sdk.contact.updateCurrent) {
-    await sdk.contact.updateCurrent({
-      displayName: p.displayName,
-      subscribedAppInbox: p.subscribedAppInbox
-    });
-  }
+{
 
-  console.log("Bird Identified as:", p.displayName);
+strategy: "Visitor",
+
+identifier: { key: "emailaddress", value: p.email }
+
+},
+
+{
+
+displayName: p.displayName,
+
+subscribedAppInbox: p.subscribedAppInbox
+
+}
+
+);
+
+if (sdk.contact.updateCurrent) {
+
+await sdk.contact.updateCurrent({
+
+displayName: p.displayName,
+
+subscribedAppInbox: p.subscribedAppInbox
+
+});
+
+}
+
+console.log("Bird Identified as:", p.displayName);
+
 };
+
 </script>
 
 </head>
@@ -136,20 +194,26 @@ window.birdAsyncInit = async function (sdk, conf) {
 <body>
 
 <header>
-  <h2>سمارت لايف</h2>
-  <button id="dirToggleBtn" class="dir-toggle">🌐 English</button>
+
+<h2>سمارت لايف</h2>
+
+<button id="dirToggleBtn" class="dir-toggle">🌐 English</button>
+
 </header>
 
 <main>
-  <h1>مرحبًا بك 👋</h1>
-  <p>الآن الاسم الظاهر في الشات هو ERP-mawared-XX</p>
+
+<h1>مرحبًا بك 👋</h1>
+
+<p>الاسم الظاهر في الشات: ERP-mawared-XX</p>
+
 </main>
 
 <!-- زر فتح الشات -->
 
 <button
-id="openChat"
-class="chat-button"
+id="chatButton"
+class="chat-btn"
 data-mbchat-trigger="e745248e-02fc-4580-83ba-7224c55a7327"
 >
 💬 تواصل معنا
@@ -167,24 +231,32 @@ data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2e
 
 <script>
 
-const chatBtn = document.getElementById("openChat");
+/* ===== إخفاء الزر عند فتح الشات ===== */
 
-/* عند الضغط على الزر يختفي */
+const btn = document.getElementById("chatButton");
 
-chatBtn.addEventListener("click",()=>{
-  chatBtn.classList.add("hidden");
+btn.addEventListener("click",()=>{
+
+btn.classList.add("hidden");
+
 });
 
-/* مراقبة إغلاق الwidget */
+/* ===== إظهار الزر عند إغلاق الشات ===== */
 
 const observer = new MutationObserver(()=>{
-  const widget = document.querySelector("mb-chat-widget");
 
-  if(widget){
-    widget.addEventListener("close",()=>{
-      chatBtn.classList.remove("hidden");
-    });
-  }
+const widget = document.querySelector("mb-chat-widget");
+
+if(widget){
+
+widget.addEventListener("close",()=>{
+
+btn.classList.remove("hidden");
+
+});
+
+}
+
 });
 
 observer.observe(document.body,{childList:true,subtree:true});
@@ -193,3 +265,4 @@ observer.observe(document.body,{childList:true,subtree:true});
 
 </body>
 </html>
+```
