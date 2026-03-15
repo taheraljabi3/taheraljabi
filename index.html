@@ -15,6 +15,7 @@ body{
   display:flex;
   flex-direction:column;
 }
+
 header{
   padding:20px;
   border-bottom:1px solid rgba(255,255,255,.1);
@@ -22,6 +23,7 @@ header{
   justify-content:space-between;
   align-items:center;
 }
+
 main{
   flex:1;
   display:flex;
@@ -29,6 +31,7 @@ main{
   justify-content:center;
   padding:40px;
 }
+
 .dir-toggle{
   padding:8px 14px;
   border-radius:999px;
@@ -38,16 +41,46 @@ main{
   cursor:pointer;
   font-weight:600;
 }
+
+/* ===== زر فتح الشات ===== */
+
+.chat-button{
+  position:fixed;
+  bottom:25px;
+  right:25px;
+  background:linear-gradient(135deg,#4f46e5,#6366f1);
+  color:#fff;
+  border:none;
+  border-radius:999px;
+  padding:14px 22px;
+  font-size:15px;
+  font-weight:600;
+  box-shadow:0 10px 25px rgba(0,0,0,.3);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  transition:all .25s ease;
+}
+
+.chat-button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 14px 30px rgba(0,0,0,.35);
+}
+
+.chat-button.hidden{
+  display:none;
+}
 </style>
 
 <script>
 /* ========= توليد رقم ثابت لكل جهاز ========= */
+
 function getOrCreateErpId(){
   const key = "sl_erp_identity";
   let id = localStorage.getItem(key);
 
   if(!id){
-    // رقم عشوائي من 01 إلى 99
     const num = Math.floor(Math.random()*99 + 1).toString().padStart(2,"0");
     id = "ERP-mawared-" + num;
     localStorage.setItem(key,id);
@@ -69,6 +102,7 @@ function buildProfile(){
 }
 
 /* ========= Identify قبل تشغيل الودجت ========= */
+
 window.birdAsyncInit = async function (sdk, conf) {
 
   await sdk.init({ config: conf });
@@ -99,7 +133,7 @@ window.birdAsyncInit = async function (sdk, conf) {
 
 </head>
 
-<body dir="ltr">
+<body>
 
 <header>
   <h2>سمارت لايف</h2>
@@ -111,39 +145,51 @@ window.birdAsyncInit = async function (sdk, conf) {
   <p>الآن الاسم الظاهر في الشات هو ERP-mawared-XX</p>
 </main>
 
-<!-- تحميل SDK مرة واحدة فقط -->
+<!-- زر فتح الشات -->
+
+<button
+id="openChat"
+class="chat-button"
+data-mbchat-trigger="e745248e-02fc-4580-83ba-7224c55a7327"
+>
+💬 تواصل معنا
+</button>
+
+
+<!-- تحميل SDK -->
+
 <script
-  async
-  src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
-  data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62"
+async
+src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
+data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62"
 ></script>
 
+
 <script>
-const toggleBtn = document.getElementById("dirToggleBtn");
-const html = document.documentElement;
 
-function updateDirection(dir){
-  html.setAttribute("dir", dir);
-  toggleBtn.textContent = dir === "rtl" ? "🌐 English" : "🌐 عربي";
-  localStorage.setItem("site_lang", dir === "rtl" ? "ar" : "en");
-}
+const chatBtn = document.getElementById("openChat");
 
-const savedLang = localStorage.getItem("site_lang") || "ar";
-updateDirection(savedLang === "en" ? "rtl" : "rtl");
+/* عند الضغط على الزر يختفي */
 
-toggleBtn.addEventListener("click", ()=>{
-  const currentDir = html.getAttribute("dir");
-  updateDirection(currentDir === "rtl" ? "rtl" : "rtl");
+chatBtn.addEventListener("click",()=>{
+  chatBtn.classList.add("hidden");
 });
+
+/* مراقبة إغلاق الwidget */
+
+const observer = new MutationObserver(()=>{
+  const widget = document.querySelector("mb-chat-widget");
+
+  if(widget){
+    widget.addEventListener("close",()=>{
+      chatBtn.classList.remove("hidden");
+    });
+  }
+});
+
+observer.observe(document.body,{childList:true,subtree:true});
+
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
