@@ -1,60 +1,149 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="rtl">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Bird RTL Test</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Smart Life Multi-Language Chat</title>
 
 <style>
 body{
-  font-family: Arial, sans-serif;
   margin:0;
-  direction: rtl;
+  font-family:system-ui,-apple-system,"Segoe UI","Cairo",sans-serif;
+  background:#0b1220;
+  color:#fff;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
 }
-
-/* مجرد صندوق اختبار */
-.test-box{
+header{
   padding:20px;
-  border:2px dashed #ccc;
-  margin:20px;
+  border-bottom:1px solid rgba(255,255,255,.1);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+main{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:40px;
+}
+.dir-toggle{
+  padding:8px 14px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  cursor:pointer;
+  font-weight:600;
 }
 </style>
 
-</head>
-
-<body>
-
-<div class="test-box">
-  صفحة اختبار للـ Bird Widget
-</div>
-<button data-mbchat-trigger="e745248e-02fc-4580-83ba-7224c55a7327">
-  Contact us
-</button>
 <script>
-/* نجبر إعادة حساب الاتجاه بعد تحميل الصفحة */
-function forceWidgetReflow(){
-  const html = document.documentElement;
+/* ========= توليد رقم ثابت لكل جهاز ========= */
+function getOrCreateErpId(){
+  const key = "sl_erp_identity";
+  let id = localStorage.getItem(key);
 
-  const current = html.getAttribute("dir");
+  if(!id){
+    // رقم عشوائي من 01 إلى 99
+    const num = Math.floor(Math.random()*99 + 1).toString().padStart(2,"0");
+    id = "ERP-mawared-" + num;
+    localStorage.setItem(key,id);
+  }
 
-  html.setAttribute("dir","ltr");
-
-  requestAnimationFrame(()=>{
-    html.setAttribute("dir",current);
-  });
+  return id;
 }
 
-/* تنفيذ بعد تحميل widget */
-window.addEventListener("load",()=>{
-  setTimeout(forceWidgetReflow,500);
-});
+function buildProfile(){
+  const erpId = getOrCreateErpId();
+  const email = erpId + "@smartlife.local";
+
+  return {
+    erpId,
+    email,
+    displayName: erpId,
+    subscribedAppInbox: true
+  };
+}
+
+/* ========= Identify قبل تشغيل الودجت ========= */
+window.birdAsyncInit = async function (sdk, conf) {
+
+  await sdk.init({ config: conf });
+
+  const p = buildProfile();
+
+  await sdk.contact.identify(
+    {
+      strategy: "Visitor",
+      identifier: { key: "emailaddress", value: p.email }
+    },
+    {
+      displayName: p.displayName,
+      subscribedAppInbox: p.subscribedAppInbox
+    }
+  );
+
+  if (sdk.contact.updateCurrent) {
+    await sdk.contact.updateCurrent({
+      displayName: p.displayName,
+      subscribedAppInbox: p.subscribedAppInbox
+    });
+  }
+
+  console.log("Bird Identified as:", p.displayName);
+};
 </script>
 
+</head>
+
+<body dir="ltr">
+
+<header>
+  <h2>سمارت لايف</h2>
+  <button id="dirToggleBtn" class="dir-toggle">🌐 English</button>
+</header>
+
+<main>
+  <h1>مرحبًا بك 👋</h1>
+  <p>الآن الاسم الظاهر في الشات هو ERP-mawared-XX</p>
+</main>
+
+<!-- تحميل SDK مرة واحدة فقط -->
 <script
-async
-src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
-data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62">
+  async
+  src="https://embeddables.p.mbirdcdn.net/sdk/v0/bird-sdk.js"
+  data-config-url="https://api.bird.com/workspaces/a00e85cb-1438-4c76-b1c7-a7e4f2ec3768/applications/7d702097-cc09-4d08-a20b-da3cbe9a1b61/signature/2024-06-17T17-12-51_796d7d7c62"
+></script>
+
+<script>
+const toggleBtn = document.getElementById("dirToggleBtn");
+const html = document.documentElement;
+
+function updateDirection(dir){
+  html.setAttribute("dir", dir);
+  toggleBtn.textContent = dir === "rtl" ? "🌐 English" : "🌐 عربي";
+  localStorage.setItem("site_lang", dir === "rtl" ? "ar" : "en");
+}
+
+const savedLang = localStorage.getItem("site_lang") || "ar";
+updateDirection(savedLang === "en" ? "rtl" : "rtl");
+
+toggleBtn.addEventListener("click", ()=>{
+  const currentDir = html.getAttribute("dir");
+  updateDirection(currentDir === "rtl" ? "rtl" : "rtl");
+});
 </script>
 
 </body>
 </html>
+
+
+
+
+
+
+
+
